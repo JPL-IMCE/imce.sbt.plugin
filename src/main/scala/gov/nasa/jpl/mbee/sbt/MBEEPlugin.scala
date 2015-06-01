@@ -10,8 +10,6 @@ import scala.language.postfixOps
 
 object MBEEPlugin extends AutoPlugin {
 
-  override def trigger = allRequirements
-
   /**
    * Values intended for the organization of a packaged artifact.
    */

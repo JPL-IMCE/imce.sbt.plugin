@@ -8,8 +8,6 @@ object MBEEGitPlugin extends AutoPlugin {
 
   override def requires = MBEEPlugin && GitVersioning && GitBranchPrompt
 
-  override def trigger = allRequirements
-
   object autoImport {
 
   }
