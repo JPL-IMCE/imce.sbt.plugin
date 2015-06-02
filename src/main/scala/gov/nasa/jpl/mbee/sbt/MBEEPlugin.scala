@@ -46,6 +46,8 @@ object MBEEPlugin extends AutoPlugin {
 
   import autoImport._
 
+  override def buildSettings: Seq[Setting[_]] =
+    Seq()
 
   override def projectSettings: Seq[Setting[_]] =
     mbeeDefaultProjectSettings ++
@@ -64,6 +66,10 @@ object MBEEPlugin extends AutoPlugin {
       organizationHomepage := mbeeOrganizationInfo.value.url,
 
       scalaVersion := "2.11.6",
+
+      scalacOptions ++= Seq("-target:jvm-1.7", "-Xlint", "-deprecation"),
+
+      javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
 
       mbeeReleaseVersionPrefix := "1800-02",
 

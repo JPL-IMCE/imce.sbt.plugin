@@ -18,6 +18,9 @@ object MBEEGitPlugin extends AutoPlugin {
 
   import autoImport._
 
+  override def buildSettings: Seq[Setting[_]] =
+    Seq()
+
   override def projectSettings: Seq[Setting[_]] =
       mbeeGitVersioningProjectSettings
 

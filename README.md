@@ -23,6 +23,14 @@ lazy val root = (project in file(".")).dependsOn(mbeePlugin)
 lazy val mbeePlugin = uri("github://git@github.jpl.nasa.gov:secae/sbt.mbee.plugin.git")
 ```
 
+## Related work
+
+The JPL MBEE SBT Plugin is an SBT Archetype AutoPlugin in the sense of Mark Schaake's concept of
+[SBT Archetype AutoPlugin](http://www.slideshare.net/MarkSchaake/archetype-autoplugins).
+
+The motivations for developing the JPL MBEE SBT Plugin are the same as Mark Schaake's.
+The techniques involved are similar.
+
 ## Ant, Maven, Gradle, SBT: A comparison
 
 See [SBT in Action](http://www.manning.com/suereth2/SBTinA_meap_ch1.pdf "Chapter 1")
