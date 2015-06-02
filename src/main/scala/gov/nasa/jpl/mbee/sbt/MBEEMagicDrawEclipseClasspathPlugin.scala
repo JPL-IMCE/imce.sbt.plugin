@@ -10,6 +10,10 @@ import scala.collection.JavaConversions._
 
 object MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
 
+  override def trigger = noTrigger
+
+  override def requires = MBEEPlugin
+
   object autoImport {
 
     lazy val mdShowMagicDrawEclipseClasspath = taskKey[Unit]("Shows MagicDraw Eclipse Classpath")

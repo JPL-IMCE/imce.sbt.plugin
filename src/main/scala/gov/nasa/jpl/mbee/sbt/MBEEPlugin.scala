@@ -5,23 +5,33 @@ import java.util.{Calendar, Locale}
 import com.banno.license.Plugin.LicenseKeys._
 import sbt.Keys._
 import sbt._
+import xerial.sbt.Pack._
 
 import scala.language.postfixOps
 
 object MBEEPlugin extends AutoPlugin {
+
+  override def trigger = allRequirements
+
+  case class OrganizationInfo(groupId: String, name: String, url: Option[URL] = None)
 
   /**
    * Values intended for the organization of a packaged artifact.
    */
   object Organizations {
 
-    val imce = "gov.nasa.jpl.mbee.imce"
-    val omf = "gov.nasa.jpl.mbee.omf"
-    val oti = "gov.nasa.jpl.mbee.omg.oti"
+    val imce = OrganizationInfo("gov.nasa.jpl.mbee.imce", "JPL IMCE Project", Some(new URL("http://imce.jpl.nasa.gov")))
+    val omf = OrganizationInfo("gov.nasa.jpl.mbee.omf", "JPL IMCE Ontological Modeling Framework Project", Some(new URL("http://imce.jpl.nasa.gov")))
+    val oti = OrganizationInfo("gov.nasa.jpl.mbee.omg.oti", "JPL/OMG Tool-Neutral (OTI) Project", Some(new URL("http://svn.omg.org/repos/TIWG")))
+    val secae = OrganizationInfo("gov.nasa.jpl.mbee.secae", "JPL SECAE", Some(new URL("http://mbse.jpl.nasa.gov")))
 
   }
 
   object autoImport {
+
+    val mbeeOrganizationInfo = settingKey[OrganizationInfo](
+    """The characteristics of the MBEE organization (artifact groupID, organization name, and optionally, URL)"""
+    )
 
     val mbeeReleaseVersionPrefix = settingKey[String](
       """The version prefix for the next release of the JPL MBEE toolkit (e.g., "1800.02");
@@ -32,7 +42,6 @@ object MBEEPlugin extends AutoPlugin {
       """The license copyright year (e.g., "2014", "2015") or year range (e.g., "2011-2014")"""
       )
 
-
   }
 
   import autoImport._
@@ -41,13 +50,20 @@ object MBEEPlugin extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] =
     mbeeDefaultProjectSettings ++
       mbeeLicenseSettings ++
-      mbeeCommonProjectDirectoriesSettings
+      mbeeCommonProjectDirectoriesSettings ++
+      mbeeCommonProjectMavenSettings
 
   /**
    * SBT settings that can projects are likely to override.
    */
   def mbeeDefaultProjectSettings: Seq[Setting[_]] =
     Seq(
+
+      organization := mbeeOrganizationInfo.value.groupId,
+      organizationName := mbeeOrganizationInfo.value.name,
+      organizationHomepage := mbeeOrganizationInfo.value.url,
+
+      scalaVersion := "2.11.6",
 
       mbeeReleaseVersionPrefix := "1800-02",
 
@@ -61,9 +77,7 @@ object MBEEPlugin extends AutoPlugin {
     Seq(
       sourceDirectories in Compile ~= { _.filter(_.exists) },
       sourceDirectories in Test ~= { _.filter(_.exists) },
-      unmanagedSourceDirectories in Compile ~= {
-        _.filter(_.exists)
-      },
+      unmanagedSourceDirectories in Compile ~= { _.filter(_.exists) },
       unmanagedSourceDirectories in Test ~= { _.filter(_.exists) },
       unmanagedResourceDirectories in Compile ~= { _.filter(_.exists) },
       unmanagedResourceDirectories in Test ~= { _.filter(_.exists) }
@@ -144,5 +158,68 @@ object MBEEPlugin extends AutoPlugin {
 
 
     )
+
+  def mbeePackageLibraryDependenciesSettings: Seq[Setting[_]] =
+    packSettings ++
+      publishPackZipArchive ++
+      Seq(
+        packExpandedClasspath := false,
+        packLibJars := Seq.empty,
+        packExcludeArtifactTypes := Seq("src", "doc"),
+        (mappings in pack) := { extraPackFun.value }
+      )
+
+  def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
+    mbeePackageLibraryDependenciesSettings ++
+      Seq(
+        // disable publishing artifacts produced by `package`, `packageDoc`, `packageSrc`
+        // in all configurations (Compile, Test, ...)
+        publishArtifact := false
+      )
+
+  val extraPackFun: Def.Initialize[Task[Seq[(File, String)]]] = Def.task[Seq[(File, String)]] {
+    def getFileIfExists(f: File, where: String): Option[(File, String)] = if (f.exists()) Some((f, s"$where/${f.getName}")) else None
+
+    val ivyHome: File = Classpaths.bootIvyHome(appConfiguration.value) getOrElse sys.error("Launcher did not provide the Ivy home directory.")
+
+    // this is a workaround; how should it be done properly in sbt?
+
+    // goal: process the list of library dependencies of the project.
+    // that is, we should be able to tell the classification of each library dependency module as shown in sbt:
+    //
+    // > show libraryDependencies
+    // [info] List(
+    //    org.scala-lang:scala-library:2.11.2,
+    //    org.scala-lang:scala-library:2.11.2:provided,
+    //    org.scala-lang:scala-compiler:2.11.2:provided,
+    //    org.scala-lang:scala-reflect:2.11.2:provided,
+    //    com.typesafe:config:1.2.1:compile,
+    //    org.scalacheck:scalacheck:1.11.5:compile,
+    //    org.scalatest:scalatest:2.2.1:compile,
+    //    org.specs2:specs2:2.4:compile,
+    //    org.parboiled:parboiled:2.0.0:compile)
+
+    // but... libraryDependencies is a SettingKey (see ld below)
+    // I haven't figured out how to get the sequence of modules from it.
+    val ld: SettingKey[Seq[ModuleID]] = libraryDependencies
+
+    // workaround... I found this API that I managed to call...
+    // this overrides the classification of all jars -- i.e., it is as if all library dependencies had been classified as "compile".
+
+    // for now... it's a reasonable approaximation of the goal...
+    val managed: Classpath = Classpaths.managedJars(Compile, classpathTypes.value, update.value)
+    val result: Seq[(File, String)] = managed flatMap { af: Attributed[File] =>
+      af.metadata.entries.toList flatMap { e: AttributeEntry[_] =>
+        e.value match {
+          case null => Seq()
+          case m: ModuleID => Seq() ++
+            getFileIfExists(new File(ivyHome, s"cache/${m.organization}/${m.name}/srcs/${m.name}-${m.revision}-sources.jar"), "lib.srcs") ++
+            getFileIfExists(new File(ivyHome, s"cache/${m.organization}/${m.name}/docs/${m.name}-${m.revision}-javadoc.jar"), "lib.javadoc")
+          case _ => Seq()
+        }
+      }
+    }
+    result
+  }
 
 }
