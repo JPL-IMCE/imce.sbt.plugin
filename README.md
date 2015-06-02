@@ -6,6 +6,23 @@ artifacts (typically sources, including configuration-managed and generated)
 with support for resolving, fetching and publishing artifacts (packaged or unpackaged) 
 from/to artifact repositories (local or remote).
 
+## Usage
+
+The `java.net.URI` API does not currently support the GIT URI protocol.
+To work around this, add a URI remapping in the user's global GIT configuration.
+
+At the terminal:
+
+```git config --global url."git@".insteadOf github://git@```
+
+With the above redirection, add the following to an SBT `project/plugins.sbt` file:
+
+```
+lazy val root = (project in file(".")).dependsOn(mbeePlugin)
+
+lazy val mbeePlugin = uri("github://git@github.jpl.nasa.gov:secae/sbt.mbee.plugin.git")
+```
+
 ## Ant, Maven, Gradle, SBT: A comparison
 
 See [SBT in Action](http://www.manning.com/suereth2/SBTinA_meap_ch1.pdf "Chapter 1")
