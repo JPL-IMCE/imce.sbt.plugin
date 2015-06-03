@@ -178,9 +178,31 @@ object MBEEPlugin extends AutoPlugin {
   def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
     mbeePackageLibraryDependenciesSettings ++
       Seq(
-        // disable publishing artifacts produced by `package`, `packageDoc`, `packageSrc`
-        // in all configurations (Compile, Test, ...)
-        publishArtifact := false
+
+        // http://www.scala-sbt.org/0.13.5/docs/Detailed-Topics/Artifacts.html
+        // to disable publishing artifacts produced by `package`, `packageDoc`, `packageSrc`
+        // in all configurations (Compile, Test, ...), it would seem sensible to do:
+        // publishArtifact := false
+        // However, this also turns off publishing maven POM metadata but surprisingly *not* Ivy metadata!
+        // So instead we revert to selectively turning off publishing.
+
+        // disable publishing the main jar produced by `package`
+        publishArtifact in (Compile, packageBin) := false,
+
+        // disable publishing the main API jar
+        publishArtifact in (Compile, packageDoc) := false,
+
+        // disable publishing the main sources jar
+        publishArtifact in (Compile, packageSrc) := false,
+
+        // disable publishing the jar produced by `test:package`
+        publishArtifact in (Test, packageBin) := false,
+
+        // disable publishing the test API jar
+        publishArtifact in (Test, packageDoc) := false,
+
+        // disable publishing the test sources jar
+        publishArtifact in (Test, packageSrc) := false
       )
 
   val extraPackFun: Def.Initialize[Task[Seq[(File, String)]]] = Def.task[Seq[(File, String)]] {
