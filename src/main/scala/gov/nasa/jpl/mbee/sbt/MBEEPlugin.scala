@@ -246,7 +246,7 @@ object MBEEPlugin extends AutoPlugin {
         // that is, make the packArchive file correspond to the file AetherPlugin expects for `artifact`
         packArchivePrefix := "scala-"+scalaBinaryVersion.value+"/"+name.value+"_"+scalaBinaryVersion.value,
         packagedArtifacts += artifact.value -> packArchiveZip.value
-      )
+      ) ++ AetherPlugin.autoImport.overridePublishSettings
 
   val extraPackFun: Def.Initialize[Task[Seq[(File, String)]]] = Def.task[Seq[(File, String)]] {
     def getFileIfExists(f: File, where: String): Option[(File, String)] = if (f.exists()) Some((f, s"$where/${f.getName}")) else None
