@@ -242,6 +242,9 @@ object MBEEPlugin extends AutoPlugin {
         // disable publishing the test sources jar
         publishArtifact in (Test, packageSrc) := false,
 
+        // include repositories used in module configurations into the POM repositories section
+        pomAllRepositories := true,
+
         // This is a workaround use both AetherPlugin 0.14 & sbt-pack 0.6.12
         // AetherPlugin assumes all artifacts are "jar".
         // sbt-pack produces Artifact(name.value, "arch", "zip"), which works with Ivy repos but doesn't with Maven repos.
