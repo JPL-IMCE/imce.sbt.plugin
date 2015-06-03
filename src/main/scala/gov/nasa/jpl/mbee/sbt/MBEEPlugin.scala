@@ -53,7 +53,7 @@ object MBEEPlugin extends AutoPlugin {
     mbeeDefaultProjectSettings ++
       mbeeLicenseSettings ++
       mbeeCommonProjectDirectoriesSettings ++
-      mbeeCommonProjectMavenSettings
+      mbeeCommonProjectIvySettings
 
   /**
    * SBT settings that can projects are likely to override.
@@ -91,6 +91,14 @@ object MBEEPlugin extends AutoPlugin {
 
   /**
    * SBT settings for Maven packaged artifact repository
+   *
+   * Somehow this does not quite work for publishing & resolving.
+   * For example, publishing:
+   *
+   * file:/Users/rouquett/m2/jpl-mbee/gov/nasa/jpl/mbee/imce/jpl-mbee-common-scala-libraries_core_2.11/1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT/jpl-mbee-common-scala-libraries_core_2.11-1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT.pom
+   *
+   * resolving:
+   * file:/Users/rouquett/m2/jpl-mbee/gov/nasa/jpl/mbee/imce/jpl-mbee-common-scala-libraries_core_2.11/1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT/jpl-mbee-common-scala-libraries_core_2.11-1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT.arch
    */
   def mbeeCommonProjectMavenSettings: Seq[Setting[_]] =
     (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
@@ -111,6 +119,25 @@ object MBEEPlugin extends AutoPlugin {
             publishTo := Some(repo),
             resolvers += repo)
         }
+      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
+    }
+
+  def mbeeCommonProjectIvySettings: Seq[Setting[_]] =
+    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+      case (Some(dir), _) =>
+        val r = Resolver.file("JPL MBEE", new File(dir))(Resolver.ivyStylePatterns)
+        Seq(
+          publishMavenStyle := false,
+          publishTo := Some(r),
+          resolvers += r
+        )
+      case (None, Some(url)) =>
+        val r = Resolver.url("JPL MBEE", new URL(url))(Resolver.ivyStylePatterns)
+        Seq(
+          publishMavenStyle := false,
+          publishTo := Some(r),
+          resolvers += r
+        )
       case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
     }
 
