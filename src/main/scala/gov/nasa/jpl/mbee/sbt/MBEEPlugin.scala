@@ -2,12 +2,8 @@ package gov.nasa.jpl.mbee.sbt
 
 import java.util.{Calendar, Locale}
 
-import aether.AetherPlugin
-import com.banno.license.Plugin.LicenseKeys._
-import com.timushev.sbt.updates._
 import sbt.Keys._
 import sbt._
-import xerial.sbt.Pack._
 
 import scala.language.postfixOps
 
@@ -15,7 +11,9 @@ object MBEEPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def requires = AetherPlugin && UpdatesPlugin
+  override def requires =
+    aether.AetherPlugin &&
+      com.timushev.sbt.updates.UpdatesPlugin
 
   /**
    *
@@ -63,7 +61,14 @@ object MBEEPlugin extends AutoPlugin {
     mbeeDefaultProjectSettings ++
       mbeeLicenseSettings ++
       mbeeCommonProjectDirectoriesSettings ++
-      mbeeCommonProjectMavenSettings
+      mbeeCommonProjectMavenSettings ++
+      mbeeDependencyGraphSettings
+
+  def mbeeDependencyGraphSettings: Seq[Setting[_]] =
+    net.virtualvoid.sbt.graph.Plugin.graphSettings ++
+    Seq(
+      publish <<= net.virtualvoid.sbt.graph.Plugin.dependencyTree
+    )
 
   /**
    * SBT settings that can projects are likely to override.
@@ -153,9 +158,9 @@ object MBEEPlugin extends AutoPlugin {
   def mbeeLicenseSettings: Seq[Setting[_]] = com.banno.license.Plugin.licenseSettings ++
     Seq(
 
-      removeExistingHeaderBlock := true,
+      com.banno.license.Plugin.LicenseKeys.removeExistingHeaderBlock := true,
 
-      license := s"""|
+      com.banno.license.Plugin.LicenseKeys.license := s"""|
                    | License Terms
                    |
                    | Copyright (c) ${mbeeLicenseYearOrRange.value}, California Institute of Technology ("Caltech").
@@ -198,13 +203,13 @@ object MBEEPlugin extends AutoPlugin {
     )
 
   def mbeePackageLibraryDependenciesSettings: Seq[Setting[_]] =
-    packSettings ++
-      publishPackZipArchive ++
+    xerial.sbt.Pack.packSettings ++
+      xerial.sbt.Pack.publishPackZipArchive ++
       Seq(
-        packExpandedClasspath := false,
-        packLibJars := Seq.empty,
-        packExcludeArtifactTypes := Seq("src", "doc"),
-        (mappings in pack) := { extraPackFun.value }
+        xerial.sbt.Pack.packExpandedClasspath := false,
+        xerial.sbt.Pack.packLibJars := Seq.empty,
+        xerial.sbt.Pack.packExcludeArtifactTypes := Seq("src", "doc"),
+        (mappings in xerial.sbt.Pack.pack) := { extraPackFun.value }
       )
 
   def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
@@ -244,9 +249,9 @@ object MBEEPlugin extends AutoPlugin {
 
         // normally, we would use `publishPackZipArchive` but we have to tweak the settings to work with AetherPlugin,
         // that is, make the packArchive file correspond to the file AetherPlugin expects for `artifact`
-        packArchivePrefix := "scala-"+scalaBinaryVersion.value+"/"+name.value+"_"+scalaBinaryVersion.value,
-        packagedArtifacts += artifact.value -> packArchiveZip.value
-      ) ++ AetherPlugin.autoImport.overridePublishSettings
+        xerial.sbt.Pack.packArchivePrefix := "scala-"+scalaBinaryVersion.value+"/"+name.value+"_"+scalaBinaryVersion.value,
+        packagedArtifacts += artifact.value -> xerial.sbt.Pack.packArchiveZip.value
+      ) ++ aether.AetherPlugin.autoImport.overridePublishSettings
 
   val extraPackFun: Def.Initialize[Task[Seq[(File, String)]]] = Def.task[Seq[(File, String)]] {
     def getFileIfExists(f: File, where: String): Option[(File, String)] = if (f.exists()) Some((f, s"$where/${f.getName}")) else None
