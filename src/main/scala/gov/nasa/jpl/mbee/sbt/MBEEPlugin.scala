@@ -67,7 +67,7 @@ object MBEEPlugin extends AutoPlugin {
   def mbeeDependencyGraphSettings: Seq[Setting[_]] =
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++
     Seq(
-      publish <<= net.virtualvoid.sbt.graph.Plugin.dependencyTree
+      publish <<= publish dependsOn net.virtualvoid.sbt.graph.Plugin.dependencyTree
     )
 
   /**
