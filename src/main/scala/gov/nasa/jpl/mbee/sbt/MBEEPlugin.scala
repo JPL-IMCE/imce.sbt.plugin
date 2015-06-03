@@ -65,6 +65,9 @@ object MBEEPlugin extends AutoPlugin {
       organizationName := mbeeOrganizationInfo.value.name,
       organizationHomepage := mbeeOrganizationInfo.value.url,
 
+      // disable automatic dependency on the Scala library
+      autoScalaLibrary := false,
+
       scalaVersion := "2.11.6",
 
       scalacOptions ++= Seq("-target:jvm-1.7", "-Xlint", "-deprecation"),
