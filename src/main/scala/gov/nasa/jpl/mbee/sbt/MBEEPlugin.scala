@@ -64,11 +64,12 @@ object MBEEPlugin extends AutoPlugin {
       mbeeCommonProjectMavenSettings ++
       mbeeDependencyGraphSettings
 
+  /**
+   * TODO: make `publish` have a dependency on `dependencyTree`
+   * so that when doing just `publish`, we'd automatically get the `dependencyTree` as well.
+   */
   def mbeeDependencyGraphSettings: Seq[Setting[_]] =
-    net.virtualvoid.sbt.graph.Plugin.graphSettings ++
-    Seq(
-      publish <<= publish dependsOn net.virtualvoid.sbt.graph.Plugin.dependencyTree
-    )
+    net.virtualvoid.sbt.graph.Plugin.graphSettings
 
   /**
    * SBT settings that can projects are likely to override.
