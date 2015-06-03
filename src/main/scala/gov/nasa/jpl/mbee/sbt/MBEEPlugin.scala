@@ -2,7 +2,9 @@ package gov.nasa.jpl.mbee.sbt
 
 import java.util.{Calendar, Locale}
 
+import aether.AetherPlugin
 import com.banno.license.Plugin.LicenseKeys._
+import com.timushev.sbt.updates._
 import sbt.Keys._
 import sbt._
 import xerial.sbt.Pack._
@@ -13,6 +15,14 @@ object MBEEPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
+  override def requires = AetherPlugin && UpdatesPlugin
+
+  /**
+   *
+   * @param groupId Must be all lowercase! Can have "."
+   * @param name For human consumption
+   * @param url
+   */
   case class OrganizationInfo(groupId: String, name: String, url: Option[URL] = None)
 
   /**
@@ -53,7 +63,7 @@ object MBEEPlugin extends AutoPlugin {
     mbeeDefaultProjectSettings ++
       mbeeLicenseSettings ++
       mbeeCommonProjectDirectoriesSettings ++
-      mbeeCommonProjectIvySettings
+      mbeeCommonProjectMavenSettings
 
   /**
    * SBT settings that can projects are likely to override.
@@ -92,17 +102,6 @@ object MBEEPlugin extends AutoPlugin {
       unmanagedResourceDirectories in Test ~= { _.filter(_.exists) }
     )
 
-  /**
-   * SBT settings for Maven packaged artifact repository
-   *
-   * Somehow this does not quite work for publishing & resolving.
-   * For example, publishing:
-   *
-   * file:/Users/rouquett/m2/jpl-mbee/gov/nasa/jpl/mbee/imce/jpl-mbee-common-scala-libraries_core_2.11/1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT/jpl-mbee-common-scala-libraries_core_2.11-1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT.pom
-   *
-   * resolving:
-   * file:/Users/rouquett/m2/jpl-mbee/gov/nasa/jpl/mbee/imce/jpl-mbee-common-scala-libraries_core_2.11/1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT/jpl-mbee-common-scala-libraries_core_2.11-1800-02-9967afce7539b7fb1e17c851b7bcc270cdde5702-SNAPSHOT.arch
-   */
   def mbeeCommonProjectMavenSettings: Seq[Setting[_]] =
     (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
       case (Some(dir), _) =>
@@ -125,24 +124,27 @@ object MBEEPlugin extends AutoPlugin {
       case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
     }
 
-  def mbeeCommonProjectIvySettings: Seq[Setting[_]] =
-    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
-      case (Some(dir), _) =>
-        val r = Resolver.file("JPL MBEE", new File(dir))(Resolver.ivyStylePatterns)
-        Seq(
-          publishMavenStyle := false,
-          publishTo := Some(r),
-          resolvers += r
-        )
-      case (None, Some(url)) =>
-        val r = Resolver.url("JPL MBEE", new URL(url))(Resolver.ivyStylePatterns)
-        Seq(
-          publishMavenStyle := false,
-          publishTo := Some(r),
-          resolvers += r
-        )
-      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
-    }
+  /**
+   * Cannot use Ivy repositories because UpdatesPlugin 0.1.8 only works with Maven repositories
+   */
+//  def mbeeCommonProjectIvySettings: Seq[Setting[_]] =
+//    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+//      case (Some(dir), _) =>
+//        val r = Resolver.file("JPL MBEE", new File(dir))(Resolver.ivyStylePatterns)
+//        Seq(
+//          publishMavenStyle := false,
+//          publishTo := Some(r),
+//          resolvers += r
+//        )
+//      case (None, Some(url)) =>
+//        val r = Resolver.url("JPL MBEE", new URL(url))(Resolver.ivyStylePatterns)
+//        Seq(
+//          publishMavenStyle := false,
+//          publishTo := Some(r),
+//          resolvers += r
+//        )
+//      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
+//    }
 
 
   /**
@@ -232,7 +234,18 @@ object MBEEPlugin extends AutoPlugin {
         publishArtifact in (Test, packageDoc) := false,
 
         // disable publishing the test sources jar
-        publishArtifact in (Test, packageSrc) := false
+        publishArtifact in (Test, packageSrc) := false,
+
+        // This is a workaround use both AetherPlugin 0.14 & sbt-pack 0.6.12
+        // AetherPlugin assumes all artifacts are "jar".
+        // sbt-pack produces Artifact(name.value, "arch", "zip"), which works with Ivy repos but doesn't with Maven repos.
+        artifact := Artifact(name.value, "zip", "zip"),
+        artifacts += artifact.value,
+
+        // normally, we would use `publishPackZipArchive` but we have to tweak the settings to work with AetherPlugin,
+        // that is, make the packArchive file correspond to the file AetherPlugin expects for `artifact`
+        packArchivePrefix := "scala-"+scalaBinaryVersion.value+"/"+name.value+"_"+scalaBinaryVersion.value,
+        packagedArtifacts += artifact.value -> packArchiveZip.value
       )
 
   val extraPackFun: Def.Initialize[Task[Seq[(File, String)]]] = Def.task[Seq[(File, String)]] {
