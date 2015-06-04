@@ -28,59 +28,6 @@ object MBEEPlugin extends MBEEPlugin {
       mbeeCommonProjectMavenSettings ++
       mbeeDependencyGraphSettings
 
-  def mbeePackageLibraryDependenciesSettings: Seq[Setting[_]] =
-    xerial.sbt.Pack.packSettings ++
-      xerial.sbt.Pack.publishPackZipArchive ++
-      Seq(
-        xerial.sbt.Pack.packExpandedClasspath := false,
-        xerial.sbt.Pack.packLibJars := Seq.empty,
-        xerial.sbt.Pack.packExcludeArtifactTypes := Seq("src", "doc"),
-        (mappings in xerial.sbt.Pack.pack) := {
-          extraPackFun.value
-        }
-      )
-
-  def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
-    mbeePackageLibraryDependenciesSettings ++
-      Seq(
-
-        // http://www.scala-sbt.org/0.13.5/docs/Detailed-Topics/Artifacts.html
-        // to disable publishing artifacts produced by `package`, `packageDoc`, `packageSrc`
-        // in all configurations (Compile, Test, ...), it would seem sensible to do:
-        // publishArtifact := false
-        // However, this also turns off publishing maven POM metadata but surprisingly *not* Ivy metadata!
-        // So instead we revert to selectively turning off publishing.
-
-        // disable publishing the main jar produced by `package`
-        publishArtifact in(Compile, packageBin) := false,
-
-        // disable publishing the main API jar
-        publishArtifact in(Compile, packageDoc) := false,
-
-        // disable publishing the main sources jar
-        publishArtifact in(Compile, packageSrc) := false,
-
-        // disable publishing the jar produced by `test:package`
-        publishArtifact in(Test, packageBin) := false,
-
-        // disable publishing the test API jar
-        publishArtifact in(Test, packageDoc) := false,
-
-        // disable publishing the test sources jar
-        publishArtifact in(Test, packageSrc) := false,
-
-        // This is a workaround use both AetherPlugin 0.14 & sbt-pack 0.6.12
-        // AetherPlugin assumes all artifacts are "jar".
-        // sbt-pack produces Artifact(name.value, "arch", "zip"), which works with Ivy repos but doesn't with Maven repos.
-        artifact := Artifact(name.value, "zip", "zip"),
-        artifacts += artifact.value,
-
-        // normally, we would use `publishPackZipArchive` but we have to tweak the settings to work with AetherPlugin,
-        // that is, make the packArchive file correspond to the file AetherPlugin expects for `artifact`
-        xerial.sbt.Pack.packArchivePrefix := "scala-" + scalaBinaryVersion.value + "/" + name.value + "_" + scalaBinaryVersion.value,
-        packagedArtifacts += artifact.value -> xerial.sbt.Pack.packArchiveZip.value
-      )
-
 }
 
 trait MBEEPlugin extends AutoPlugin {
@@ -123,7 +70,7 @@ trait MBEEPlugin extends AutoPlugin {
 
       javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
 
-      MBEEKeys.mbeeReleaseVersionPrefix := "1800-02",
+      MBEEKeys.mbeeReleaseVersionPrefix := "1800.02",
 
       MBEEKeys.mbeeLicenseYearOrRange := Calendar.getInstance().getDisplayName(Calendar.YEAR, Calendar.LONG_STANDALONE, Locale.getDefault)
     )
@@ -297,4 +244,56 @@ trait MBEEPlugin extends AutoPlugin {
     result
   }
 
+  def mbeePackageLibraryDependenciesSettings: Seq[Setting[_]] =
+    xerial.sbt.Pack.packSettings ++
+      xerial.sbt.Pack.publishPackZipArchive ++
+      Seq(
+        xerial.sbt.Pack.packExpandedClasspath := false,
+        xerial.sbt.Pack.packLibJars := Seq.empty,
+        xerial.sbt.Pack.packExcludeArtifactTypes := Seq("src", "doc"),
+        (mappings in xerial.sbt.Pack.pack) := {
+          extraPackFun.value
+        }
+      )
+
+  def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
+    mbeePackageLibraryDependenciesSettings ++
+      Seq(
+
+        // http://www.scala-sbt.org/0.13.5/docs/Detailed-Topics/Artifacts.html
+        // to disable publishing artifacts produced by `package`, `packageDoc`, `packageSrc`
+        // in all configurations (Compile, Test, ...), it would seem sensible to do:
+        // publishArtifact := false
+        // However, this also turns off publishing maven POM metadata but surprisingly *not* Ivy metadata!
+        // So instead we revert to selectively turning off publishing.
+
+        // disable publishing the main jar produced by `package`
+        publishArtifact in(Compile, packageBin) := false,
+
+        // disable publishing the main API jar
+        publishArtifact in(Compile, packageDoc) := false,
+
+        // disable publishing the main sources jar
+        publishArtifact in(Compile, packageSrc) := false,
+
+        // disable publishing the jar produced by `test:package`
+        publishArtifact in(Test, packageBin) := false,
+
+        // disable publishing the test API jar
+        publishArtifact in(Test, packageDoc) := false,
+
+        // disable publishing the test sources jar
+        publishArtifact in(Test, packageSrc) := false,
+
+        // This is a workaround use both AetherPlugin 0.14 & sbt-pack 0.6.12
+        // AetherPlugin assumes all artifacts are "jar".
+        // sbt-pack produces Artifact(name.value, "arch", "zip"), which works with Ivy repos but doesn't with Maven repos.
+        artifact := Artifact(name.value, "zip", "zip"),
+        artifacts += artifact.value,
+
+        // normally, we would use `publishPackZipArchive` but we have to tweak the settings to work with AetherPlugin,
+        // that is, make the packArchive file correspond to the file AetherPlugin expects for `artifact`
+        xerial.sbt.Pack.packArchivePrefix := "scala-" + scalaBinaryVersion.value + "/" + name.value + "_" + scalaBinaryVersion.value,
+        packagedArtifacts += artifact.value -> xerial.sbt.Pack.packArchiveZip.value
+      )
 }

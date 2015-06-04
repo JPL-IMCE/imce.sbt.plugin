@@ -1,10 +1,18 @@
 sbtPlugin := true
 
+enablePlugins(AetherPlugin, GitVersioning, GitBranchPrompt)
+
+overridePublishBothSettings
+
 organization := "gov.nasa.jpl.mbee.sbt"
 
 name := "sbt.mbee.plugin"
 
-version := "1.0"
+git.baseVersion := "1800.02"
+
+git.useGitDescribe := true
+
+versionWithGit
 
 scalaVersion := "2.10.5"
 
@@ -40,3 +48,24 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.8")
 
 // https://github.com/arktekk/sbt-aether-deploy
 addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
+
+publishMavenStyle := true
+
+(Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+  case (Some(dir), _) =>
+    if (new File(dir) / "settings.xml" exists) {
+      val cache = new MavenCache("JPL MBEE", new File(dir))
+      Seq(
+        publishTo := Some(cache),
+        resolvers += cache)
+    }
+    else
+      sys.error(s"The JPL_MBEE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+  case (None, Some(url)) => {
+    val repo = new MavenRepository("JPL MBEE", url)
+    Seq(
+      publishTo := Some(repo),
+      resolvers += repo)
+  }
+  case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
+}

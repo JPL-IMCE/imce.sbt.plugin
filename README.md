@@ -18,9 +18,7 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-lazy val root = (project in file(".")).dependsOn(mbeePlugin)
-
-lazy val mbeePlugin = uri("github://git@github.jpl.nasa.gov:secae/sbt.mbee.plugin.git")
+addSbtPlugin("gov.nasa.jpl.mbee.sbt", "sbt-mbee-plugin", "1800.02")
 ```
 
 
