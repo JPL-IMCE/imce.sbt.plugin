@@ -8,21 +8,12 @@ import sbt._
 
 import scala.collection.JavaConversions._
 
-object MBEEMagicDrawEclipseClasspathKeys {
-
-  val mdShowMagicDrawEclipseClasspath = taskKey[Unit]("Shows MagicDraw Eclipse Classpath")
-
-  val mdInstallDir = settingKey[Path]("MagicDraw's installation directory")
-
-  val mdFolders = settingKey[List[Path]]("List of folders paths resolved to MagicDraw's installation directory")
-
-  val mdJars = settingKey[List[Attributed[File]]]("List of jar libraries resolved to MagicDraw's installation folder")
-
-}
-
-import gov.nasa.jpl.mbee.sbt.MBEEMagicDrawEclipseClasspathKeys._
 
 object MBEEMagicDrawEclipseClasspathPlugin extends MBEEMagicDrawEclipseClasspathPlugin {
+
+  object autoImport extends MBEEMagicDrawEclipseClasspathKeys
+
+  import autoImport._
 
   override def trigger = noTrigger
 
