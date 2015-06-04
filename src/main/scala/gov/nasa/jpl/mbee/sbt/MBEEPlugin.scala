@@ -7,6 +7,33 @@ import sbt._
 
 import scala.language.postfixOps
 
+/**
+ *
+ * @param groupId Must be all lowercase! Can have "."
+ * @param name For human consumption
+ * @param url
+ */
+case class OrganizationInfo(groupId: String, name: String, url: Option[URL] = None)
+
+object MBEEKeys {
+
+  val mbeeOrganizationInfo = settingKey[OrganizationInfo](
+    """The characteristics of the MBEE organization (artifact groupID, organization name, and optionally, URL)"""
+  )
+
+  val mbeeReleaseVersionPrefix = settingKey[String](
+    """The version prefix for the next release of the JPL MBEE toolkit (e.g., "1800.02");
+      | the version suffix will be generated from the Source Code Management (SCM) system (GIT, SVN)""".stripMargin
+  )
+
+  val mbeeLicenseYearOrRange = settingKey[String](
+    """The license copyright year (e.g., "2014", "2015") or year range (e.g., "2011-2014")"""
+  )
+
+}
+
+import gov.nasa.jpl.mbee.sbt.MBEEKeys._
+
 object MBEEPlugin extends MBEEPlugin {
 
   override def trigger = allRequirements
@@ -31,14 +58,6 @@ object MBEEPlugin extends MBEEPlugin {
 trait MBEEPlugin extends AutoPlugin {
 
   /**
-   *
-   * @param groupId Must be all lowercase! Can have "."
-   * @param name For human consumption
-   * @param url
-   */
-  case class OrganizationInfo(groupId: String, name: String, url: Option[URL] = None)
-
-  /**
    * Values intended for the organization of a packaged artifact.
    */
   object Organizations {
@@ -49,25 +68,6 @@ trait MBEEPlugin extends AutoPlugin {
     val secae = OrganizationInfo("gov.nasa.jpl.mbee.secae", "JPL SECAE", Some(new URL("http://mbse.jpl.nasa.gov")))
 
   }
-
-  object autoImport {
-
-    val mbeeOrganizationInfo = settingKey[OrganizationInfo](
-      """The characteristics of the MBEE organization (artifact groupID, organization name, and optionally, URL)"""
-    )
-
-    val mbeeReleaseVersionPrefix = settingKey[String](
-      """The version prefix for the next release of the JPL MBEE toolkit (e.g., "1800.02");
-        | the version suffix will be generated from the Source Code Management (SCM) system (GIT, SVN)""".stripMargin
-    )
-
-    val mbeeLicenseYearOrRange = settingKey[String](
-      """The license copyright year (e.g., "2014", "2015") or year range (e.g., "2011-2014")"""
-    )
-
-  }
-
-  import autoImport._
 
   /**
    * TODO: make `publish` have a dependency on `dependencyTree`
@@ -189,39 +189,39 @@ trait MBEEPlugin extends AutoPlugin {
            |License Terms
            |
            |Copyright (c) ${mbeeLicenseYearOrRange.value}, California Institute of Technology ("Caltech").
-           |U.S. Government sponsorship acknowledged.
-           |
-           |All rights reserved.
-           |
-           |Redistribution and use in source and binary forms, with or without
-           |modification, are permitted provided that the following conditions are
-           |met:
-           |
-           |*   Redistributions of source code must retain the above copyright
-           |    notice, this list of conditions and the following disclaimer.
-           |
-           |*   Redistributions in binary form must reproduce the above copyright
-           |    notice, this list of conditions and the following disclaimer in the
-           |    documentation and/or other materials provided with the
-           |    distribution.
-           |
-           |*   Neither the name of Caltech nor its operating division, the Jet
-           |    Propulsion Laboratory, nor the names of its contributors may be
-           |    used to endorse or promote products derived from this software
-           |    without specific prior written permission.
-           |
-           |THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-           |IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-           |TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-           |PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-           |OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-           |EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-           |PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-           |PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-           |LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-           |NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-           |SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-           |""".stripMargin
+                                                           |U.S. Government sponsorship acknowledged.
+                                                           |
+                                                           |All rights reserved.
+                                                           |
+                                                           |Redistribution and use in source and binary forms, with or without
+                                                           |modification, are permitted provided that the following conditions are
+                                                           |met:
+                                                           |
+                                                           |*   Redistributions of source code must retain the above copyright
+                                                           |   notice, this list of conditions and the following disclaimer.
+                                                           |
+                                                           |*   Redistributions in binary form must reproduce the above copyright
+                                                           |   notice, this list of conditions and the following disclaimer in the
+                                                           |   documentation and/or other materials provided with the
+                                                           |   distribution.
+                                                           |
+                                                           |*   Neither the name of Caltech nor its operating division, the Jet
+                                                           |   Propulsion Laboratory, nor the names of its contributors may be
+                                                           |   used to endorse or promote products derived from this software
+                                                           |   without specific prior written permission.
+                                                           |
+                                                           |THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+                                                           |IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+                                                           |TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+                                                           |PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+                                                           |OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+                                                           |EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+                                                           |PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+                                                           |PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+                                                           |LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+                                                           |NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+                                                           |SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+                                                           |""".stripMargin
 
     )
 

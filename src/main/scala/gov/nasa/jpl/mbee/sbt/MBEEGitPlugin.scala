@@ -1,22 +1,17 @@
 package gov.nasa.jpl.mbee.sbt
 
-import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
 import com.typesafe.sbt.SbtGit.git
+import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
+import sbt.Keys._
 import sbt._
-import Keys._
+
 import scala.xml.NodeSeq
 
-object MBEEGitPlugin extends AutoPlugin {
+object MBEEGitPlugin extends MBEEGitPlugin {
 
   override def trigger = noTrigger
-  
+
   override def requires = MBEEPlugin && GitVersioning && GitBranchPrompt
-
-  object autoImport {
-
-  }
-
-  import autoImport._
 
   override def buildSettings: Seq[Setting[_]] =
     Seq()
@@ -42,11 +37,16 @@ object MBEEGitPlugin extends AutoPlugin {
     GitVersioning.buildSettings ++
       mbeeGitVersioningProjectSettings
 
+}
+
+trait MBEEGitPlugin extends AutoPlugin {
+
+
   def mbeeGitVersioningProjectSettings: Seq[Setting[_]] =
     Seq(
 
       // the prefix for git-based versioning of the published artifacts
-      git.baseVersion := MBEEPlugin.autoImport.mbeeReleaseVersionPrefix.value,
+      git.baseVersion := MBEEKeys.mbeeReleaseVersionPrefix.value,
 
       // turn on version detection
       git.useGitDescribe in ThisBuild := true,
@@ -58,9 +58,15 @@ object MBEEGitPlugin extends AutoPlugin {
   def getGitSCMInfo: NodeSeq =
     try {
       <scm>
-        <connection>scm:git:{Process("git config --get remote.origin.url").lines.head}</connection>
-        <tag>{Process("git symbolic-ref --short HEAD").lines.head}</tag>
-        <tag>{Process("git log -n 1 HEAD --pretty=format:%H").lines.head}</tag>
+        <connection>scm:git:
+          {Process("git config --get remote.origin.url").lines.head}
+        </connection>
+        <tag>
+          {Process("git symbolic-ref --short HEAD").lines.head}
+        </tag>
+        <tag>
+          {Process("git log -n 1 HEAD --pretty=format:%H").lines.head}
+        </tag>
       </scm>
     } catch {
       case _: Throwable => Seq()
