@@ -51,6 +51,8 @@ addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
 
 publishMavenStyle := true
 
+pomAllRepositories := true
+
 (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
   case (Some(dir), _) =>
     if (new File(dir) / "settings.xml" exists) {
