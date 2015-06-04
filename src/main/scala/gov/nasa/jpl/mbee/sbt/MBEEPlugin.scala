@@ -7,13 +7,28 @@ import sbt._
 
 import scala.language.postfixOps
 
-object MBEEPlugin extends AutoPlugin {
+object MBEEPlugin extends MBEEPlugin {
 
   override def trigger = allRequirements
 
   override def requires =
     aether.AetherPlugin &&
       com.timushev.sbt.updates.UpdatesPlugin
+
+  override def buildSettings: Seq[Setting[_]] =
+    Seq()
+
+  override def projectSettings: Seq[Setting[_]] =
+    mbeeDefaultProjectSettings ++
+      mbeeLicenseSettings ++
+      mbeeCommonProjectDirectoriesSettings ++
+      mbeeCommonProjectMavenSettings ++
+      mbeeDependencyGraphSettings
+
+}
+
+
+trait MBEEPlugin extends AutoPlugin {
 
   /**
    *
@@ -38,7 +53,7 @@ object MBEEPlugin extends AutoPlugin {
   object autoImport {
 
     val mbeeOrganizationInfo = settingKey[OrganizationInfo](
-    """The characteristics of the MBEE organization (artifact groupID, organization name, and optionally, URL)"""
+      """The characteristics of the MBEE organization (artifact groupID, organization name, and optionally, URL)"""
     )
 
     val mbeeReleaseVersionPrefix = settingKey[String](
@@ -48,21 +63,11 @@ object MBEEPlugin extends AutoPlugin {
 
     val mbeeLicenseYearOrRange = settingKey[String](
       """The license copyright year (e.g., "2014", "2015") or year range (e.g., "2011-2014")"""
-      )
+    )
 
   }
 
   import autoImport._
-
-  override def buildSettings: Seq[Setting[_]] =
-    Seq()
-
-  override def projectSettings: Seq[Setting[_]] =
-    mbeeDefaultProjectSettings ++
-      mbeeLicenseSettings ++
-      mbeeCommonProjectDirectoriesSettings ++
-      mbeeCommonProjectMavenSettings ++
-      mbeeDependencyGraphSettings
 
   /**
    * TODO: make `publish` have a dependency on `dependencyTree`
@@ -100,57 +105,75 @@ object MBEEPlugin extends AutoPlugin {
    */
   def mbeeCommonProjectDirectoriesSettings: Seq[Setting[_]] =
     Seq(
-      sourceDirectories in Compile ~= { _.filter(_.exists) },
-      sourceDirectories in Test ~= { _.filter(_.exists) },
-      unmanagedSourceDirectories in Compile ~= { _.filter(_.exists) },
-      unmanagedSourceDirectories in Test ~= { _.filter(_.exists) },
-      unmanagedResourceDirectories in Compile ~= { _.filter(_.exists) },
-      unmanagedResourceDirectories in Test ~= { _.filter(_.exists) }
+      sourceDirectories in Compile ~= {
+        _.filter(_.exists)
+      },
+      sourceDirectories in Test ~= {
+        _.filter(_.exists)
+      },
+      unmanagedSourceDirectories in Compile ~= {
+        _.filter(_.exists)
+      },
+      unmanagedSourceDirectories in Test ~= {
+        _.filter(_.exists)
+      },
+      unmanagedResourceDirectories in Compile ~= {
+        _.filter(_.exists)
+      },
+      unmanagedResourceDirectories in Test ~= {
+        _.filter(_.exists)
+      }
     )
 
   def mbeeCommonProjectMavenSettings: Seq[Setting[_]] =
-    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
-      case (Some(dir), _) =>
-        if (new File(dir) / "settings.xml" exists) {
-          val cache = new MavenCache("JPL MBEE", new File(dir))
+    aether.AetherPlugin.autoImport.overridePublishSettings ++
+      Seq(
+        // include repositories used in module configurations into the POM repositories section
+        pomAllRepositories := true,
+
+        // publish Maven POM metadata (instead of Ivy); this is important for the UpdatesPlugin's ability to find available updates.
+        publishMavenStyle := true
+      ) ++
+      ((Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+        case (Some(dir), _) =>
+          if (new File(dir) / "settings.xml" exists) {
+            val cache = new MavenCache("JPL MBEE", new File(dir))
+            Seq(
+              publishTo := Some(cache),
+              resolvers += cache)
+          }
+          else
+            sys.error(s"The JPL_MBEE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+        case (None, Some(url)) => {
+          val repo = new MavenRepository("JPL MBEE", url)
           Seq(
-            publishMavenStyle := true,
-            publishTo := Some(cache),
-            resolvers += cache)
-        }
-        else
-          sys.error(s"The JPL_MBEE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-      case (None, Some(url)) => {
-          val repo = new MavenRepository("JPL MBEE",  url)
-          Seq(
-            publishMavenStyle := true,
             publishTo := Some(repo),
             resolvers += repo)
         }
-      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
-    }
+        case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
+      })
 
   /**
    * Cannot use Ivy repositories because UpdatesPlugin 0.1.8 only works with Maven repositories
    */
-//  def mbeeCommonProjectIvySettings: Seq[Setting[_]] =
-//    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
-//      case (Some(dir), _) =>
-//        val r = Resolver.file("JPL MBEE", new File(dir))(Resolver.ivyStylePatterns)
-//        Seq(
-//          publishMavenStyle := false,
-//          publishTo := Some(r),
-//          resolvers += r
-//        )
-//      case (None, Some(url)) =>
-//        val r = Resolver.url("JPL MBEE", new URL(url))(Resolver.ivyStylePatterns)
-//        Seq(
-//          publishMavenStyle := false,
-//          publishTo := Some(r),
-//          resolvers += r
-//        )
-//      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
-//    }
+  //  def mbeeCommonProjectIvySettings: Seq[Setting[_]] =
+  //    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+  //      case (Some(dir), _) =>
+  //        val r = Resolver.file("JPL MBEE", new File(dir))(Resolver.ivyStylePatterns)
+  //        Seq(
+  //          publishMavenStyle := false,
+  //          publishTo := Some(r),
+  //          resolvers += r
+  //        )
+  //      case (None, Some(url)) =>
+  //        val r = Resolver.url("JPL MBEE", new URL(url))(Resolver.ivyStylePatterns)
+  //        Seq(
+  //          publishMavenStyle := false,
+  //          publishTo := Some(r),
+  //          resolvers += r
+  //        )
+  //      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
+  //    }
 
 
   /**
@@ -161,45 +184,44 @@ object MBEEPlugin extends AutoPlugin {
 
       com.banno.license.Plugin.LicenseKeys.removeExistingHeaderBlock := true,
 
-      com.banno.license.Plugin.LicenseKeys.license := s"""|
-                   | License Terms
-                   |
-                   | Copyright (c) ${mbeeLicenseYearOrRange.value}, California Institute of Technology ("Caltech").
-                   | U.S. Government sponsorship acknowledged.
-                   |
-                   | All rights reserved.
-                   |
-                   | Redistribution and use in source and binary forms, with or without
-                   | modification, are permitted provided that the following conditions are
-                   | met:
-                   |
-                   |
-                   |  *   Redistributions of source code must retain the above copyright
-                   |      notice, this list of conditions and the following disclaimer.
-                   |
-                   |  *   Redistributions in binary form must reproduce the above copyright
-                   |      notice, this list of conditions and the following disclaimer in the
-                   |      documentation and/or other materials provided with the
-                   |      distribution.
-                   |
-                   |  *   Neither the name of Caltech nor its operating division, the Jet
-                   |      Propulsion Laboratory, nor the names of its contributors may be
-                   |      used to endorse or promote products derived from this software
-                   |      without specific prior written permission.
-                   |
-                   | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-                   | IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-                   | TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-                   | PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-                   | OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-                   | EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-                   | PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-                   | PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-                   | LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-                   | NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-                   | SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-                   |""".stripMargin
-
+      com.banno.license.Plugin.LicenseKeys.license :=
+        s"""|
+           |License Terms
+           |
+           |Copyright (c) ${mbeeLicenseYearOrRange.value}, California Institute of Technology ("Caltech").
+           |U.S. Government sponsorship acknowledged.
+           |
+           |All rights reserved.
+           |
+           |Redistribution and use in source and binary forms, with or without
+           |modification, are permitted provided that the following conditions are
+           |met:
+           |
+           |*   Redistributions of source code must retain the above copyright
+           |    notice, this list of conditions and the following disclaimer.
+           |
+           |*   Redistributions in binary form must reproduce the above copyright
+           |    notice, this list of conditions and the following disclaimer in the
+           |    documentation and/or other materials provided with the
+           |    distribution.
+           |
+           |*   Neither the name of Caltech nor its operating division, the Jet
+           |    Propulsion Laboratory, nor the names of its contributors may be
+           |    used to endorse or promote products derived from this software
+           |    without specific prior written permission.
+           |
+           |THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+           |IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+           |TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+           |PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+           |OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+           |EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+           |PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+           |PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+           |LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+           |NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+           |SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+           |""".stripMargin
 
     )
 
@@ -210,7 +232,9 @@ object MBEEPlugin extends AutoPlugin {
         xerial.sbt.Pack.packExpandedClasspath := false,
         xerial.sbt.Pack.packLibJars := Seq.empty,
         xerial.sbt.Pack.packExcludeArtifactTypes := Seq("src", "doc"),
-        (mappings in xerial.sbt.Pack.pack) := { extraPackFun.value }
+        (mappings in xerial.sbt.Pack.pack) := {
+          extraPackFun.value
+        }
       )
 
   def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
@@ -225,25 +249,22 @@ object MBEEPlugin extends AutoPlugin {
         // So instead we revert to selectively turning off publishing.
 
         // disable publishing the main jar produced by `package`
-        publishArtifact in (Compile, packageBin) := false,
+        publishArtifact in(Compile, packageBin) := false,
 
         // disable publishing the main API jar
-        publishArtifact in (Compile, packageDoc) := false,
+        publishArtifact in(Compile, packageDoc) := false,
 
         // disable publishing the main sources jar
-        publishArtifact in (Compile, packageSrc) := false,
+        publishArtifact in(Compile, packageSrc) := false,
 
         // disable publishing the jar produced by `test:package`
-        publishArtifact in (Test, packageBin) := false,
+        publishArtifact in(Test, packageBin) := false,
 
         // disable publishing the test API jar
-        publishArtifact in (Test, packageDoc) := false,
+        publishArtifact in(Test, packageDoc) := false,
 
         // disable publishing the test sources jar
-        publishArtifact in (Test, packageSrc) := false,
-
-        // include repositories used in module configurations into the POM repositories section
-        pomAllRepositories := true,
+        publishArtifact in(Test, packageSrc) := false,
 
         // This is a workaround use both AetherPlugin 0.14 & sbt-pack 0.6.12
         // AetherPlugin assumes all artifacts are "jar".
@@ -253,9 +274,9 @@ object MBEEPlugin extends AutoPlugin {
 
         // normally, we would use `publishPackZipArchive` but we have to tweak the settings to work with AetherPlugin,
         // that is, make the packArchive file correspond to the file AetherPlugin expects for `artifact`
-        xerial.sbt.Pack.packArchivePrefix := "scala-"+scalaBinaryVersion.value+"/"+name.value+"_"+scalaBinaryVersion.value,
+        xerial.sbt.Pack.packArchivePrefix := "scala-" + scalaBinaryVersion.value + "/" + name.value + "_" + scalaBinaryVersion.value,
         packagedArtifacts += artifact.value -> xerial.sbt.Pack.packArchiveZip.value
-      ) ++ aether.AetherPlugin.autoImport.overridePublishSettings
+      )
 
   val extraPackFun: Def.Initialize[Task[Seq[(File, String)]]] = Def.task[Seq[(File, String)]] {
     def getFileIfExists(f: File, where: String): Option[(File, String)] = if (f.exists()) Some((f, s"$where/${f.getName}")) else None
