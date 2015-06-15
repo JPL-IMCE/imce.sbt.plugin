@@ -340,7 +340,17 @@ trait MBEEPlugin extends AutoPlugin {
    * Generates SBT settings for the UniversalPlugin such that `univeral:packageBin` will create a '*-resource.zip' archive
    * consisting of the jar, source, javadoc for Compile & Test, if available, any *.md documentation and any models/\*.mdzip MD models
    *
-   * @example Example usage in *.sbt or *.scala SBT file
+   * @example Example usage in *.sbt or *.scala SBT file (OK to use this with Jenkins CI)
+   *
+   * {{{
+   * lazy val core = Project("<sbt name, '-' separated>", file(".")).
+   *   settings(GitVersioning.buildSettings). // in principle, unnecessary; in practice: doesn't work without this
+   *   enablePlugins(MBEEGitPlugin).
+   *   settings(mbeeDynamicScriptsProjectResourceSettings(Some("<java-compatible project qualified name>")).
+   *   ...
+   * }}}
+   *
+   * @example Example usage in *.sbt or *.scala SBT file (don't use this with Jenkins CI!)
    *
    * {{{
    * lazy val core = Project("<sbt name, '-' separated>", file(".")).
