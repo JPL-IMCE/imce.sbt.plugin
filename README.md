@@ -21,6 +21,7 @@ With the above redirection, add the following to an SBT `project/plugins.sbt` fi
 addSbtPlugin("gov.nasa.jpl.mbee.sbt", "sbt-mbee-plugin", "1800.02")
 ```
 
+### [How to find available updates for versioned dependencies?](doc/DependencyUpdates.md)
 
 
 ## Related work
