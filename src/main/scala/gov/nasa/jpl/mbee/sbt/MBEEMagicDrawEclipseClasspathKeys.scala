@@ -10,7 +10,9 @@ trait MBEEMagicDrawEclipseClasspathKeys {
 
   val mdInstallDir = settingKey[Path]("MagicDraw's installation directory")
 
-  val mdFolders = settingKey[List[Path]]("List of folders paths resolved to MagicDraw's installation directory")
+  val mdBinFolders = settingKey[List[Path]]("List of bin folder paths resolved to MagicDraw's installation directory")
+
+  val mdLibFolders = settingKey[List[Path]]("List of lib folder paths resolved to MagicDraw's installation directory")
 
   val mdJars = settingKey[List[Attributed[File]]]("List of jar libraries resolved to MagicDraw's installation folder")
 

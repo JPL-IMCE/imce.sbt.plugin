@@ -35,9 +35,11 @@ object MBEEMagicDrawEclipseClasspathPlugin extends MBEEMagicDrawEclipseClasspath
         }
       },
 
-      mdFolders := mdClasspathFolders(baseDirectory.value, mdInstallDir.value),
+      mdBinFolders := mdClasspathBinFolders(baseDirectory.value, mdInstallDir.value),
 
-      mdJars := mdClasspathJars(mdFolders.value),
+      mdLibFolders := mdClasspathLibFolders(baseDirectory.value, mdInstallDir.value),
+
+      mdJars := mdClasspathJars(mdBinFolders.value, mdLibFolders.value),
 
       unmanagedJars in Compile <++= mdJars map identity
     )
@@ -48,8 +50,22 @@ trait MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
 
   val MD_CLASSPATH = "^gov.nasa.jpl.magicdraw.CLASSPATH_LIB_CONTAINER/(.*)$".r
 
-  def mdClasspathFolders(eclipseProjectDir: File, mdInstallRoot: Path): List[Path] = {
-    println(s"dir=$eclipseProjectDir")
+  def mdClasspathBinFolders(eclipseProjectDir: File, mdInstallRoot: Path): List[Path] = {
+    val top = scala.xml.XML.loadFile(IO.resolve(eclipseProjectDir, file(".classpath")))
+    val projects = for {
+      cp <- top \ "classpathentry"
+      entry = cp \ "@path"
+      if entry.nonEmpty
+      projectName = entry.text
+      if projectName.startsWith("/")
+      projectPath = mdInstallRoot.resolve("dynamicScripts"+projectName)
+      projectBinPath <- (projectPath.toFile ** "bin*").get
+    } yield projectBinPath.toPath
+
+    projects.toList
+  }
+
+  def mdClasspathLibFolders(eclipseProjectDir: File, mdInstallRoot: Path): List[Path] = {
     val top = scala.xml.XML.loadFile(IO.resolve(eclipseProjectDir, file(".classpath")))
     val folders = for {
       cp <- top \ "classpathentry"
@@ -58,15 +74,33 @@ trait MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
       variables: List[String] <- MD_CLASSPATH.unapplySeq(entry.text)
       if 1 == variables.size
     } yield for {path <- MD_PATH.findAllIn(variables.head)} yield mdInstallRoot.resolve(path.drop(1))
-    folders.flatten.toList
+
+    val projects = for {
+      cp <- top \ "classpathentry"
+      entry = cp \ "@path"
+      if entry.nonEmpty
+      projectName = entry.text
+      if projectName.startsWith("/")
+      projectPath = mdInstallRoot.resolve("dynamicScripts"+projectName)
+      projectLibPath = projectPath.resolve("lib")
+    } yield projectLibPath
+
+    folders.flatten.toList ++ projects.toList
   }
 
   val MD_PATH = ",([^,]*)".r
 
-  def mdClasspathJars(mdFolders: List[Path]): List[Attributed[File]] =
-    for {
-      folder <- mdFolders
+  def mdClasspathJars(mdBinFolders: List[Path], mdLibFolders: List[Path]): List[Attributed[File]] = {
+    val jars = for {
+      folder <- mdLibFolders
       jar <- Files.walk(folder).iterator().filter(_.toString.endsWith(".jar")).map(_.toFile)
     } yield Attributed.blank(jar)
+
+    val bins = for {
+      folder <- mdBinFolders
+    } yield Attributed.blank(folder.toFile)
+
+    jars ++ bins
+  }
 
 }
