@@ -16,7 +16,8 @@ object MBEEPlugin extends MBEEPlugin {
 
   override def requires =
     aether.AetherPlugin &&
-      com.timushev.sbt.updates.UpdatesPlugin
+      com.timushev.sbt.updates.UpdatesPlugin &&
+      com.typesafe.sbt.packager.universal.UniversalPlugin
 
   override def buildSettings: Seq[Setting[_]] =
     Seq()
@@ -296,4 +297,32 @@ trait MBEEPlugin extends AutoPlugin {
         xerial.sbt.Pack.packArchivePrefix := "scala-" + scalaBinaryVersion.value + "/" + name.value + "_" + scalaBinaryVersion.value,
         packagedArtifacts += artifact.value -> xerial.sbt.Pack.packArchiveZip.value
       )
+
+  def mbeeAspectJSettings: Seq[Setting[_]] = {
+
+    import com.typesafe.sbt.SbtAspectj._
+    import com.typesafe.sbt.SbtAspectj.AspectjKeys._
+
+    aspectjSettings ++ Seq(
+      scalacOptions += "-g:vars",
+
+      javacOptions += "-g:vars",
+
+      extraAspectjOptions in Aspectj := Seq("-g"),
+
+      // only compile the aspects (no weaving)
+      compileOnly in Aspectj := true,
+
+      // add the compiled aspects as products
+      products in Compile <++= products in Aspectj,
+
+      // only compile the aspects (no weaving)
+      compileOnly in Aspectj := true,
+
+      // add the compiled aspects as products
+      products in Compile <++= products in Aspectj
+    )
+
+  }
+
 }

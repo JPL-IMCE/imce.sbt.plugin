@@ -49,6 +49,12 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.8")
 // https://github.com/arktekk/sbt-aether-deploy
 addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
 
+// https://github.com/sbt/sbt-native-packager
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.2")
+
+// https://github.com/sbt/sbt-aspectj
+addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % "0.10.2")
+
 publishMavenStyle := true
 
 pomAllRepositories := true
