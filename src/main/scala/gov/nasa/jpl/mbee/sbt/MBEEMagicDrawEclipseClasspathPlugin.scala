@@ -93,6 +93,7 @@ trait MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
   def mdClasspathJars(mdBinFolders: List[Path], mdLibFolders: List[Path]): List[Attributed[File]] = {
     val jars = for {
       folder <- mdLibFolders
+      if folder.toFile.exists
       jar <- Files.walk(folder).iterator().filter(_.toString.endsWith(".jar")).map(_.toFile)
     } yield Attributed.blank(jar)
 
