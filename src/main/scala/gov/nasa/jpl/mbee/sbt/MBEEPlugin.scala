@@ -340,23 +340,37 @@ trait MBEEPlugin extends AutoPlugin {
    * Generates SBT settings for the UniversalPlugin such that `univeral:packageBin` will create a '*-resource.zip' archive
    * consisting of the jar, source, javadoc for Compile & Test, if available, any *.md documentation and any models/\*.mdzip MD models
    *
-   * @param dynamicScriptsProjectName The dot-qualified Java package name of the dynamicScripts project; no '-' characters allowed
+   * @example Example usage in *.sbt or *.scala SBT file
+   *
+   * {{{
+   * lazy val core = Project("<sbt name, '-' separated>", file(".")).
+   *   settings(GitVersioning.buildSettings). // in principle, unnecessary; in practice: doesn't work without this
+   *   enablePlugins(MBEEGitPlugin).
+   *   settings(mbeeDynamicScriptsProjectResourceSettings).
+   *   ...
+   * }}}
+   *
    * @return SBT settings for the UniversalPlugin
    */
-  def mbeeDynamicScriptsProjectResourceSettings(dynamicScriptsProjectName: String): Seq[Setting[_]] = {
+  def mbeeDynamicScriptsProjectResourceSettings: Seq[Setting[_]] = {
 
     import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
-
-    require(!dynamicScriptsProjectName.contains("-"),"A dynamicScripts project name must be a dot-qualified Java package name, no '-' characters allowed!")
 
     def addIfExists(f: File, name: String): Seq[(File, String)] =
       if (!f.exists) Seq()
       else Seq((f, name))
 
+    val QUALIFIED_NAME = "^[a-zA-Z][\\w_]*(\\.[a-zA-Z][\\w_]*)*$".r
+
     Seq(
       // the '*-resource.zip' archive will start from: 'dynamicScripts/<dynamicScriptsProjectName>'
-      com.typesafe.sbt.packager.Keys.topLevelDirectory in Universal :=
-        Some("dynamicScripts/" + dynamicScriptsProjectName),
+      com.typesafe.sbt.packager.Keys.topLevelDirectory in Universal := {
+        val dynamicScriptsProjectName = baseDirectory.value.getName
+        require(
+          QUALIFIED_NAME.pattern.matcher(dynamicScriptsProjectName).matches,
+          s"The project name, '$dynamicScriptsProjectName` is not a valid Java qualified name")
+        Some("dynamicScripts/" + dynamicScriptsProjectName)
+      },
 
       // name the '*-resource.zip' in the same way as other artifacts
       com.typesafe.sbt.packager.Keys.packageName in Universal :=
