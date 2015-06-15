@@ -350,9 +350,10 @@ trait MBEEPlugin extends AutoPlugin {
    *   ...
    * }}}
    *
+   * @param dynamicScriptsProjectName override the default dynamicScripts project name calculated from SBT's baseDirectory
    * @return SBT settings for the UniversalPlugin
    */
-  def mbeeDynamicScriptsProjectResourceSettings: Seq[Setting[_]] = {
+  def mbeeDynamicScriptsProjectResourceSettings(dynamicScriptsProjectName: Option[String]=None): Seq[Setting[_]] = {
 
     import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 
@@ -365,11 +366,11 @@ trait MBEEPlugin extends AutoPlugin {
     Seq(
       // the '*-resource.zip' archive will start from: 'dynamicScripts/<dynamicScriptsProjectName>'
       com.typesafe.sbt.packager.Keys.topLevelDirectory in Universal := {
-        val dynamicScriptsProjectName = baseDirectory.value.getName
+        val projectName = dynamicScriptsProjectName.getOrElse(baseDirectory.value.getName)
         require(
-          QUALIFIED_NAME.pattern.matcher(dynamicScriptsProjectName).matches,
-          s"The project name, '$dynamicScriptsProjectName` is not a valid Java qualified name")
-        Some("dynamicScripts/" + dynamicScriptsProjectName)
+          QUALIFIED_NAME.pattern.matcher(projectName).matches,
+          s"The project name, '$projectName` is not a valid Java qualified name")
+        Some("dynamicScripts/" + projectName)
       },
 
       // name the '*-resource.zip' in the same way as other artifacts
