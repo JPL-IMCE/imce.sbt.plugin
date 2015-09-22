@@ -17,7 +17,9 @@ versionWithGit
 scalaVersion := "2.10.5"
 
 // https://bintray.com/banno/oss/sbt-license-plugin/view
-resolvers += Resolver.url("sbt-license-plugin-releases", url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.url(
+  "sbt-license-plugin-releases",
+  url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
 
 // https://github.com/Banno/sbt-license-plugin
 addSbtPlugin("com.banno" % "sbt-license-plugin" % "0.1.4")
@@ -55,11 +57,20 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.2")
 // https://github.com/sbt/sbt-aspectj
 addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % "0.10.2")
 
+// https://github.com/sksamuel/sbt-scapegoat
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.0")
+
+// https://github.com/puffnfresh/wartremover
+addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
+
+libraryDependencies += "com.typesafe" % "config" % "1.3.0"
+
 publishMavenStyle := true
 
 pomAllRepositories := true
 
-(Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")), Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+( Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")),
+  Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY")) ) match {
   case (Some(dir), _) =>
     if (new File(dir) / "settings.xml" exists) {
       val cache = new MavenCache("JPL MBEE", new File(dir))
@@ -75,5 +86,8 @@ pomAllRepositories := true
       publishTo := Some(repo),
       resolvers += repo)
   }
-  case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or -DJPL_MBEE_REMOTE_REPOSITORY=<url> where <dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
+  case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or"+
+                      "-DJPL_MBEE_REMOTE_REPOSITORY=<url> where"+
+                      "<dir> is a local Maven repository directory or"+
+                      "<url> is a remote Maven repository URL")
 }

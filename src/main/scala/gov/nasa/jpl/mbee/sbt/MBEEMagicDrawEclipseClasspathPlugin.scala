@@ -26,13 +26,13 @@ object MBEEMagicDrawEclipseClasspathPlugin extends MBEEMagicDrawEclipseClasspath
     Seq(
 
       mdInstallDir <<= mdInstallDir or {
-        Option.apply(System.getenv("MD_INSTALL_DIR")) match {
-          case Some(dir) => initialize { Unit => Paths.get(dir) }
-          case None => Option.apply(System.getProperty("MD_INSTALL_DIR")) match {
-            case Some(dir) => initialize { Unit => Paths.get(dir) }
-            case None => sys.error("Set environment variable MD_INSTALL_DIR=<path> or add -DMD_INSTALL_DIR=<path>")
-          }
-        }
+        val dir =
+          Option.apply(System.getenv("MD_INSTALL_DIR"))
+          .orElse(Option.apply(System.getProperty("MD_INSTALL_DIR")))
+          .getOrElse(
+            sys.error("Set environment variable MD_INSTALL_DIR=<path> or add -DMD_INSTALL_DIR=<path>"))
+
+        initialize { Unit => Paths.get(dir) }
       },
 
       mdBinFolders := mdClasspathBinFolders(baseDirectory.value, mdInstallDir.value),
@@ -60,6 +60,7 @@ trait MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
       if projectName.startsWith("/")
       projectPath = mdInstallRoot.resolve("dynamicScripts"+projectName)
       projectBinPath <- (projectPath.toFile ** "bin*").get
+      if projectBinPath.isDirectory && projectBinPath.canExecute && projectBinPath.canRead
     } yield projectBinPath.toPath
 
     projects.toList
@@ -82,8 +83,9 @@ trait MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
       projectName = entry.text
       if projectName.startsWith("/")
       projectPath = mdInstallRoot.resolve("dynamicScripts"+projectName)
-      projectLibPath = projectPath.resolve("lib")
-    } yield projectLibPath
+      projectLibPath = projectPath.resolve("lib").toFile
+      if projectLibPath.isDirectory && projectLibPath.canExecute && projectLibPath.canRead
+    } yield projectLibPath.toPath
 
     folders.flatten.toList ++ projects.toList
   }
