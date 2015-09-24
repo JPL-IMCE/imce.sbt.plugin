@@ -169,6 +169,16 @@ trait MBEEPlugin extends AutoPlugin {
         "-Yno-imports"            // no automatic imports at all; all symbols must be imported explicitly
       ))
 
+  def mbeeScalaDoc(diagrams:Boolean): Seq[Setting[_]] =
+    Seq(
+      scalacOptions in (Compile,doc) ++=
+      (if (diagrams) Seq("-diagrams") else Seq()) ++
+      Seq(
+        "-doc-title", name.value,
+        "-doc-root-content", baseDirectory.value + "/rootdoc.txt"
+      )
+    )
+
   /**
    * SBT settings that can projects are likely to override.
    */
@@ -197,14 +207,8 @@ trait MBEEPlugin extends AutoPlugin {
 
       scalaVersion := "2.11.7",
 
-
       scalacOptions in (Compile, compile) <++= getScalacOptionsForJDKIfAvailable(MBEEKeys.targetJDK),
 
-      scalacOptions in (Compile,doc) ++= Seq(
-        "-diagrams",
-        "-doc-title", name.value,
-        "-doc-root-content", baseDirectory.value + "/rootdoc.txt"
-      ),
 
       javacOptions in (Compile, compile) <++= getJavacOptionsForJDKIfAvailable(MBEEKeys.targetJDK),
 
