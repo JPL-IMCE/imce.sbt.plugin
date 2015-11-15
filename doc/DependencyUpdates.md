@@ -1,5 +1,15 @@
 # How to find available updates for versioned dependencies?
 
+## Why should you care?
+
+See this talk: https://www.youtube.com/watch?v=W71BTkUbdqE
+
+Forward to 17:50 where she focuses on a "Single source of truth" as one of the multiple advantages of working with a monolithic source code repository. In particular, she illustrates her point with the diamond dependency problem at 19:15. She mentions the risk of accumulating technical debt when developers postpone updating the versions of their library dependencies.
+
+This plugin won't solve the diamond dependency problem but it helps adopt a rigorous modular software development discipline where each module is a versioned artifact (on a Maven repository somewhere) that fundamentally depends on other versioned artifacts (from Maven repositories somewhere).
+
+## How does it work?
+
 Suppose we have a `build.sbt` with:
 
 ```SBT
