@@ -2,6 +2,7 @@ package gov.nasa.jpl.mbee.sbt
 
 import com.typesafe.config.{ConfigFactory, Config}
 import sbt._
+import scala.util.matching.Regex
 
 trait MBEEKeys {
 
@@ -30,6 +31,20 @@ trait MBEEKeys {
   val mbeeLicenseYearOrRange = settingKey[String](
       """The license copyright year (e.g., "2014", "2015") or year range (e.g., "2011-2014")"""
     )
+
+  val mbeePOMRepositoryPathRegex = settingKey[Regex](
+    "Regular expression to retrieve the repositoryPath of an artifact POM descriptor")
+
+  val mbeeNexusJavadocRepositoryRestAPIURL = settingKey[String](
+    """The URL for the REST API of a Nexus repository for both javadoc artifacts and published javadoc.
+      |Artifacts will be queried using the REST API /artifact/maven/resolve.
+      |Published javadoc URLs are expected to be of the form /repositories/<repo name>/archive/<path>/!/index.html
+      |where <path> will be the repository path matched from the POM result of the /artifact/maven/resolve query
+      |for the given artifact coordinates.
+    """.stripMargin)
+
+  val mbeeNexusJavadocRepositoryName = settingKey[String](
+    "The name of the repository to resolve javadoc artifacts and access their published javadoc")
 
 }
 
