@@ -4,11 +4,15 @@ enablePlugins(AetherPlugin, GitVersioning, GitBranchPrompt)
 
 overridePublishBothSettings
 
-organization := "gov.nasa.jpl.mbee.sbt"
+organization := "gov.nasa.jpl.imce.sbt"
 
-name := "sbt.mbee.plugin"
+name := "imce.sbt.plugin"
 
-git.baseVersion := "1800.02"
+logLevel in Compile := Level.Debug
+
+persistLogLevel := Level.Debug
+
+git.baseVersion := "1.0"
 
 git.useGitDescribe := true
 
@@ -69,25 +73,25 @@ publishMavenStyle := true
 
 pomAllRepositories := true
 
-( Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY")) ) match {
+( Option.apply(System.getProperty("JPL_IMCE_LOCAL_REPOSITORY")),
+  Option.apply(System.getProperty("JPL_IMCE_REMOTE_REPOSITORY")) ) match {
   case (Some(dir), _) =>
     if (new File(dir) / "settings.xml" exists) {
-      val cache = new MavenCache("JPL MBEE", new File(dir))
+      val cache = new MavenCache("JPL IMCE", new File(dir))
       Seq(
         publishTo := Some(cache),
         resolvers += cache)
     }
     else
-      sys.error(s"The JPL_MBEE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+      sys.error(s"The JPL_IMCE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
   case (None, Some(url)) => {
-    val repo = new MavenRepository("JPL MBEE", url)
+    val repo = new MavenRepository("JPL IMCE", url)
     Seq(
       publishTo := Some(repo),
       resolvers += repo)
   }
-  case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or"+
-                      "-DJPL_MBEE_REMOTE_REPOSITORY=<url> where"+
+  case _ => sys.error("Set either -DJPL_IMCE_LOCAL_REPOSITORY=<dir> or"+
+                      "-DJPL_IMCE_REMOTE_REPOSITORY=<url> where"+
                       "<dir> is a local Maven repository directory or"+
                       "<url> is a remote Maven repository URL")
 }
