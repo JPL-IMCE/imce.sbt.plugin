@@ -73,27 +73,42 @@ publishMavenStyle := true
 
 pomAllRepositories := true
 
-( Option.apply(System.getProperty("JPL_LOCAL_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_REMOTE_REPOSITORY")) ) match {
+( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
+  Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
   case (Some(dir), _) =>
     if (new File(dir) / "settings.xml" exists) {
       val cache = new MavenCache("JPL", new File(dir))
-      Seq(
-        publishTo := Some(cache),
-        resolvers += cache)
+      Seq(resolvers += cache)
     }
     else
-      sys.error(s"The JPL_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+      sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
   case (None, Some(url)) => {
     val repo = new MavenRepository("JPL", url)
-    Seq(
-      publishTo := Some(repo),
-      resolvers += repo)
+    Seq(resolvers += repo)
   }
-  case _ => sys.error("Set either -DJPL_LOCAL_REPOSITORY=<dir> or"+
-                      "-DJPL_REMOTE_REPOSITORY=<url> where"+
+  case _ => sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or"+
+                      "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where"+
                       "<dir> is a local Maven repository directory or"+
                       "<url> is a remote Maven repository URL")
+}
+
+( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
+  Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
+  case (Some(dir), _) =>
+    if (new File(dir) / "settings.xml" exists) {
+      val cache = new MavenCache("JPL", new File(dir))
+      Seq(publishTo := Some(cache))
+    }
+    else
+      sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+  case (None, Some(url)) => {
+    val repo = new MavenRepository("JPL", url)
+    Seq(publishTo := Some(repo))
+  }
+  case _ => sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or"+
+    "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where"+
+    "<dir> is a local Maven repository directory or"+
+    "<url> is a remote Maven repository URL")
 }
 
 
