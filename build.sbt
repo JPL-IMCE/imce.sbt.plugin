@@ -71,8 +71,6 @@ libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 
 publishMavenStyle := true
 
-pomAllRepositories := true
-
 ( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
   Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
   case (Some(dir), _) =>
