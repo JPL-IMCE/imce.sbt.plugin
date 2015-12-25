@@ -4,7 +4,7 @@ enablePlugins(AetherPlugin, GitVersioning, GitBranchPrompt)
 
 overridePublishBothSettings
 
-organization := "gov.nasa.jpl.imce.sbt"
+organization := "gov.nasa.jpl.imce"
 
 name := "imce.sbt.plugin"
 
@@ -26,7 +26,7 @@ resolvers += Resolver.url(
   url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
 
 // https://github.com/Banno/sbt-license-plugin
-addSbtPlugin("com.banno" % "sbt-license-plugin" % "0.1.4")
+addSbtPlugin("com.banno" % "sbt-license-plugin" % "0.1.5")
 
 // https://github.com/sbt/sbt-license-report
 addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.0.0")
@@ -73,25 +73,27 @@ publishMavenStyle := true
 
 pomAllRepositories := true
 
-( Option.apply(System.getProperty("JPL_IMCE_LOCAL_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_IMCE_REMOTE_REPOSITORY")) ) match {
+( Option.apply(System.getProperty("JPL_LOCAL_REPOSITORY")),
+  Option.apply(System.getProperty("JPL_REMOTE_REPOSITORY")) ) match {
   case (Some(dir), _) =>
     if (new File(dir) / "settings.xml" exists) {
-      val cache = new MavenCache("JPL IMCE", new File(dir))
+      val cache = new MavenCache("JPL", new File(dir))
       Seq(
         publishTo := Some(cache),
         resolvers += cache)
     }
     else
-      sys.error(s"The JPL_IMCE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+      sys.error(s"The JPL_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
   case (None, Some(url)) => {
-    val repo = new MavenRepository("JPL IMCE", url)
+    val repo = new MavenRepository("JPL", url)
     Seq(
       publishTo := Some(repo),
       resolvers += repo)
   }
-  case _ => sys.error("Set either -DJPL_IMCE_LOCAL_REPOSITORY=<dir> or"+
-                      "-DJPL_IMCE_REMOTE_REPOSITORY=<url> where"+
+  case _ => sys.error("Set either -DJPL_LOCAL_REPOSITORY=<dir> or"+
+                      "-DJPL_REMOTE_REPOSITORY=<url> where"+
                       "<dir> is a local Maven repository directory or"+
                       "<url> is a remote Maven repository URL")
 }
+
+
