@@ -1,6 +1,10 @@
 sbtPlugin := true
 
-enablePlugins(AetherPlugin, GitVersioning, GitBranchPrompt)
+enablePlugins(AetherPlugin)
+
+enablePlugins(GitVersioning)
+
+enablePlugins(GitBranchPrompt)
 
 overridePublishBothSettings
 
@@ -34,35 +38,35 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.0.0")
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
 // https://github.com/sbt/sbt-git
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
 resolvers += Classpaths.sbtPluginReleases
 
 // https://github.com/scoverage/sbt-scoverage
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.1.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.3")
 
 // https://github.com/jrudolph/sbt-dependency-graph
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.7.5")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.0")
 
 // https://github.com/xerial/sbt-pack
-addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.6.12")
+addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.7.7")
 
 // https://github.com/rtimush/sbt-updates
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.8")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.9")
 
 // https://github.com/arktekk/sbt-aether-deploy
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
+addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.16")
 
 // https://github.com/sbt/sbt-native-packager
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
 
 // https://github.com/sbt/sbt-aspectj
 addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % "0.10.2")
 
 // https://github.com/sksamuel/sbt-scapegoat
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.0")
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.3")
 
 // https://github.com/puffnfresh/wartremover
 addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
@@ -70,6 +74,16 @@ addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
 libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 
 publishMavenStyle := true
+
+// do not include all repositories in the POM
+pomAllRepositories := false
+
+pomExtra :=
+  <properties>
+    <git.branch>{git.gitCurrentBranch.value}</git.branch>
+    <git.commit>{git.gitHeadCommit.value.getOrElse("N/A")+(if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}</git.commit>
+    <git.tags>{git.gitCurrentTags.value}</git.tags>
+  </properties>
 
 ( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
   Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
