@@ -156,7 +156,7 @@ trait MBEEPlugin extends AutoPlugin {
    * so that when doing just `publish`, we'd automatically get the `dependencyTree` as well.
    */
   def mbeeDependencyGraphSettings: Seq[Setting[_]] =
-    net.virtualvoid.sbt.graph.Plugin.graphSettings
+    net.virtualvoid.sbt.graph.DependencyGraphSettings.graphSettings
 
   /**
    * @see https://tpolecat.github.io/2014/04/11/scalac-flags.html
@@ -463,7 +463,7 @@ trait MBEEPlugin extends AutoPlugin {
 
   def mbeePackageLibraryDependenciesSettings: Seq[Setting[_]] =
     xerial.sbt.Pack.packSettings ++
-    xerial.sbt.Pack.publishPackZipArchive ++
+    xerial.sbt.Pack.publishPackArchiveZip ++
     Seq(
       xerial.sbt.Pack.packExpandedClasspath := false,
       xerial.sbt.Pack.packLibJars := Seq.empty,
