@@ -28,48 +28,48 @@ resolvers += Resolver.url(
   url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
 
 // https://github.com/Banno/sbt-license-plugin
-addSbtPlugin("com.banno" % "sbt-license-plugin" % "0.1.5")
+addSbtPlugin("com.banno" % "sbt-license-plugin" % Versions.sbt_license_plugin)
 
 // https://github.com/sbt/sbt-license-report
-addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % Versions.sbt_license_report)
 
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
 // https://github.com/sbt/sbt-git
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % Versions.sbt_git)
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/releases/"
 
 resolvers += Classpaths.sbtPluginReleases
 
 // https://github.com/scoverage/sbt-scoverage
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.3")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % Versions.sbt_scoverage)
 
 // https://github.com/jrudolph/sbt-dependency-graph
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.0")
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % Versions.sbt_dependency_graph)
 
 // https://github.com/xerial/sbt-pack
-addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.7.7")
+addSbtPlugin("org.xerial.sbt" % "sbt-pack" % Versions.sbt_pack)
 
 // https://github.com/rtimush/sbt-updates
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.9")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % Versions.sbt_updates)
 
 // https://github.com/arktekk/sbt-aether-deploy
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.16")
+addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % Versions.aether_deploy)
 
 // https://github.com/sbt/sbt-native-packager
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.sbt_native_packager)
 
 // https://github.com/sbt/sbt-aspectj
-addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % "0.10.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % Versions.sbt_aspectj)
 
 // https://github.com/sksamuel/sbt-scapegoat
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.0.3")
+addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % Versions.sbt_scapegoat)
 
 // https://github.com/puffnfresh/wartremover
-addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % "0.14")
+addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % Versions.sbt_wartremover)
 
-libraryDependencies += "com.typesafe" % "config" % "1.2.1"
+libraryDependencies += "com.typesafe" % "config" % Versions.config
 
 publishMavenStyle := true
 
