@@ -298,6 +298,10 @@ trait IMCEPlugin extends AutoPlugin {
       //  can be promoted (i.e. published) to another repository)
       pomAllRepositories := false,
 
+      // include *.zip artifacts in the POM dependency section
+      makePomConfiguration :=
+        makePomConfiguration.value.copy(includeTypes = Set(Artifact.DefaultType, Artifact.PomType, "zip")),
+
       // publish Maven POM metadata (instead of Ivy);
       // this is important for the UpdatesPlugin's ability to find available updates.
       publishMavenStyle := true,

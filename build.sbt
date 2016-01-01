@@ -16,7 +16,7 @@ logLevel in Compile := Level.Debug
 
 persistLogLevel := Level.Debug
 
-version := "1.2"
+version := Versions.version
 
 git.useGitDescribe := true
 
