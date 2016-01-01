@@ -1,10 +1,10 @@
-package gov.nasa.jpl.mbee.sbt
+package gov.nasa.jpl.imce.sbt
 
 import java.nio.file.Path
 
 import sbt._
 
-trait MBEEMagicDrawEclipseClasspathKeys {
+trait IMCEMagicDrawEclipseClasspathKeys {
 
   val mdShowMagicDrawEclipseClasspath = taskKey[Unit]("Shows MagicDraw Eclipse Classpath")
 
@@ -18,4 +18,4 @@ trait MBEEMagicDrawEclipseClasspathKeys {
 
 }
 
-object MBEEMagicDrawEclipseClasspathKeys extends MBEEMagicDrawEclipseClasspathKeys
+object IMCEMagicDrawEclipseClasspathKeys extends IMCEMagicDrawEclipseClasspathKeys

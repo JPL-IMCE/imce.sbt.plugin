@@ -16,13 +16,11 @@ logLevel in Compile := Level.Debug
 
 persistLogLevel := Level.Debug
 
-version := "1.1"
+version := "1.2"
 
 git.useGitDescribe := true
 
 versionWithGit
-
-scalaVersion := "2.10.5"
 
 // https://bintray.com/banno/oss/sbt-license-plugin/view
 resolvers += Resolver.url(
@@ -78,17 +76,29 @@ publishMavenStyle := true
 // do not include all repositories in the POM
 pomAllRepositories := false
 
-pomExtra :=
-  <properties>
-    <git.branch>{git.gitCurrentBranch.value}</git.branch>
+lazy val additionalProperties = settingKey[Seq[xml.Node]]("Additional entries for the POM's <properties> section")
+
+additionalProperties :=
+  <git.branch>{git.gitCurrentBranch.value}</git.branch>
     <git.commit>{git.gitHeadCommit.value.getOrElse("N/A")+(if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}</git.commit>
     <git.tags>{git.gitCurrentTags.value}</git.tags>
-  </properties>
+
+pomPostProcess <<= additionalProperties { (additions) =>
+  new xml.transform.RuleTransformer(new xml.transform.RewriteRule {
+    override def transform(n: xml.Node): Seq[xml.Node] =
+      n match {
+        case <properties>{props @ _*}</properties> =>
+          <properties>{props}{additions}</properties>
+        case _ =>
+          n
+      }
+  })
+}
 
 ( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
   Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
   case (Some(dir), _) =>
-    if (new File(dir) / "settings.xml" exists) {
+    if ((new File(dir) / "settings.xml").exists) {
       val cache = new MavenCache("JPL Resolve", new File(dir))
       Seq(resolvers += cache)
     }
@@ -107,7 +117,7 @@ pomExtra :=
 ( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
   Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
   case (Some(dir), _) =>
-    if (new File(dir) / "settings.xml" exists) {
+    if ((new File(dir) / "settings.xml").exists) {
       val cache = new MavenCache("JPL Publish", new File(dir))
       Seq(publishTo := Some(cache))
     }

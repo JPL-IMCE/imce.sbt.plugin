@@ -1,9 +1,9 @@
-package gov.nasa.jpl.mbee.sbt
+package gov.nasa.jpl.imce.sbt
 
 import java.io.File
 import java.util.{Calendar, Locale}
 
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.{Config, ConfigFactory}
 import sbt.Keys._
 import sbt._
 
@@ -14,9 +14,9 @@ import scala.util.matching.Regex
 import scala.util.{Failure, Success, Try}
 
 
-object MBEEPlugin extends MBEEPlugin {
+object IMCEPlugin extends IMCEPlugin {
 
-  object autoImport extends MBEEKeys
+  object autoImport extends IMCEKeys
 
   override def trigger = allRequirements
 
@@ -29,13 +29,13 @@ object MBEEPlugin extends MBEEPlugin {
     Seq()
 
   override def projectSettings: Seq[Setting[_]] =
-    mbeeDefaultProjectSettings ++
-    mbeeLicenseSettings ++
-    mbeeCommonProjectDirectoriesSettings ++
-    mbeeCommonProjectMavenSettings ++
-    mbeeDependencyGraphSettings
+    defaultProjectSettings ++
+    licenseSettings ++
+    commonProjectDirectoriesSettings ++
+    commonProjectMavenSettings ++
+    dependencyGraphSettings
 
-  def mbeeNexusJavadocPOMResolveQueryURLAndPublishURL
+  def nexusJavadocPOMResolveQueryURLAndPublishURL
   ( repositoryRestAPI: String,
     repositoryName: String,
     moduleID: ModuleID)
@@ -48,26 +48,26 @@ object MBEEPlugin extends MBEEPlugin {
 
 }
 
-trait MBEEPlugin extends AutoPlugin {
+trait IMCEPlugin extends AutoPlugin {
 
   /**
    * Values intended for the organization of a packaged artifact.
    */
-  object MBEEOrganizations {
+  object Organizations {
 
-    val imce = MBEEOrganizationInfo(
-      "gov.nasa.jpl.mbee.imce", "JPL IMCE Project",
+    val imce = OrganizationInfo(
+      "gov.nasa.jpl.imce.imce", "JPL IMCE Project",
       Some(new URL("http://imce.jpl.nasa.gov")))
-    val omf = MBEEOrganizationInfo(
-      "gov.nasa.jpl.mbee.omf",
+    val omf = OrganizationInfo(
+      "gov.nasa.jpl.imce.omf",
       "JPL IMCE Ontological Modeling Framework Project",
       Some(new URL("http://imce.jpl.nasa.gov")))
-    val oti = MBEEOrganizationInfo(
-      "gov.nasa.jpl.mbee.omg.oti",
+    val oti = OrganizationInfo(
+      "gov.nasa.jpl.imce.omg.oti",
       "JPL/OMG Tool-Neutral (OTI) Project",
       Some(new URL("http://svn.omg.org/repos/TIWG")))
-    val secae = MBEEOrganizationInfo(
-      "gov.nasa.jpl.mbee.secae",
+    val secae = OrganizationInfo(
+      "gov.nasa.jpl.imce.secae",
       "JPL SECAE",
       Some(new URL("http://mbse.jpl.nasa.gov")))
 
@@ -103,8 +103,7 @@ trait MBEEPlugin extends AutoPlugin {
    *
    * @see https://blogs.oracle.com/darcy/entry/bootclasspath_older_source
    * @see https://blogs.oracle.com/darcy/entry/how_to_cross_compile_for
-   *
-   * @param jdk JDK version & installation location, if available
+    * @param jdk JDK version & installation location, if available
    * @return content to append to javacOptions
    */
   def getJavacOptionsForJDKIfAvailable(jdk: SettingKey[(String, Option[File])])
@@ -132,8 +131,7 @@ trait MBEEPlugin extends AutoPlugin {
    * @see http://stackoverflow.com/questions/32419353/
    * @see https://blogs.oracle.com/darcy/entry/bootclasspath_older_source
    * @see https://blogs.oracle.com/darcy/entry/how_to_cross_compile_for
-   *
-   * @param jdk JDK version & installation location, if available
+    * @param jdk JDK version & installation location, if available
    * @return content to append to scalacOptions
    */
   def getScalacOptionsForJDKIfAvailable(jdk: SettingKey[(String, Option[File])]) = Def.task[Seq[String]] {
@@ -155,14 +153,14 @@ trait MBEEPlugin extends AutoPlugin {
    * `publish` have a dependency on `dependencyTree`
    * so that when doing just `publish`, we'd automatically get the `dependencyTree` as well.
    */
-  def mbeeDependencyGraphSettings: Seq[Setting[_]] =
+  def dependencyGraphSettings: Seq[Setting[_]] =
     net.virtualvoid.sbt.graph.DependencyGraphSettings.graphSettings
 
   /**
    * @see https://tpolecat.github.io/2014/04/11/scalac-flags.html
    * @return SBT settings
    */
-  def mbeeStrictScalacFatalWarningsSettings: Seq[Setting[_]] =
+  def strictScalacFatalWarningsSettings: Seq[Setting[_]] =
     Seq(
       scalacOptions ++= Seq(
         "-deprecation",
@@ -187,13 +185,13 @@ trait MBEEPlugin extends AutoPlugin {
     * Settings to generate scaladoc for scala source code.
     *
     * Limitations (probably due to scaladoc)
+    *
     * @see https://groups.google.com/forum/#!topic/scala-user/gMXOnVqTYo0
     * @see http://stackoverflow.com/questions/33715459/scaladoc-how-to-make-scaladoc-encode-method-names-like-scalaz
-    *
     * @param diagrams true: use graphviz to generate diagrams
     * @return
     */
-  def mbeeScalaDoc(diagrams:Boolean): Seq[Setting[_]] =
+  def scalaDocSettings(diagrams:Boolean): Seq[Setting[_]] =
     Seq(
       scalacOptions in (Compile,doc) ++=
         (if (diagrams)
@@ -208,30 +206,33 @@ trait MBEEPlugin extends AutoPlugin {
       autoAPIMappings := true,
       apiMappings <++=
         ( dependencyClasspath in Compile in doc,
-          MBEEKeys.mbeeNexusJavadocRepositoryRestAPIURL,
-          MBEEKeys.mbeeNexusJavadocRepositoryName,
-          MBEEKeys.mbeePOMRepositoryPathRegex,
-          streams ) map { (deps, repoURL, repoName, repoPathRegex, s) =>
+          IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName,
+          IMCEKeys.pomRepositoryPathRegex,
+          streams ) map { (deps, repoURL2Name, repoPathRegex, s) =>
           (for {
             jar <- deps
             url <- jar.metadata.get(AttributeKey[ModuleID]("moduleId")).flatMap { moduleID =>
-              val (query, match2publishF) =
-                MBEEPlugin.mbeeNexusJavadocPOMResolveQueryURLAndPublishURL(repoURL, repoName, moduleID)
-              nonFatalCatch[Option[URL]]
-                .withApply { (_: java.lang.Throwable) => None }
-                .apply({
-                  val conn = query.openConnection.asInstanceOf[java.net.HttpURLConnection]
-                  conn.setRequestMethod("GET")
-                  conn.setDoOutput(true)
-                  repoPathRegex
-                    .findFirstMatchIn(Source.fromInputStream(conn.getInputStream).getLines.mkString)
-                    .map { m =>
-                      val javadocURL = match2publishF(m)
-                      s.log.info(s"Javadoc for: $moduleID")
-                      s.log.info(s"= mapped to: $javadocURL")
-                      javadocURL
-                    }
-                })
+              val urls = for {
+                (repoURL, repoName) <- repoURL2Name
+                (query, match2publishF) = IMCEPlugin.nexusJavadocPOMResolveQueryURLAndPublishURL(
+                  repoURL, repoName, moduleID)
+                url <- nonFatalCatch[Option[URL]]
+                  .withApply { (_: java.lang.Throwable) => None }
+                  .apply({
+                    val conn = query.openConnection.asInstanceOf[java.net.HttpURLConnection]
+                    conn.setRequestMethod("GET")
+                    conn.setDoOutput(true)
+                    repoPathRegex
+                      .findFirstMatchIn(Source.fromInputStream(conn.getInputStream).getLines.mkString)
+                      .map { m =>
+                        val javadocURL = match2publishF(m)
+                        s.log.info(s"Javadoc for: $moduleID")
+                        s.log.info(s"= mapped to: $javadocURL")
+                        javadocURL
+                      }
+                  })
+              } yield url
+              urls.headOption
             }
           } yield jar.data -> url).toMap
         }
@@ -240,9 +241,9 @@ trait MBEEPlugin extends AutoPlugin {
   /**
    * SBT settings that can projects are likely to override.
    */
-  def mbeeDefaultProjectSettings: Seq[Setting[_]] =
+  def defaultProjectSettings: Seq[Setting[_]] =
     Seq(
-      MBEEKeys.mbeeSBTConfig := {
+      IMCEKeys.sbtConfig := {
 
         // Default Classpath configuration, i.e., application.{conf,json,properties}
         // Can override with -Dconfig.file=<file>
@@ -252,27 +253,26 @@ trait MBEEPlugin extends AutoPlugin {
 
       },
 
-      MBEEKeys.jdk18 := getJRERuntimeLib(MBEEKeys.mbeeSBTConfig.value, "jdk_locations.1.8"),
-      MBEEKeys.jdk17 := getJRERuntimeLib(MBEEKeys.mbeeSBTConfig.value, "jdk_locations.1.7"),
-      MBEEKeys.jdk16 := getJRERuntimeLib(MBEEKeys.mbeeSBTConfig.value, "jdk_locations.1.6"),
+      IMCEKeys.jdk18 := getJRERuntimeLib(IMCEKeys.sbtConfig.value, "jdk_locations.1.8"),
+      IMCEKeys.jdk17 := getJRERuntimeLib(IMCEKeys.sbtConfig.value, "jdk_locations.1.7"),
+      IMCEKeys.jdk16 := getJRERuntimeLib(IMCEKeys.sbtConfig.value, "jdk_locations.1.6"),
 
-      organization := MBEEKeys.mbeeOrganizationInfo.value.groupId,
-      organizationName := MBEEKeys.mbeeOrganizationInfo.value.name,
-      organizationHomepage := MBEEKeys.mbeeOrganizationInfo.value.url,
+      organization := IMCEKeys.organizationInfo.value.groupId,
+      organizationName := IMCEKeys.organizationInfo.value.name,
+      organizationHomepage := IMCEKeys.organizationInfo.value.url,
 
       // disable automatic dependency on the Scala library
       autoScalaLibrary := false,
 
       scalaVersion := "2.11.7",
 
-      scalacOptions in (Compile, compile) <++= getScalacOptionsForJDKIfAvailable(MBEEKeys.targetJDK),
+      scalacOptions in (Compile, compile) <++= getScalacOptionsForJDKIfAvailable(IMCEKeys.targetJDK),
 
+      javacOptions in (Compile, compile) <++= getJavacOptionsForJDKIfAvailable(IMCEKeys.targetJDK),
 
-      javacOptions in (Compile, compile) <++= getJavacOptionsForJDKIfAvailable(MBEEKeys.targetJDK),
+      IMCEKeys.releaseVersionPrefix := "1800.02",
 
-      MBEEKeys.mbeeReleaseVersionPrefix := "1800.02",
-
-      MBEEKeys.mbeeLicenseYearOrRange :=
+      IMCEKeys.licenseYearOrRange :=
         Calendar.getInstance()
         .getDisplayName(Calendar.YEAR, Calendar.LONG_STANDALONE, Locale.getDefault)
     )
@@ -280,7 +280,7 @@ trait MBEEPlugin extends AutoPlugin {
   /**
    * SBT settings to exclude directories that do not exist.
    */
-  def mbeeCommonProjectDirectoriesSettings: Seq[Setting[_]] =
+  def commonProjectDirectoriesSettings: Seq[Setting[_]] =
     Seq(
       sourceDirectories in Compile ~= { _.filter(_.exists) },
       sourceDirectories in Test ~= { _.filter(_.exists) },
@@ -290,11 +290,13 @@ trait MBEEPlugin extends AutoPlugin {
       unmanagedResourceDirectories in Test ~= { _.filter(_.exists) }
     )
 
-  def mbeeCommonProjectMavenSettings: Seq[Setting[_]] =
+  def commonProjectMavenSettings: Seq[Setting[_]] =
     aether.AetherPlugin.autoImport.overridePublishSettings ++
     Seq(
-      // include repositories used in module configurations into the POM repositories section
-      pomAllRepositories := true,
+      // do not include all repositories in the POM
+      // (this is important for staging since artifacts published to a staging repository
+      //  can be promoted (i.e. published) to another repository)
+      pomAllRepositories := false,
 
       // publish Maven POM metadata (instead of Ivy);
       // this is important for the UpdatesPlugin's ability to find available updates.
@@ -310,52 +312,65 @@ trait MBEEPlugin extends AutoPlugin {
           aether.AetherPlugin.createArtifact(artifacts, pom, coords, mainArtifact)
       }
     ) ++
-    ((Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")),
-      Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
-      case (Some(dir), _)    =>
-        if (new File(dir) / "settings.xml" exists) {
-          val cache = new MavenCache("JPL MBEE", new File(dir))
-          Seq(
-            publishTo := Some(cache),
-            resolvers += cache)
+      (( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
+         Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
+        case (Some(dir), _) =>
+          if (new File(dir) / "settings.xml" exists) {
+            val cache = new MavenCache("JPL Resolve", new File(dir))
+            Seq(resolvers += cache)
+          }
+          else
+            sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+        case (None, Some(url)) => {
+          val repo = new MavenRepository("JPL Resolve", url)
+          Seq(resolvers += repo)
         }
-        else
-          sys.error(s"The JPL_MBEE_LOCAL_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-      case (None, Some(url)) => {
-        val repo = new MavenRepository("JPL MBEE", url)
-        Seq(
-          publishTo := Some(repo),
-          resolvers += repo)
-      }
-      case _                 => sys
-                                .error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or"+
-                                       "-DJPL_MBEE_REMOTE_REPOSITORY=<url> where "+
-                                       "<dir> is a local Maven repository directory or "+
-                                       "<url> is a remote Maven repository URL")
-    })
+        case _ => sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or" +
+          "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where" +
+          "<dir> is a local Maven repository directory or" +
+          "<url> is a remote Maven repository URL")
+      }) ++
+      (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
+         Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
+        case (Some(dir), _) =>
+          if (new File(dir) / "settings.xml" exists) {
+            val cache = new MavenCache("JPL Publish", new File(dir))
+            Seq(publishTo := Some(cache))
+          }
+          else
+            sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+        case (None, Some(url)) => {
+          val repo = new MavenRepository("JPL Publish", url)
+          Seq(publishTo := Some(repo))
+        }
+        case _ => sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or" +
+          "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where" +
+          "<dir> is a local Maven repository directory or" +
+          "<url> is a remote Maven repository URL")
+      })
 
   ///**
   // * Cannot use Ivy repositories because UpdatesPlugin 0.1.8 only works with Maven repositories
   // */
-  //  def mbeeCommonProjectIvySettings: Seq[Setting[_]] =
-  //    (Option.apply(System.getProperty("JPL_MBEE_LOCAL_REPOSITORY")),
-  //     Option.apply(System.getProperty("JPL_MBEE_REMOTE_REPOSITORY"))) match {
+  //  def imceCommonProjectIvySettings: Seq[Setting[_]] =
+  //    (Option.apply(System.getProperty("JPL_IMCE_LOCAL_REPOSITORY")),
+  //     Option.apply(System.getProperty("JPL_IMCE_REMOTE_REPOSITORY"))) match {
   //      case (Some(dir), _) =>
-  //        val r = Resolver.file("JPL MBEE", new File(dir))(Resolver.ivyStylePatterns)
+  //        val r = Resolver.file("JPL IMCE", new File(dir))(Resolver.ivyStylePatterns)
   //        Seq(
   //          publishMavenStyle := false,
   //          publishTo := Some(r),
   //          resolvers += r
   //        )
   //      case (None, Some(url)) =>
-  //        val r = Resolver.url("JPL MBEE", new URL(url))(Resolver.ivyStylePatterns)
+  //        val r = Resolver.url("JPL IMCE", new URL(url))(Resolver.ivyStylePatterns)
   //        Seq(
   //          publishMavenStyle := false,
   //          publishTo := Some(r),
   //          resolvers += r
   //        )
-  //      case _ => sys.error("Set either -DJPL_MBEE_LOCAL_REPOSITORY=<dir> or "+
-  //                           "-DJPL_MBEE_REMOTE_REPOSITORY=<url> where "+
+  //      case _ => sys.error("Set either -DJPL_IMCE_LOCAL_REPOSITORY=<dir> or "+
+  //                           "-DJPL_IMCE_REMOTE_REPOSITORY=<url> where "+
   //                           "<dir> is a local Maven repository directory or <url> is a remote Maven repository URL")
   //    }
 
@@ -363,7 +378,7 @@ trait MBEEPlugin extends AutoPlugin {
   /**
    * SBT settings to ensure all source files have the same license header.
    */
-  def mbeeLicenseSettings: Seq[Setting[_]] =
+  def licenseSettings: Seq[Setting[_]] =
     com.banno.license.Plugin.licenseSettings ++
     Seq(
       com.banno.license.Plugin.LicenseKeys.removeExistingHeaderBlock := true,
@@ -371,7 +386,7 @@ trait MBEEPlugin extends AutoPlugin {
       s"""|
           |License Terms
           |
-          |Copyright (c) ${MBEEKeys.mbeeLicenseYearOrRange.value}, California Institute of Technology ("Caltech").
+          |Copyright (c) ${IMCEKeys.licenseYearOrRange.value}, California Institute of Technology ("Caltech").
           |U.S. Government sponsorship acknowledged.
           |
           |All rights reserved.
@@ -461,7 +476,7 @@ trait MBEEPlugin extends AutoPlugin {
     result
   }
 
-  def mbeePackageLibraryDependenciesSettings: Seq[Setting[_]] =
+  def packageLibraryDependenciesSettings: Seq[Setting[_]] =
     xerial.sbt.Pack.packSettings ++
     xerial.sbt.Pack.publishPackArchiveZip ++
     Seq(
@@ -473,8 +488,8 @@ trait MBEEPlugin extends AutoPlugin {
       }
     )
 
-  def mbeePackageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
-    mbeePackageLibraryDependenciesSettings ++
+  def packageLibraryDependenciesWithoutSourcesSettings: Seq[Setting[_]] =
+    packageLibraryDependenciesSettings ++
     Seq(
 
       // http://www.scala-sbt.org/0.13.5/docs/Detailed-Topics/Artifacts.html
@@ -516,20 +531,20 @@ trait MBEEPlugin extends AutoPlugin {
       packagedArtifacts += artifact.value -> xerial.sbt.Pack.packArchiveZip.value
     )
 
-  def mbeeDebugSymbolsSettings: Seq[Setting[_]] =
+  def debugSymbolsSettings: Seq[Setting[_]] =
     Seq(
       scalacOptions in (Compile, compile) += "-g:vars",
 
       javacOptions in (Compile, compile) += "-g:vars"
     )
 
-  def mbeeAspectJSettings: Seq[Setting[_]] = {
+  def aspectJSettings: Seq[Setting[_]] = {
 
-    import com.typesafe.sbt.SbtAspectj._
     import com.typesafe.sbt.SbtAspectj.AspectjKeys._
+    import com.typesafe.sbt.SbtAspectj._
 
     aspectjSettings ++
-    mbeeDebugSymbolsSettings ++
+    debugSymbolsSettings ++
     Seq(
       extraAspectjOptions in Aspectj := Seq("-g"),
 
@@ -559,26 +574,24 @@ trait MBEEPlugin extends AutoPlugin {
    *          {{{
    *           lazy val core = Project("<sbt name, '-' separated>", file(".")).
    *             settings(GitVersioning.buildSettings). // should be unnecessary but it doesn't work without this
-   *             enablePlugins(MBEEGitPlugin).
-   *             settings(mbeeDynamicScriptsProjectResourceSettings(Some("<java-compatible project qualified name>")).
+   *             enablePlugins(IMCEGitPlugin).
+   *             settings(dynamicScriptsProjectResourceSettings(Some("<java-compatible project qualified name>")).
    *             ...
    *          }}}
-   *
-   * @example Example usage in *.sbt or *.scala SBT file (don't use this with Jenkins CI!)
+    * @example Example usage in *.sbt or *.scala SBT file (don't use this with Jenkins CI!)
    *
    *          {{{
    *           lazy val core = Project("<sbt name, '-' separated>", file(".")).
    *             settings(GitVersioning.buildSettings). // should be unnecessary but it doesn't work without this
-   *             enablePlugins(MBEEGitPlugin).
-   *             settings(mbeeDynamicScriptsProjectResourceSettings).
+   *             enablePlugins(IMCEGitPlugin).
+   *             settings(dynamicScriptsProjectResourceSettings).
    *             ...
    *          }}}
-   *
-   * @param dynamicScriptsProjectName override the default dynamicScripts project name calculated
+    * @param dynamicScriptsProjectName override the default dynamicScripts project name calculated
    *                                  from SBT's baseDirectory
    * @return SBT settings for the UniversalPlugin
    */
-  def mbeeDynamicScriptsProjectResourceSettings(dynamicScriptsProjectName: Option[String] = None): Seq[Setting[_]] = {
+  def dynamicScriptsProjectResourceSettings(dynamicScriptsProjectName: Option[String] = None): Seq[Setting[_]] = {
 
     import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 

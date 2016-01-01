@@ -1,4 +1,4 @@
-# SECAE SBT Plugin for MBEE projects in Scala, Java, AspectJ.
+# SBT Plugin for Java, Scala, AspectJ projects
 
 The [Simple Build Tool](http://www.scala-sbt.org "SBT") is an extensible system
 for building packaged artifacts (typically jars, zips, ...) from un-packaged 
@@ -18,7 +18,7 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.mbee.sbt", "sbt-mbee-plugin", "1800.02")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.2")
 ```
 
 ### [How to find available updates for versioned dependencies?](doc/DependencyUpdates.md)
@@ -26,17 +26,17 @@ addSbtPlugin("gov.nasa.jpl.mbee.sbt", "sbt-mbee-plugin", "1800.02")
 
 ## Related work
 
-The JPL MBEE SBT Plugin is an SBT Archetype AutoPlugin in the sense of Mark Schaake's concept of
+The JPL IMCE SBT Plugin is an SBT Archetype AutoPlugin in the sense of Mark Schaake's concept of
 [SBT Archetype AutoPlugin](http://www.slideshare.net/MarkSchaake/archetype-autoplugins).
 
-The motivations for developing the JPL MBEE SBT Plugin are the same as Mark Schaake's.
+The motivations for developing the JPL IMCE SBT Plugin are the same as Mark Schaake's.
 The techniques involved are similar.
 
 ## Ant, Maven, Gradle, SBT: A comparison
 
 See [SBT in Action](http://www.manning.com/suereth2/SBTinA_meap_ch1.pdf "Chapter 1")
 
-## Why SBT for SECAE MBEE projects?
+## Why creating an SBT plugin?
 
 SECAE has been distributing to the JPL MBSE community the SECAE-packaged MagicDraw toolkit,
 which integrates several MagicDraw extensions mostly developed 
@@ -44,10 +44,10 @@ at JPL (plugins, profiles, transformations, scripts, examples, ...).
 Recent advances push for integrating standards-based capabilities (e.g., OMG's UML/SysML, W3C's OWL).
 This requires revisiting the MagicDraw-centric SECAE integration process model.
 
-The MagicDraw-centric SECAE integration process model is orchestrated via Ant scripts.
-Each integration process step begins with a MagicDraw package (initially, NoMagic's), 
-builds an extension (typically a plugin) resulting in a MagicDraw zip resource 
-that is installed into the input MagicDraw package resulting in a new MagicDraw package 
+The MagicDraw-centric SECAE integration process model was orchestrated via Ant scripts.
+Each integration process step began with a MagicDraw package (initially, NoMagic's),
+buildt an extension (typically a plugin) resulting in a MagicDraw zip resource
+that was installed into the input MagicDraw package resulting in a new MagicDraw package
 with the extension already integrated. This process is not appropriate for building standards-based
 capabilities.
 

@@ -1,4 +1,4 @@
-package gov.nasa.jpl.mbee.sbt
+package gov.nasa.jpl.imce.sbt
 
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
@@ -9,15 +9,15 @@ import sbt._
 import scala.collection.JavaConversions._
 
 
-object MBEEMagicDrawEclipseClasspathPlugin extends MBEEMagicDrawEclipseClasspathPlugin {
+object IMCEMagicDrawEclipseClasspathPlugin extends IMCEMagicDrawEclipseClasspathPlugin {
 
-  object autoImport extends MBEEMagicDrawEclipseClasspathKeys
+  object autoImport extends IMCEMagicDrawEclipseClasspathKeys
 
   import autoImport._
 
   override def trigger = noTrigger
 
-  override def requires = MBEEPlugin
+  override def requires = IMCEPlugin
 
   override def buildSettings: Seq[Setting[_]] =
     Seq()
@@ -45,7 +45,7 @@ object MBEEMagicDrawEclipseClasspathPlugin extends MBEEMagicDrawEclipseClasspath
     )
 }
 
-trait MBEEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
+trait IMCEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
 
 
   val MD_CLASSPATH = "^gov.nasa.jpl.magicdraw.CLASSPATH_LIB_CONTAINER/(.*)$".r
