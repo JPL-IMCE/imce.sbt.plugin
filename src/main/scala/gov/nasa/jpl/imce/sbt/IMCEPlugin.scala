@@ -55,8 +55,8 @@ trait IMCEPlugin extends AutoPlugin {
    */
   object Organizations {
 
-    val imce = OrganizationInfo(
-      "gov.nasa.jpl.imce.imce", "JPL IMCE Project",
+    val thirdParty = OrganizationInfo(
+      "gov.nasa.jpl.imce.imce", "JPL IMCE Third-Party Dependencies",
       Some(new URL("http://imce.jpl.nasa.gov")))
     val omf = OrganizationInfo(
       "gov.nasa.jpl.imce.omf",
@@ -66,10 +66,10 @@ trait IMCEPlugin extends AutoPlugin {
       "gov.nasa.jpl.imce.omg.oti",
       "JPL/OMG Tool-Neutral (OTI) Project",
       Some(new URL("http://svn.omg.org/repos/TIWG")))
-    val secae = OrganizationInfo(
+    val cae = OrganizationInfo(
       "gov.nasa.jpl.imce.secae",
-      "JPL SECAE",
-      Some(new URL("http://mbse.jpl.nasa.gov")))
+      "JPL CAE",
+      Some(new URL("http://cae.jpl.nasa.gov")))
 
   }
 
