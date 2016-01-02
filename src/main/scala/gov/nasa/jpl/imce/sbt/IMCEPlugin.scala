@@ -56,7 +56,7 @@ trait IMCEPlugin extends AutoPlugin {
   object Organizations {
 
     val thirdParty = OrganizationInfo(
-      "gov.nasa.jpl.imce.imce", "JPL IMCE Third-Party Dependencies",
+      "gov.nasa.jpl.imce.thirdParty", "JPL IMCE Third-Party Dependencies",
       Some(new URL("http://imce.jpl.nasa.gov")))
     val omf = OrganizationInfo(
       "gov.nasa.jpl.imce.omf",
