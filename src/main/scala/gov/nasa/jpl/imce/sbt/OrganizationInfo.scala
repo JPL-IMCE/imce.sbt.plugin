@@ -14,12 +14,10 @@ case class OrganizationInfo(groupId: String, name: String, url: Option[URL] = No
    * Construct an SBT ModuleID for libraryDependencies for a git-versioned jar artifact published by this organization
    *
    * @param artifactId The name of an artifact published by this organization
-   * @param versionPrefix The version prefix, typically, IMCEKeys.releaseVersionPrefix.value
-   * @param versionSuffix The version suffix, typically, the 40-character GIT hash
+   * @param version The version
    * @return an sbt.ModuleID that can be added to libraryDependencies
    */
-  def artifactVersion(artifactId: String, versionPrefix: String, versionSuffix: String): ModuleID = {
-    val version: String = versionPrefix+"-"+versionSuffix
+  def artifactVersion(artifactId: String, version: String): ModuleID = {
     groupId %% artifactId % version
   }
 
@@ -27,12 +25,10 @@ case class OrganizationInfo(groupId: String, name: String, url: Option[URL] = No
    * Construct an SBT ModuleID for libraryDependencies for a git-versioned zip artifact published by this organization
    *
    * @param artifactId The name of an artifact published by this organization
-   * @param versionPrefix The version prefix, typically, IMCEKeys.releaseVersionPrefix.value
-   * @param versionSuffix The version suffix, typically, the 40-character GIT hash
+   * @param version The version
    * @return an sbt.ModuleID that can be added to libraryDependencies
    */
-  def zipArtifactVersion(artifactId: String, versionPrefix: String, versionSuffix: String): ModuleID = {
-    val version: String = versionPrefix+"-"+versionSuffix
+  def zipArtifactVersion(artifactId: String, version: String): ModuleID = {
     groupId %% artifactId % version artifacts Artifact(artifactId, "zip", "zip")
   }
 

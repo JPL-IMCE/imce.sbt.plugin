@@ -23,11 +23,6 @@ trait IMCEKeys {
         |(artifact groupID, organization name, and optionally, URL)""".stripMargin
     )
 
-  lazy val releaseVersionPrefix = settingKey[String](
-      """The version prefix for the next release of the JPL IMCE toolkit (e.g., "1800.02");
-        | the version suffix will be generated from the Source Code Management (SCM) system (GIT, SVN)""".stripMargin
-    )
-
   lazy val licenseYearOrRange = settingKey[String](
       """The license copyright year (e.g., "2014", "2015") or year range (e.g., "2011-2014")"""
     )
