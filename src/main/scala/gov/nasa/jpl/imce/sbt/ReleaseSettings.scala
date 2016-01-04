@@ -87,7 +87,7 @@ trait ReleaseSettings {
     Seq(
       releaseProcess := Seq(
         ReleaseStep(action =
-          Command.process(s"sonatypeOpen 'g=${organization.value}, a=${name.value} v=${version.value}'", _)),
+          Command.process(s"sonatypeOpen g=${organization.value},a=${name.value},v=${version.value}", _)),
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,

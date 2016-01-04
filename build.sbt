@@ -158,7 +158,7 @@ gitReader.value.withGit(_.describedVersion)
   .orElse(Some(git.baseVersion.value))
 )
 
-versionWithGit
+//versionWithGit
 
 def setVersionOnly(selectVersion: Versions => String): ReleaseStep =  { st: State =>
   val vs = st
@@ -202,7 +202,7 @@ lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
 
 releaseProcess := Seq(
   ReleaseStep(action =
-    Command.process(s"sonatypeOpen 'g=${organization.value}, a=${name.value}, v=${version.value}'", _)),
+    Command.process(s"sonatypeOpen g=${organization.value},a=${name.value},v=${version.value}", _)),
   checkUncommittedChanges,
   checkSnapshotDependencies,
   inquireVersions,
