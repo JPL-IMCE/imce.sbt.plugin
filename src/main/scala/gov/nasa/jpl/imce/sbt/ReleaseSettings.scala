@@ -18,6 +18,8 @@ trait ReleaseSettings {
     Seq(
       useGpg := true,
 
+      useGpgAgent := true,
+
       releasePublishArtifactsAction := publishSigned.value,
 
       releaseVersion <<= releaseVersionBump ( bumper => {

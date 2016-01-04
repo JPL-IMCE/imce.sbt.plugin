@@ -18,8 +18,26 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.2")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.8")
 ```
+
+## Useful links
+
+- [Requirements for releasing to maven central](http://central.sonatype.org/pages/requirements.html)
+
+Brief summary of key requirements agreed to by the open source software community.
+
+- [Releasing to the Open-Source Software Repository Hosting, OSSRH](http://central.sonatype.org/pages/releasing-the-deployment.html)
+
+Brief overview of the repository staging process involved in publishing releases.
+
+- [Publishing scala libraries to Sonatype](http://www.loftinspace.com.au/blog/publishing-scala-libraries-to-sonatype.html)
+
+Explains the signing requirements, including creating & publishing a signed key to meet the requirements for publishing to the OSSRH.
+
+- [Painless release with SBT](http://blog.byjean.eu/2015/07/10/painless-release-with-sbt.html)
+
+Explanation about several SBT plugins used to automate the release process.
 
 ### [How to find available updates for versioned dependencies?](doc/DependencyUpdates.md)
 
