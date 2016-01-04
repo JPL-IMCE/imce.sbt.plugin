@@ -9,6 +9,8 @@ import sbtrelease._
 import sbtrelease.ReleasePlugin.autoImport._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
 
+import xerial.sbt.Sonatype._
+
 import sbt.Keys._
 import sbt._
 
@@ -63,6 +65,8 @@ trait ReleaseSettings {
   def packageReleaseProcessSettings: Seq[Setting[_]] =
     Seq(
       releaseProcess := Seq(
+        ReleaseStep(action =
+          Command.process(s"sonatypeOpen g=${organization.value}, a=${name.value} v=${version.value}", _)),
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
@@ -70,7 +74,8 @@ trait ReleaseSettings {
         runTest,
         tagRelease,
         ReleaseStep(releaseStepTask(publishSigned in Universal)),
-        pushChanges
+        pushChanges,
+        ReleaseStep(action = Command.process(s"sonatypeClose", _))
     )) ++
     SettingsHelper.makeDeploymentSettings(Universal, packageBin in Universal, "zip")
 
@@ -81,6 +86,8 @@ trait ReleaseSettings {
   def libraryReleaseProcessSettings: Seq[Setting[_]] =
     Seq(
       releaseProcess := Seq(
+        ReleaseStep(action =
+          Command.process(s"sonatypeOpen 'g=${organization.value}, a=${name.value} v=${version.value}'", _)),
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
@@ -88,6 +95,7 @@ trait ReleaseSettings {
         runTest,
         tagRelease,
         publishArtifacts,
-        pushChanges
+        pushChanges,
+        ReleaseStep(action = Command.process(s"sonatypeClose", _))
     ))
 }

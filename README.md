@@ -21,6 +21,13 @@ With the above redirection, add the following to an SBT `project/plugins.sbt` fi
 addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.8")
 ```
 
+## Building
+
+```
+sbt release with-defaults
+git push origin --tags
+```
+
 ## Useful links
 
 - [Requirements for releasing to maven central](http://central.sonatype.org/pages/requirements.html)
