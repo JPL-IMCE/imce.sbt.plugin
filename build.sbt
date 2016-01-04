@@ -84,7 +84,9 @@ addSbtPlugin("com.jsuereth" % "sbt-pgp" % Versions.sbt_pgp)
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % Versions.config
 
-PgpKeys.useGpg := true
+useGpg := true
+
+useGpgAgent := true
 
 git.baseVersion := Versions.version
 
