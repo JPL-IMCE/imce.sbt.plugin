@@ -1,5 +1,4 @@
 import com.typesafe.sbt.SbtGit.GitKeys._
-import com.typesafe.sbt.packager.SettingsHelper._
 
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
@@ -85,6 +84,8 @@ addSbtPlugin("com.jsuereth" % "sbt-pgp" % Versions.sbt_pgp)
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % Versions.config
 
+PgpKeys.useGpg := true
+
 git.baseVersion := Versions.version
 
 git.useGitDescribe := true
@@ -98,8 +99,13 @@ git.gitTagToVersionNumber := {
   case _ => None
 }
 
-git.gitDescribedVersion := gitReader.value.withGit(_.describedVersion).flatMap(v =>
-  Option(v).map(_.drop(1)).orElse(formattedShaVersion.value).orElse(Some(git.baseVersion.value))
+git.gitDescribedVersion :=
+gitReader.value.withGit(_.describedVersion)
+.flatMap(v =>
+  Option(v)
+  .map(_.drop(1))
+  .orElse(formattedShaVersion.value)
+  .orElse(Some(git.baseVersion.value))
 )
 
 versionWithGit
@@ -121,10 +127,13 @@ def setVersionOnly(selectVersion: Versions => String): ReleaseStep =  { st: Stat
 
 lazy val setReleaseVersion: ReleaseStep = setVersionOnly(_._1)
 
+// do not bump the version.
+//.map(_.bump(bumper).string)
 releaseVersion <<= releaseVersionBump ( bumper => {
   ver => Version(ver)
          .map(_.withoutQualifier)
-         .map(_.bump(bumper).string).getOrElse(versionFormatError)
+         .map(_.string)
+         .getOrElse(versionFormatError)
 })
 
 val showNextVersion = settingKey[String]("the future version once releaseNextVersion has been applied to it")
@@ -149,7 +158,7 @@ releaseProcess := Seq(
   runTest,
   tagRelease,
   // publishArtifacts,
-  ReleaseStep(releaseStepTask(publish in Universal)),
+  ReleaseStep(releaseStepTask(PgpKeys.publishSigned in Universal)),
   pushChanges
 )
 

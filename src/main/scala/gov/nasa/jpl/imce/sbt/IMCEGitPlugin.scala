@@ -41,8 +41,12 @@ trait IMCEGitPlugin extends AutoPlugin {
         case _ => None
       },
 
-      git.gitDescribedVersion := GitKeys.gitReader.value.withGit(_.describedVersion).flatMap(v =>
-        Option(v).map(_.drop(1)).orElse(GitKeys.formattedShaVersion.value).orElse(Some(git.baseVersion.value))
+      git.gitDescribedVersion :=
+      GitKeys.gitReader.value.withGit(_.describedVersion).flatMap(v =>
+        Option(v)
+        .map(_.drop(1))
+        .orElse(GitKeys.formattedShaVersion.value)
+        .orElse(Some(git.baseVersion.value))
       ),
 
       pomExtra := getGitSCMInfo,

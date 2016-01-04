@@ -3,6 +3,7 @@ package gov.nasa.jpl.imce.sbt
 import com.typesafe.sbt.SbtGit._
 import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.packager._
+import com.typesafe.sbt.pgp.PgpKeys._
 
 import sbtrelease._
 import sbtrelease.ReleasePlugin.autoImport._
@@ -15,10 +16,15 @@ trait ReleaseSettings {
 
   def defaultReleaseSettings: Seq[Setting[_]] =
     Seq(
+      useGpg := true,
+
+      releasePublishArtifactsAction := publishSigned.value,
+
       releaseVersion <<= releaseVersionBump ( bumper => {
         ver => Version(ver)
                .map(_.withoutQualifier)
-               .map(_.bump(bumper).string).getOrElse(versionFormatError)
+               .map(_.string)
+               .getOrElse(versionFormatError)
       })
     )
 
@@ -61,7 +67,7 @@ trait ReleaseSettings {
         setReleaseVersion,
         runTest,
         tagRelease,
-        ReleaseStep(releaseStepTask(publish in Universal)),
+        ReleaseStep(releaseStepTask(publishSigned in Universal)),
         pushChanges
     )) ++
     SettingsHelper.makeDeploymentSettings(Universal, packageBin in Universal, "zip")
