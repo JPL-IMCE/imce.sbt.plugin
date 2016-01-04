@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "1.8"
+  val version = "1.9"
 
   // https://github.com/Banno/sbt-license-plugin
   val sbt_license_plugin = "0.1.5"
