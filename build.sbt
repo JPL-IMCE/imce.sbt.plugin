@@ -1,7 +1,10 @@
 import com.typesafe.sbt.SbtGit.GitKeys._
+import com.typesafe.sbt.pgp.PgpKeys
 
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
+
+sbtPlugin := true
 
 ( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
   Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
@@ -51,8 +54,6 @@ Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
     sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
 }
 
-sbtPlugin := true
-
 enablePlugins(AetherPlugin)
 
 enablePlugins(GitVersioning)
@@ -68,7 +69,6 @@ name := "imce.sbt.plugin"
 logLevel in Compile := Level.Debug
 
 persistLogLevel := Level.Debug
-
 
 // https://bintray.com/banno/oss/sbt-license-plugin/view
 resolvers += Resolver.url(
@@ -200,25 +200,15 @@ lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
   st
 }
 
-lazy val sonatypeOpenGAV: ReleaseStep = { st: State =>
-  val e = Project.extract(st)
-  val command = s"sonatypeOpen g=${e.get(organization)},a=${e.get(name)},v=${e.get(version)}"
-  val next = releaseStepCommand(command)(st)
-  next
-}
-
 releaseProcess := Seq(
   checkUncommittedChanges,
   checkSnapshotDependencies,
   inquireVersions,
   setReleaseVersion,
-  ReleaseStep(action = Command.process("reload", _)),
-  sonatypeOpenGAV,
   runTest,
   tagRelease,
   publishArtifacts,
-  pushChanges,
-  ReleaseStep(action = Command.process(s"sonatypeClose", _))
+  pushChanges
 )
 
 publishMavenStyle := true
