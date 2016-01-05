@@ -158,7 +158,7 @@ gitReader.value.withGit(_.describedVersion)
   .orElse(Some(git.baseVersion.value))
 )
 
-//versionWithGit
+versionWithGit
 
 def setVersionOnly(selectVersion: Versions => String): ReleaseStep =  { st: State =>
   val vs = st
@@ -212,6 +212,7 @@ releaseProcess := Seq(
   checkSnapshotDependencies,
   inquireVersions,
   setReleaseVersion,
+  ReleaseStep(action = Command.process("reload", _)),
   sonatypeOpenGAV,
   runTest,
   tagRelease,
