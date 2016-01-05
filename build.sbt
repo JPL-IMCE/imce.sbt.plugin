@@ -200,13 +200,19 @@ lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
   st
 }
 
+lazy val sonatypeOpenGAV: ReleaseStep = { st: State =>
+  val e = Project.extract(st)
+  val command = s"sonatypeOpen g=${e.get(organization)},a=${e.get(name)},v=${e.get(version)}"
+  val next = releaseStepCommand(command)(st)
+  next
+}
+
 releaseProcess := Seq(
-  ReleaseStep(action =
-    Command.process(s"sonatypeOpen g=${organization.value},a=${name.value},v=${version.value}", _)),
   checkUncommittedChanges,
   checkSnapshotDependencies,
   inquireVersions,
   setReleaseVersion,
+  sonatypeOpenGAV,
   runTest,
   tagRelease,
   publishArtifacts,

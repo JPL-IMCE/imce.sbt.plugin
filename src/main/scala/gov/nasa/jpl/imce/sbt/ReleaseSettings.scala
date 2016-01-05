@@ -39,6 +39,13 @@ trait ReleaseSettings {
     st
   }
 
+  lazy val sonatypeOpenGAV: ReleaseStep = { st: State =>
+    val e = Project.extract(st)
+    val command = s"sonatypeOpen g=${e.get(organization)},a=${e.get(name)},v=${e.get(version)}"
+    val next = releaseStepCommand(command)(st)
+    next
+  }
+
   // @see https://github.com/jeantil/blog-samples/blob/painless-sbt-build/build.sbt
   def setVersionOnly(selectVersion: Versions => String): ReleaseStep =  { st: State =>
     val vs = st
@@ -65,12 +72,11 @@ trait ReleaseSettings {
   def packageReleaseProcessSettings: Seq[Setting[_]] =
     Seq(
       releaseProcess := Seq(
-        ReleaseStep(action =
-          Command.process(s"sonatypeOpen g=${organization.value}, a=${name.value} v=${version.value}", _)),
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
         setReleaseVersion,
+        sonatypeOpenGAV,
         runTest,
         tagRelease,
         ReleaseStep(releaseStepTask(publishSigned in Universal)),
