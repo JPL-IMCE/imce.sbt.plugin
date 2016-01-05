@@ -54,6 +54,17 @@ Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
     sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
 }
 
+scmInfo := Some(ScmInfo(
+  url("https://github.jpl.nasa.gov/imce/imce.sbt.plugin"),
+  "git@github.jpl.nasa.gov:imce/imce.sbt.plugin.git"))
+
+developers := List(
+  Developer(
+    id="rouquett",
+    name="Nicolas F. Rouquette",
+    email="nicolas.f.rouquette@jpl.nasa.gov",
+    url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
+
 enablePlugins(AetherPlugin)
 
 enablePlugins(GitVersioning)

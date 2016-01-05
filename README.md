@@ -18,15 +18,58 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.10")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.11")
 ```
 
-## Building
+## Using the imce.sbt.plugin
 
-```
-sbt release with-defaults
-git push origin --tags
-```
+There are 3 properties required:
+
+1. Resolve repository (used for dependency resolution)
+
+   Set either:
+   - `-DPL_LOCAL_RESOLVE_REPOSITORY=<dir>`
+   - `-DJPL_REMOTE_RESOLVE_REPOSITORY=<url>`
+
+2. Publish repository (used for publish & release)
+
+   Set either:
+   - `-DJPL_LOCAL_PUBLISH_REPOSITORY=<dir>`
+   - `-DJPL_REMOTE_PUBLISH_REPOSITORY=<url>`
+
+3. Nexus repository host address
+
+   Set:
+   - `-DJPL_NEXUS_REPOSITORY_HOST=<address>`
+
+## Support for the IMCE CI & Release process
+
+1. Create a staging repository with [sonatypeOpen](https://github.com/xerial/sbt-sonatype#available-commands)
+
+  ```
+  sbt sonatypeOpen "<description>"
+  [info] Nexus repository URL: https://cae-nexuspro.jpl.nasa.gov/nexus/service/local
+  [info] sonatypeProfileName = gov.nasa.jpl.imce
+  [info] Reading staging profiles...
+  [info] Creating staging repository in profile: <profile name>
+  [info] Created successfully: <ID>
+  [info] Set current project to ... (in build file:/.../)
+  > show publishTo
+  [info] Some(<profile name>: https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deployByRepositoryId/<ID>)
+  ```
+
+  The `<description>` string will be escaped to be included in REST API calls with Nexus Pro.
+  The string can be a text or a URL.
+
+2. Execute a __different__ SBT session with the `publishTo` URL as the value of `JPL_REMOTE_PUBLISH_REPOSITORY`
+
+  ```
+  sbt \
+    ... \
+    -DJPL_REMOTE_PUBLISH_REPOSITORY=https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deployByRepositoryId/<ID>
+  > release with-defaults
+  > git push origin --tags
+  ```
 
 ## Useful links
 
