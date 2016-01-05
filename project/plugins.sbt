@@ -38,6 +38,4 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.0.6")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
 
 // https://github.com/xerial/sbt-sonatype
-// to be updated when PR#22 is merged:
-// https://github.com/xerial/sbt-sonatype/pull/22
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1-JPL")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")

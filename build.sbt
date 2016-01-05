@@ -1,7 +1,10 @@
 import com.typesafe.sbt.SbtGit.GitKeys._
+import com.typesafe.sbt.pgp.PgpKeys
 
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
+
+sbtPlugin := true
 
 ( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
   Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
@@ -22,25 +25,6 @@ import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
                       "<url> is a remote Maven repository URL")
 }
 
-( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
-  case (Some(dir), _) =>
-    if ((new File(dir) / "settings.xml").exists) {
-      val cache = new MavenCache("JPL Publish", new File(dir))
-      Seq(publishTo := Some(cache))
-    }
-    else
-      sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-  case (None, Some(url)) => {
-    val repo = new MavenRepository("JPL Publish", url)
-    Seq(publishTo := Some(repo))
-  }
-  case _ => sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or"+
-                      "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where"+
-                      "<dir> is a local Maven repository directory or"+
-                      "<url> is a remote Maven repository URL")
-}
-
 Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
   case Some(address) =>
     Seq(
@@ -51,7 +35,7 @@ Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
     sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
 }
 
-sbtPlugin := true
+publishTo := None
 
 enablePlugins(AetherPlugin)
 
@@ -200,11 +184,60 @@ lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
   st
 }
 
-lazy val sonatypeOpenGAV: ReleaseStep = { st: State =>
-  val e = Project.extract(st)
-  val command = s"sonatypeOpen g=${e.get(organization)},a=${e.get(name)},v=${e.get(version)}"
-  val next = releaseStepCommand(command)(st)
-  next
+lazy val sonatypeOpenGAV: ReleaseStep = { st1: State =>
+  val e1 = Project.extract(st1)
+  val command = s"sonatypeOpen g=${e1.get(organization)},a=${e1.get(name)},v=${e1.get(version)}"
+  st1.log.info(s"st1: comand: $command")
+  st1.log.info(s"st1: git.gitUncommittedChanges=${e1.get(git.gitUncommittedChanges)}")
+  st1.log.info(s"st1: publishTo=${e1.get(publishTo)}")
+  val st2 = releaseStepCommand(command)(st1)
+  val e2 = Project.extract(st2)
+  val pTo = e2.get(publishTo)
+  st2.log.info(s"st2: publishTo=$pTo")
+  import PgpKeys._
+  val st3 = e2.append(
+    //PgpSettings.signingSettings
+    Seq(
+      publishTo := pTo,
+      signedArtifacts <<= (packagedArtifacts, pgpSigner, skip in pgpSigner, streams) map {
+        (artifacts, r, skipZ, s) =>
+          if (!skipZ) {
+            artifacts flatMap {
+              case (art, file) =>
+                import com.typesafe.sbt.pgp._
+                Seq(
+                  art                                                ->
+                  file,
+                  art.copy(extension = art.extension + gpgExtension) ->
+                  r.sign(file, new File(file.getAbsolutePath + gpgExtension), s))
+            }
+          } else artifacts
+      },
+      publishSignedConfiguration <<=
+      (signedArtifacts, publishTo, publishMavenStyle, deliver, checksums in publish, ivyLoggingLevel) map {
+        (arts, publishTo, mavenStyle, ivyFile, checks, level) =>
+          st2.log.info(s"publishSignedConfiguration: publishTo=$publishTo")
+          Classpaths.publishConfig(
+            arts,
+            if(mavenStyle) None else Some(ivyFile),
+            resolverName = Classpaths.getPublishTo(publishTo).name,
+            checksums = checks,
+            logging = level,
+            overwrite = true)
+      },
+      publishSigned <<= Classpaths.publishTask(publishSignedConfiguration, deliver),
+      publishLocalSignedConfiguration <<=
+      (signedArtifacts, deliverLocal, checksums in publishLocal, ivyLoggingLevel) map {
+        (arts, ivyFile, checks, level) =>
+          Classpaths.publishConfig(arts, Some(ivyFile), checks, logging = level )
+      },
+      publishLocalSigned <<= Classpaths.publishTask(publishLocalSignedConfiguration, deliver)
+    )
+    , st2)
+
+  val e3 = Project.extract(st3)
+  st3.log.info(s"st3: publishTo=${e3.get(publishTo)}")
+  st3
 }
 
 releaseProcess := Seq(
@@ -212,11 +245,11 @@ releaseProcess := Seq(
   checkSnapshotDependencies,
   inquireVersions,
   setReleaseVersion,
-  ReleaseStep(action = Command.process("reload", _)),
-  sonatypeOpenGAV,
+  //ReleaseStep(action = Command.process("reload", _)),
+  //sonatypeOpenGAV,
   runTest,
   tagRelease,
-  publishArtifacts,
+  ReleaseStep(releaseStepTask(PgpKeys.publishSigned in Universal)),
   pushChanges,
   ReleaseStep(action = Command.process(s"sonatypeClose", _))
 )

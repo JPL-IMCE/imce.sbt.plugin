@@ -3,6 +3,7 @@ package gov.nasa.jpl.imce.sbt
 import com.typesafe.sbt.SbtGit._
 import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.packager._
+import com.typesafe.sbt.pgp._
 import com.typesafe.sbt.pgp.PgpKeys._
 
 import sbtrelease._
@@ -39,11 +40,39 @@ trait ReleaseSettings {
     st
   }
 
-  lazy val sonatypeOpenGAV: ReleaseStep = { st: State =>
-    val e = Project.extract(st)
-    val command = s"sonatypeOpen g=${e.get(organization)},a=${e.get(name)},v=${e.get(version)}"
-    val next = releaseStepCommand(command)(st)
-    next
+  lazy val sonatypeOpenGAV: ReleaseStep = { st1: State =>
+    val e1 = Project.extract(st1)
+    val command = s"sonatypeOpen g=${e1.get(organization)},a=${e1.get(name)},v=${e1.get(version)}"
+    st1.log.info(s"pre: comand: $command")
+    st1.log.info(s"pre: git.gitUncommittedChanges=${e1.get(git.gitUncommittedChanges)}")
+    st1.log.info(s"pre: publishTo=${e1.get(publishTo)}")
+    val st2 = releaseStepCommand(command)(st1)
+    val e2 = Project.extract(st2)
+    st2.log.info(s"post: publishTo=${e2.get(publishTo)}")
+    val st3 = e2.append(
+      //PgpSettings.signingSettings
+      Seq(
+        signedArtifacts <<= (packagedArtifacts, pgpSigner, skip in pgpSigner, streams) map {
+          (artifacts, r, skipZ, s) =>
+            if (!skipZ) {
+              artifacts flatMap {
+                case (art, file) =>
+                  Seq(art                                                -> file,
+                    art.copy(extension = art.extension + gpgExtension) -> r.sign(file, new File(file.getAbsolutePath + gpgExtension), s))
+              }
+            } else artifacts
+        },
+        publishSignedConfiguration <<= (signedArtifacts, publishTo, publishMavenStyle, deliver, checksums in publish, ivyLoggingLevel) map { (arts, publishTo, mavenStyle, ivyFile, checks, level) =>
+          Classpaths.publishConfig(arts, if(mavenStyle) None else Some(ivyFile), resolverName = Classpaths.getPublishTo(publishTo).name, checksums = checks, logging = level)
+        },
+        publishSigned <<= Classpaths.publishTask(publishSignedConfiguration, deliver),
+        publishLocalSignedConfiguration <<= (signedArtifacts, deliverLocal, checksums in publishLocal, ivyLoggingLevel) map {
+          (arts, ivyFile, checks, level) => Classpaths.publishConfig(arts, Some(ivyFile), checks, logging = level )
+        },
+        publishLocalSigned <<= Classpaths.publishTask(publishLocalSignedConfiguration, deliver)
+      )
+      , st2)
+    st3
   }
 
   // @see https://github.com/jeantil/blog-samples/blob/painless-sbt-build/build.sbt
@@ -100,7 +129,7 @@ trait ReleaseSettings {
         setReleaseVersion,
         runTest,
         tagRelease,
-        publishArtifacts,
+        ReleaseStep(releaseStepTask(publishSigned in Universal)),
         pushChanges,
         ReleaseStep(action = Command.process(s"sonatypeClose", _))
     ))

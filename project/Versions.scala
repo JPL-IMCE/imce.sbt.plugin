@@ -41,9 +41,7 @@ object Versions {
   val sbt_wartremover = "0.14"
 
   // https://github.com/xerial/sbt-sonatype
-  // to be updated when PR#22 is merged:
-  // https://github.com/xerial/sbt-sonatype/pull/22
-  val sbt_sonatype = "1.1-JPL"
+  val sbt_sonatype = "1.1"
 
   // https://github.com/typesafehub/config
   val config = "1.3.0"
