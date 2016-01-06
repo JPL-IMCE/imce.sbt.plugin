@@ -3,8 +3,9 @@ package gov.nasa.jpl.imce.sbt
 import java.io.File
 import java.util.{Calendar, Locale}
 
-import xerial.sbt.Sonatype._
-import com.typesafe.config.ConfigFactory
+import xerial.sbt.Sonatype
+import xerial.sbt.Sonatype.SonatypeKeys
+import com.typesafe.config._
 import sbt.Keys._
 import sbt._
 
@@ -191,6 +192,25 @@ trait IMCEPlugin
         )
       case None =>
         sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
+    }) ++
+    (Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
+      case Some(file) =>
+        val config = ConfigFactory.parseFile(new File(file))
+        val publishTo = config.getString("publishTo")
+        val profileName = config.getString("profileName")
+        Seq(
+          SonatypeKeys.sonatypeCredentialHost := "cae-nexuspro.jpl.nasa.gov",
+          SonatypeKeys.sonatypeRepository := publishTo,
+          SonatypeKeys.sonatypeProfileName := profileName,
+          SonatypeKeys.sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
+            profileId=config.getString("profileId"),
+            profileName=profileName,
+            stagingType="open",
+            repositoryId=config.getString("repositoryId"),
+            description=config.getString("description"))
+        )
+      case None =>
+        Seq()
     })
 
 

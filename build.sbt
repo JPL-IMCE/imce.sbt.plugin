@@ -143,6 +143,28 @@ addSbtPlugin("com.jsuereth" % "sbt-pgp" % Versions.sbt_pgp)
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % Versions.config
 
+import com.typesafe.config._
+
+Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
+  case Some(file) =>
+    val config = ConfigFactory.parseFile(new File(file))
+    val publishTo = config.getString("publishTo")
+    val profileName = config.getString("profileName")
+    Seq(
+      sonatypeCredentialHost := "cae-nexuspro.jpl.nasa.gov",
+      sonatypeRepository := publishTo,
+      sonatypeProfileName := profileName,
+      sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
+        profileId=config.getString("profileId"),
+        profileName=profileName,
+        stagingType="open",
+        repositoryId=config.getString("repositoryId"),
+        description=config.getString("description"))
+    )
+  case None =>
+    Seq()
+}
+
 useGpg := true
 
 useGpgAgent := true
