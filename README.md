@@ -18,7 +18,7 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.15")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.16")
 ```
 
 ## Using the imce.sbt.plugin
@@ -31,27 +31,28 @@ There are 2 required properties:
    - `-DPL_LOCAL_RESOLVE_REPOSITORY=<dir>`
    - `-DJPL_REMOTE_RESOLVE_REPOSITORY=<url>`
 
-2. Publish repository (used for publish & release)
+2. Either normal or managed-staging
 
-   Set either:
-   - `-DJPL_LOCAL_PUBLISH_REPOSITORY=<dir>`
-   - `-DJPL_REMOTE_PUBLISH_REPOSITORY=<url>`
+  - normal
 
-Then, either one of the following properties must be set:
+    Set either:
+    - `-DJPL_LOCAL_PUBLISH_REPOSITORY=<dir>`
+    - `-DJPL_REMOTE_PUBLISH_REPOSITORY=<url>`
 
-- Nexus repository host address
+    Set:
+    - `-DJPL_NEXUS_REPOSITORY_HOST=<address>`
 
-   Set:
-   - `-DJPL_NEXUS_REPOSITORY_HOST=<address>`
+    This usage is for creating a staging repository, e.g:
+    [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath).
 
-   This usage is for creating a staging repository.
-   See the [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
-   command.
+    In this usage, publishing will use server-managed staging repository creation.
 
-- Staging repository config properties file
+  - managed-staging
 
-   Set:
-   - `-DJPL_STAGING_PROPERTIES_FILE=<config file>`
+    Set:
+    - `-DJPL_STAGING_PROPERTIES_FILE=<config file>`
+
+    In this usage, publishing will be directed to the staging repository identified by the config file.
 
 ## Support for the IMCE CI & Release process
 

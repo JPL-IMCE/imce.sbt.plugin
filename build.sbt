@@ -25,35 +25,6 @@ sbtPlugin := true
                       "<url> is a remote Maven repository URL")
 }
 
-( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
-  case (Some(dir), _) =>
-    if ((new File(dir) / "settings.xml").exists) {
-      val cache = new MavenCache("JPL Publish", new File(dir))
-      Seq(publishTo := Some(cache))
-    }
-    else
-      sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-  case (None, Some(url)) => {
-    val repo = new MavenRepository("JPL Publish", url)
-    Seq(publishTo := Some(repo))
-  }
-  case _ => sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or"+
-                      "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where"+
-                      "<dir> is a local Maven repository directory or"+
-                      "<url> is a remote Maven repository URL")
-}
-
-Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
-  case Some(address) =>
-    Seq(
-      sonatypeCredentialHost := address,
-      sonatypeRepository := s"https://$address/nexus/service/local"
-    )
-  case None =>
-    sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
-}
-
 scmInfo := Some(ScmInfo(
   url("https://github.jpl.nasa.gov/imce/imce.sbt.plugin"),
   "git@github.jpl.nasa.gov:imce/imce.sbt.plugin.git"))
@@ -163,7 +134,33 @@ Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
       publishTo := Some(new MavenRepository(profileName, publish))
     )
   case None =>
-    Seq()
+    (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
+      case Some(address) =>
+        Seq(
+          sonatypeCredentialHost := address,
+          sonatypeRepository := s"https://$address/nexus/service/local"
+        )
+      case None =>
+        sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
+    }) ++
+    (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
+      Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
+      case (Some(dir), _) =>
+        if ((new File(dir) / "settings.xml").exists) {
+          val cache = new MavenCache("JPL Publish", new File(dir))
+          Seq(publishTo := Some(cache))
+        }
+        else
+          sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+      case (None, Some(url)) => {
+        val repo = new MavenRepository("JPL Publish", url)
+        Seq(publishTo := Some(repo))
+      }
+      case _ => sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or"+
+        "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where"+
+        "<dir> is a local Maven repository directory or"+
+        "<url> is a remote Maven repository URL")
+    })
 }
 
 useGpg := true
