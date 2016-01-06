@@ -207,7 +207,8 @@ trait IMCEPlugin
             profileName=profileName,
             stagingType="open",
             repositoryId=config.getString("repositoryId"),
-            description=config.getString("description"))
+            description=config.getString("description")),
+          publishTo := Some(new MavenRepository(profileName, url(publishTo)))
         )
       case None =>
         Seq()
