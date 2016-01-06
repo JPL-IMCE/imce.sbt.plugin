@@ -160,7 +160,7 @@ Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
         stagingType="open",
         repositoryId=config.getString("repositoryId"),
         description=config.getString("description")),
-      publishTo := Some(new MavenRepository(profileName, url(publish)))
+      publishTo := Some(new MavenRepository(profileName, publish))
     )
   case None =>
     Seq()
