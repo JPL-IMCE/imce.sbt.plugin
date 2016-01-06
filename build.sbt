@@ -148,11 +148,11 @@ import com.typesafe.config._
 Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
   case Some(file) =>
     val config = ConfigFactory.parseFile(new File(file))
-    val publishTo = config.getString("publishTo")
+    val publish = config.getString("publishTo")
     val profileName = config.getString("profileName")
     Seq(
       sonatypeCredentialHost := "cae-nexuspro.jpl.nasa.gov",
-      sonatypeRepository := publishTo,
+      sonatypeRepository := publish,
       sonatypeProfileName := profileName,
       sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
         profileId=config.getString("profileId"),
@@ -160,7 +160,7 @@ Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
         stagingType="open",
         repositoryId=config.getString("repositoryId"),
         description=config.getString("description")),
-      publishTo := Some(new MavenRepository(profileName, url(publishTo)))
+      publishTo := Some(new MavenRepository(profileName, url(publish)))
     )
   case None =>
     Seq()

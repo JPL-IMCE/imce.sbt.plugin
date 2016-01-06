@@ -196,11 +196,11 @@ trait IMCEPlugin
     (Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
       case Some(file) =>
         val config = ConfigFactory.parseFile(new File(file))
-        val publishTo = config.getString("publishTo")
+        val publish = config.getString("publishTo")
         val profileName = config.getString("profileName")
         Seq(
           SonatypeKeys.sonatypeCredentialHost := "cae-nexuspro.jpl.nasa.gov",
-          SonatypeKeys.sonatypeRepository := publishTo,
+          SonatypeKeys.sonatypeRepository := publish,
           SonatypeKeys.sonatypeProfileName := profileName,
           SonatypeKeys.sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
             profileId=config.getString("profileId"),
@@ -208,7 +208,7 @@ trait IMCEPlugin
             stagingType="open",
             repositoryId=config.getString("repositoryId"),
             description=config.getString("description")),
-          publishTo := Some(new MavenRepository(profileName, url(publishTo)))
+          publishTo := Some(new MavenRepository(profileName, url(publish)))
         )
       case None =>
         Seq()
