@@ -191,7 +191,7 @@ trait IMCEPlugin
           SonatypeKeys.sonatypeRepository := s"https://$address/nexus/service/local"
         )
       case None =>
-        sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
+        Seq()
     }) ++
     (Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
       case Some(file) =>

@@ -23,7 +23,7 @@ addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.12")
 
 ## Using the imce.sbt.plugin
 
-There are 3 properties required:
+There are 2 required properties:
 
 1. Resolve repository (used for dependency resolution)
 
@@ -37,36 +37,33 @@ There are 3 properties required:
    - `-DJPL_LOCAL_PUBLISH_REPOSITORY=<dir>`
    - `-DJPL_REMOTE_PUBLISH_REPOSITORY=<url>`
 
-3. Nexus repository host address
+Then, either one of the following properties must be set:
+
+- Nexus repository host address
 
    Set:
    - `-DJPL_NEXUS_REPOSITORY_HOST=<address>`
 
+   This usage is for creating a staging repository.
+   See the [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
+   command.
+
+- Staging repository config properties file
+
+   Set:
+   - `-DJPL_STAGING_PROPERTIES_FILE=<config file>`
+
 ## Support for the IMCE CI & Release process
 
-1. Create a staging repository with [sonatypeOpen](https://github.com/xerial/sbt-sonatype#available-commands)
+1. Create a staging repository with [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
 
-  ```
-  sbt sonatypeOpen "<description>"
-  [info] Nexus repository URL: https://cae-nexuspro.jpl.nasa.gov/nexus/service/local
-  [info] sonatypeProfileName = gov.nasa.jpl.imce
-  [info] Reading staging profiles...
-  [info] Creating staging repository in profile: <profile name>
-  [info] Created successfully: <ID>
-  [info] Set current project to ... (in build file:/.../)
-  > show publishTo
-  [info] Some(<profile name>: https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deployByRepositoryId/<ID>)
-  ```
-
-  The `<description>` string will be escaped to be included in REST API calls with Nexus Pro.
-  The string can be a text or a URL.
-
-2. Execute a __different__ SBT session with the `publishTo` URL as the value of `JPL_REMOTE_PUBLISH_REPOSITORY`
+2. Build/Release projects
 
   ```
   sbt \
     ... \
-    -DJPL_REMOTE_PUBLISH_REPOSITORY=https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deployByRepositoryId/<ID>
+    -DJPL_REMOTE_PUBLISH_REPOSITORY=https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deploy/maven2 \
+    -DJPL_STAGING_PROPERTIES_FILE=<config file>
   > release with-defaults
   > git push origin --tags
   ```
@@ -75,19 +72,19 @@ There are 3 properties required:
 
 - [Requirements for releasing to maven central](http://central.sonatype.org/pages/requirements.html)
 
-Brief summary of key requirements agreed to by the open source software community.
+  Brief summary of key requirements agreed to by the open source software community.
 
 - [Releasing to the Open-Source Software Repository Hosting, OSSRH](http://central.sonatype.org/pages/releasing-the-deployment.html)
 
-Brief overview of the repository staging process involved in publishing releases.
+  Brief overview of the repository staging process involved in publishing releases.
 
 - [Publishing scala libraries to Sonatype](http://www.loftinspace.com.au/blog/publishing-scala-libraries-to-sonatype.html)
 
-Explains the signing requirements, including creating & publishing a signed key to meet the requirements for publishing to the OSSRH.
+  Explains the signing requirements, including creating & publishing a signed key to meet the requirements for publishing to the OSSRH.
 
 - [Painless release with SBT](http://blog.byjean.eu/2015/07/10/painless-release-with-sbt.html)
 
-Explanation about several SBT plugins used to automate the release process.
+  Explanation about several SBT plugins used to automate the release process.
 
 ### [How to find available updates for versioned dependencies?](doc/DependencyUpdates.md)
 
