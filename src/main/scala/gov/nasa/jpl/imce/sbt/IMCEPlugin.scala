@@ -166,7 +166,7 @@ trait IMCEPlugin
                   "<dir> is a local Maven repository directory or" +
                   "<url> is a remote Maven repository URL")
     }) ++
-    (Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
+    (Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
       case Some(file) =>
         val config = ConfigFactory.parseFile(new File(file))
         val profileName = config.getString("staging.profileName")

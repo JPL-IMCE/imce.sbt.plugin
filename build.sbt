@@ -116,7 +116,7 @@ libraryDependencies += "com.typesafe" % "config" % Versions.config
 
 import com.typesafe.config._
 
-Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
+Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
   case Some(file) =>
     val config = ConfigFactory.parseFile(new File(file)).resolve()
     val profileName = config.getString("staging.profileName")

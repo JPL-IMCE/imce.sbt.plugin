@@ -18,7 +18,7 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.18")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.19")
 ```
 
 ## Using the imce.sbt.plugin
@@ -50,7 +50,7 @@ There are 2 required properties:
   - managed-staging
 
     Set:
-    - `-DJPL_STAGING_PROPERTIES_FILE=<*.conf>`
+    - `-DJPL_STAGING_CONF_FILE=<*.conf>`
 
     In this usage, publishing will be directed to the staging repository identified by the config file.
 
@@ -64,7 +64,7 @@ There are 2 required properties:
   sbt \
     ... \
     -DJPL_REMOTE_PUBLISH_REPOSITORY=https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deploy/maven2 \
-    -DJPL_STAGING_PROPERTIES_FILE=<*.conf>
+    -DJPL_STAGING_CONF_FILE=<*.conf>
   > release with-defaults
   > git push origin --tags
   ```
