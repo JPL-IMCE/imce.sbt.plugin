@@ -119,11 +119,10 @@ import com.typesafe.config._
 Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
   case Some(file) =>
     val config = ConfigFactory.parseFile(new File(file)).resolve()
-    val publish = config.getString("staging.publishTo")
     val profileName = config.getString("staging.profileName")
     Seq(
       sonatypeCredentialHost := config.getString("staging.credentialHost"),
-      sonatypeRepository := publish,
+      sonatypeRepository := config.getString("staging.repositoryService"),
       sonatypeProfileName := profileName,
       sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
         profileId=config.getString("staging.profileId"),
@@ -131,7 +130,7 @@ Option.apply(System.getProperty("JPL_STAGING_PROPERTIES_FILE")) match {
         stagingType="open",
         repositoryId=config.getString("staging.repositoryId"),
         description=config.getString("staging.description")),
-      publishTo := Some(new MavenRepository(profileName, publish))
+      publishTo := Some(new MavenRepository(profileName, config.getString("staging.publishTo")))
     )
   case None =>
     (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
