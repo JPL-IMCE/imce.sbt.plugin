@@ -251,10 +251,17 @@ pomIncludeRepository := { _ => false }
 
 lazy val additionalProperties = settingKey[Seq[xml.Node]]("Additional entries for the POM's <properties> section")
 
-additionalProperties :=
-  <git.branch>{git.gitCurrentBranch.value}</git.branch>
-  <git.commit>{git.gitHeadCommit.value.getOrElse("N/A")+(if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}</git.commit>
-  <git.tags>{git.gitCurrentTags.value}</git.tags>
+additionalProperties := {
+  <git.branch>
+    {git.gitCurrentBranch.value}
+  </git.branch>
+    <git.commit>
+      {git.gitHeadCommit.value.getOrElse("N/A") + (if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}
+    </git.commit>
+    <git.tags>
+      {git.gitCurrentTags.value}
+    </git.tags>
+}
 
 pomPostProcess <<= additionalProperties { (additions) =>
   new xml.transform.RuleTransformer(new xml.transform.RewriteRule {
