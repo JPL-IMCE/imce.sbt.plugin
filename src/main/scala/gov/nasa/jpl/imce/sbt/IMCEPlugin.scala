@@ -172,7 +172,7 @@ trait IMCEPlugin
         val profileName = config.getString("staging.profileName")
         Seq(
           SonatypeKeys.sonatypeCredentialHost := config.getString("staging.credentialHost"),
-          SonatypeKeys.sonatypeRepository := config.getString("staging.Service"),
+          SonatypeKeys.sonatypeRepository := config.getString("staging.repositoryService"),
           SonatypeKeys.sonatypeProfileName := profileName,
           SonatypeKeys.sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
             profileId=config.getString("staging.profileId"),
