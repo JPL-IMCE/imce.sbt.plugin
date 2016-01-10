@@ -14,6 +14,21 @@ trait IMCEGitPlugin extends AutoPlugin {
 
   def gitVersioningBuildSettings: Seq[Setting[_]] =
     Seq(
+      // Use Jean Helou's rules
+      git.gitTagToVersionNumber in ThisBuild := {
+        case VersionRegex(v,"SNAPSHOT") => Some(s"$v-SNAPSHOT")
+        case VersionRegex(v,"") => Some(v)
+        case VersionRegex(v,s) => Some(s"$v-$s-SNAPSHOT")
+        case _ => None
+      },
+
+      git.gitDescribedVersion in ThisBuild :=
+        GitKeys.gitReader.value.withGit(_.describedVersion).flatMap(v =>
+          Option(v)
+            .map(_.drop(1))
+            .orElse(GitKeys.formattedShaVersion.value)
+            .orElse(Some(git.baseVersion.value))
+        ),
 
       // turn on version detection
       git.useGitDescribe in ThisBuild := true
@@ -37,21 +52,6 @@ trait IMCEGitPlugin extends AutoPlugin {
     */
   def gitVersioningProjectSettings: Seq[Setting[_]] =
     Seq(
-      // Use Jean Helou's rules
-      git.gitTagToVersionNumber := {
-        case VersionRegex(v,"SNAPSHOT") => Some(s"$v-SNAPSHOT")
-        case VersionRegex(v,"") => Some(v)
-        case VersionRegex(v,s) => Some(s"$v-$s-SNAPSHOT")
-        case _ => None
-      },
-
-      git.gitDescribedVersion :=
-      GitKeys.gitReader.value.withGit(_.describedVersion).flatMap(v =>
-        Option(v)
-        .map(_.drop(1))
-        .orElse(GitKeys.formattedShaVersion.value)
-        .orElse(Some(git.baseVersion.value))
-      ),
 
       pomExtra := getGitSCMInfo,
 
@@ -107,8 +107,8 @@ object IMCEGitPlugin extends IMCEGitPlugin {
   override def requires = IMCEPlugin && GitVersioning && GitBranchPrompt
 
   override def buildSettings: Seq[Setting[_]] =
-    GitVersioning.buildSettings ++
-      gitVersioningBuildSettings
+    gitVersioningBuildSettings ++
+      GitVersioning.buildSettings
 
   override def projectSettings: Seq[Setting[_]] =
     gitVersioningProjectSettings
