@@ -21,8 +21,7 @@ object IMCEPlugin extends IMCEPlugin {
     aether.AetherPlugin &&
     com.timushev.sbt.updates.UpdatesPlugin &&
     com.typesafe.sbt.packager.universal.UniversalPlugin &&
-    sbtbuildinfo.BuildInfoPlugin &&
-    sbtrelease.ReleasePlugin
+    sbtbuildinfo.BuildInfoPlugin
 
   override def buildSettings: Seq[Setting[_]] =
     Seq()
@@ -33,15 +32,13 @@ object IMCEPlugin extends IMCEPlugin {
     defaultLicenseSettings ++
     defaultProjectDirectoriesSettings ++
     defaultProjectMavenSettings ++
-    defaultDependencyGraphSettings ++
-    defaultReleaseSettings
+    defaultDependencyGraphSettings
 
 }
 
 trait IMCEPlugin
   extends AutoPlugin
   with JVMSettings
-  with ReleaseSettings
   with CompilationSettings
   with DocSettings
   with PackagingSettings

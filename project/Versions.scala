@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "1.23"
+  val version = "1.25"
 
   // https://github.com/Banno/sbt-license-plugin
   val sbt_license_plugin = "0.1.5"
@@ -35,7 +35,7 @@ object Versions {
   val sbt_aspectj = "0.10.2"
 
   // https://github.com/sksamuel/sbt-scapegoat
-  val sbt_scapegoat = "1.0.3"
+  val sbt_scapegoat = "1.0.4"
 
   // https://github.com/puffnfresh/wartremover
   val sbt_wartremover = "0.14"
