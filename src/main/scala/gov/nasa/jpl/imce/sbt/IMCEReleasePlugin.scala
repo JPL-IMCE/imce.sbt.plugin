@@ -19,13 +19,14 @@ object IMCEReleasePlugin extends AutoPlugin {
     sbtrelease.ReleasePlugin
 
   override def buildSettings: Seq[Def.Setting[_]] =
-    Seq()
+    Seq(
+      useGpg in ThisBuild := true,
+
+      useGpgAgent in ThisBuild := true
+    )
 
   override def projectSettings: Seq[Def.Setting[_]] =
     Seq(
-      useGpg := true,
-
-      useGpgAgent := true,
 
       releasePublishArtifactsAction := publishSigned.value,
 

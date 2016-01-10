@@ -114,6 +114,11 @@ addSbtPlugin("com.jsuereth" % "sbt-pgp" % Versions.sbt_pgp)
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % Versions.config
 
+resolvers += "repo.spray.io" at "http://repo.spray.io/"
+
+// https://github.com/spray/spray-json
+libraryDependencies += "io.spray" %%  "spray-json" % Versions.spray_json
+
 import com.typesafe.config._
 
 Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {

@@ -42,3 +42,7 @@ addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "1.1")
 
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % "1.3.0"
+
+// https://github.com/spray/spray-json
+resolvers += "repo.spray.io" at "http://repo.spray.io/"
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"

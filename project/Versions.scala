@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "1.30"
+  val version = "1.31"
 
   // https://github.com/Banno/sbt-license-plugin
   val sbt_license_plugin = "0.1.5"
@@ -54,4 +54,7 @@ object Versions {
 
   // http://www.scala-sbt.org/sbt-pgp/
   val sbt_pgp = "1.0.0"
+
+  // https://github.com/spray/spray-json
+  val spray_json = "1.3.2"
 }
