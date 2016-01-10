@@ -109,14 +109,18 @@ object IMCEReleasePlugin extends AutoPlugin {
     import java.nio.file.{Paths, Files}
     import java.nio.charset.StandardCharsets
 
-    val ciStagingRepositoryParser: (State) => complete.Parser[(String, String)] = (_: State) => {
+    val ciStagingRepositoryParser: (State) => complete.Parser[((String, String), String)] = (_: State) => {
       Space ~>
+        token("profile=" ~> StringBasic <~ Space, "profile") ~
         token("description=" ~> StringBasic <~ Space, "description") ~
         token("file=" ~> StringBasic, "file")
     }
 
-    val ciStagingRepositoryAction: (State, (String, String)) => State = {
-      case (st1: State, (description: String, filename: String)) =>
+    val ciStagingRepositoryAction: (State, ((String, String), String)) => State = {
+      case (st0: State, ((description: String, profile: String), filename: String)) =>
+        val st1 = Project.extract(st0).append(
+          Seq(SonatypeKeys.sonatypeProfileName := profile),
+          st0)
         val st2 = Command.process("sonatypeOpen \""+description+"\"", st1)
 
         val e = Project.extract(st2)

@@ -18,7 +18,7 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.28")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.29")
 ```
 
 ## Using the imce.sbt.plugin
@@ -81,7 +81,7 @@ There are 2 required properties:
 1. Create a staging repository with [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
 
   ```
-  sbtJPLBeta ciStagingRepositoryCreate description=<string_without_space> file=<path>
+  sbtJPLBeta ciStagingRepositoryCreate profile=<name> description=<string_without_space> file=<path>
   ```
 
 2. Build/Release projects
