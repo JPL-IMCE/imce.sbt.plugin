@@ -16,7 +16,8 @@ import sbt._
 object IMCEReleasePlugin extends AutoPlugin {
 
   override def requires =
-    sbtrelease.ReleasePlugin
+    sbtrelease.ReleasePlugin &&
+      com.typesafe.sbt.SbtPgp
 
   override def buildSettings: Seq[Def.Setting[_]] =
     Seq(
