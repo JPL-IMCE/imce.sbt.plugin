@@ -18,7 +18,7 @@ At the terminal:
 With the above redirection, add the following to an SBT `project/plugins.sbt` file:
 
 ```
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.27")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "1.28")
 ```
 
 ## Using the imce.sbt.plugin
