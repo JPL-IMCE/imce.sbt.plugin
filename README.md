@@ -56,18 +56,26 @@ There are 2 required properties:
 
 ## User configuration
 
-  - Edit `~/.git/config` to add:
+  - Edit `~/.gnupg/gpg.conf`:
+
+    ```
+    use-agent
+    no-tty
+    ```
+
+## Project configuration
+
+  - Edit `./.git/config` to add:
 
     ```
     [commit]
 	  gpgsign = true
     ```
 
-  - Edit `~/.gnupg/gpg.conf`:
+    or:
 
     ```
-    use-agent
-    no-tty
+    git config commit.gpgsign true
     ```
 
 ## Support for the IMCE CI & Release process
