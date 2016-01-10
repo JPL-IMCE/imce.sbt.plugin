@@ -54,6 +54,22 @@ There are 2 required properties:
 
     In this usage, publishing will be directed to the staging repository identified by the config file.
 
+## User configuration
+
+  - Edit `~/.git/config` to add:
+
+    ```
+    [commit]
+	  gpgsign = true
+    ```
+
+  - Edit `~/.gnupg/gpg.conf`:
+
+    ```
+    use-agent
+    no-tty
+    ```
+
 ## Support for the IMCE CI & Release process
 
 1. Create a staging repository with [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
