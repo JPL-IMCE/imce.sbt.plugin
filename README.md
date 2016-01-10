@@ -58,6 +58,10 @@ There are 2 required properties:
 
 1. Create a staging repository with [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
 
+  ```
+  sbtJPLBeta ciStagingRepositoryCreate description=<string_without_space> file=<path>
+  ```
+
 2. Build/Release projects
 
   ```
