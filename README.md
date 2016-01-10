@@ -63,9 +63,7 @@ There are 2 required properties:
     no-tty
     ```
 
-## Project configuration
-
-  - Edit `./.git/config` to add:
+  - Edit `~/.gitconfig` to add:
 
     ```
     [commit]
@@ -75,7 +73,7 @@ There are 2 required properties:
     or:
 
     ```
-    git config commit.gpgsign true
+    git config --global commit.gpgsign true
     ```
 
 ## Support for the IMCE CI & Release process
