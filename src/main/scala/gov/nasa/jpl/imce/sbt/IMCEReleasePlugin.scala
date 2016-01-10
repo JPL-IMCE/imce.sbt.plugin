@@ -20,11 +20,12 @@ object IMCEReleasePlugin extends AutoPlugin {
       com.typesafe.sbt.SbtPgp
 
   override def buildSettings: Seq[Def.Setting[_]] =
-    Seq(
+    inScope(Global)(Seq(
       useGpg in ThisBuild := true,
 
       useGpgAgent in ThisBuild := true
-    )
+    )) ++
+      com.typesafe.sbt.SbtPgp.buildSettings
 
   override def projectSettings: Seq[Def.Setting[_]] =
     Seq(
