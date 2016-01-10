@@ -117,7 +117,7 @@ object IMCEReleasePlugin extends AutoPlugin {
     }
 
     val ciStagingRepositoryAction: (State, ((String, String), String)) => State = {
-      case (st0: State, ((description: String, profile: String), filename: String)) =>
+      case (st0: State, ((profile: String, description: String), filename: String)) =>
         val st1 = Project.extract(st0).append(
           Seq(SonatypeKeys.sonatypeProfileName := profile),
           st0)
