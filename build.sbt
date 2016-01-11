@@ -119,6 +119,9 @@ resolvers += "repo.spray.io" at "http://repo.spray.io/"
 // https://github.com/spray/spray-json
 libraryDependencies += "io.spray" %%  "spray-json" % Versions.spray_json
 
+// https://github.com/pathikrit/better-files
+libraryDependencies += "com.github.pathikrit" %% "better-files" % Versions.better_files
+
 import com.typesafe.config._
 
 Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
