@@ -59,12 +59,13 @@ trait IMCEGitPlugin extends AutoPlugin {
         <git.branch>
           {git.gitCurrentBranch.value}
         </git.branch>
-          <git.commit>
-            {git.gitHeadCommit.value.getOrElse("N/A") + (if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}
-          </git.commit>
-          <git.tags>
-            {git.gitCurrentTags.value}
-          </git.tags>
+        <git.commit>
+          {git.gitHeadCommit.value.getOrElse("N/A") + (if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}
+        </git.commit>
+        <git.tags>
+          {git.gitCurrentTags.value}
+        </git.tags>
+        <md5/>
       },
 
 
