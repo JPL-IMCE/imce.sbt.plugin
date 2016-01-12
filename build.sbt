@@ -72,9 +72,6 @@ resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositori
 
 resolvers += Classpaths.sbtPluginReleases
 
-// https://github.com/scoverage/sbt-scoverage
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % Versions.sbt_scoverage)
-
 // https://github.com/jrudolph/sbt-dependency-graph
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % Versions.sbt_dependency_graph)
 
@@ -92,9 +89,6 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.sbt_native_pa
 
 // https://github.com/sbt/sbt-aspectj
 addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % Versions.sbt_aspectj)
-
-// https://github.com/sksamuel/sbt-scapegoat
-addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % Versions.sbt_scapegoat)
 
 // https://github.com/puffnfresh/wartremover
 addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % Versions.sbt_wartremover)
