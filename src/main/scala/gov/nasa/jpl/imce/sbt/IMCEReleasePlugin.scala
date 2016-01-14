@@ -150,8 +150,9 @@ object IMCEReleasePlugin extends AutoPlugin {
     }
 
     val ciStagingRepositoryName = "ciStagingRepositoryCreate"
-    val ciStagingRepositorySynopsis = "ciStagingRepositoryCreate description=<string> file=<path>"
-    val ciStagingRepositoryHelp = "Create a new staging repository with <string> as its description "+
+    val ciStagingRepositorySynopsis = "ciStagingRepositoryCreate profile=<name> description=<string> file=<path>"
+    val ciStagingRepositoryHelp = "Create a new staging repository for the staging profile <name>" +
+      " and with <string> as its description "+
       "and write the result information to the file <path>"
     Command(
       name=ciStagingRepositoryName,

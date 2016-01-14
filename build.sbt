@@ -282,3 +282,63 @@ pomPostProcess <<= additionalProperties { (additions) =>
       }
   })
 }
+
+val ciStagingRepositoryCreateCommand: Command = {
+
+  import com.typesafe.config._
+  import java.nio.file.{Paths, Files}
+  import java.nio.charset.StandardCharsets
+
+  import complete.DefaultParsers._
+  val ciStagingRepositoryParser: (State) => complete.Parser[((String, String), String)] = (_: State) => {
+    Space ~>
+      token("profile=" ~> StringBasic <~ Space, "profile") ~
+      token("description=" ~> StringBasic <~ Space, "description") ~
+      token("file=" ~> StringBasic, "file")
+  }
+
+  val ciStagingRepositoryAction: (State, ((String, String), String)) => State = {
+    case (st0: State, ((profile: String, description: String), filename: String)) =>
+      val st1 = Project.extract(st0).append(
+        Seq(sonatypeProfileName := profile),
+        st0)
+      val st2 = Command.process("sonatypeOpen \""+description+"\"", st1)
+
+      val e = Project.extract(st2)
+      val credentialHost=e.get(sonatypeCredentialHost)
+      val srp = e.get(sonatypeStagingRepositoryProfile)
+      val repo = e.get(sonatypeRepository)
+      val publishRepo=repo+"/staging/deployByRepositoryId/"+srp.repositoryId
+      val config =
+        ConfigFactory.empty()
+          .withValue("staging.description", ConfigValueFactory.fromAnyRef(description))
+          .withValue("staging.credentialHost", ConfigValueFactory.fromAnyRef(credentialHost))
+          .withValue("staging.repositoryId", ConfigValueFactory.fromAnyRef(srp.repositoryId))
+          .withValue("staging.repositoryService", ConfigValueFactory.fromAnyRef(repo))
+          .withValue("staging.profileName", ConfigValueFactory.fromAnyRef(srp.profileName))
+          .withValue("staging.profileId", ConfigValueFactory.fromAnyRef(srp.profileId))
+          .withValue("staging.publishTo", ConfigValueFactory.fromAnyRef(publishRepo))
+
+      val data = config.root().render(ConfigRenderOptions.concise().setFormatted(true))
+      val filepath = Paths.get(filename)
+      Files.write(filepath, data.getBytes(StandardCharsets.UTF_8))
+      st2.log.info(s"Saved staging repository info:\n$data\nto file: $filepath")
+
+      st2
+  }
+
+  val ciStagingRepositoryName = "ciStagingRepositoryCreate"
+  val ciStagingRepositorySynopsis = "ciStagingRepositoryCreate profile=<name> description=<string> file=<path>"
+  val ciStagingRepositoryHelp = "Create a new staging repository for the staging profile <name>" +
+    " and with <string> as its description "+
+    "and write the result information to the file <path>"
+  Command(
+    name=ciStagingRepositoryName,
+    help=Help(
+      name=ciStagingRepositoryName,
+      briefHelp=(ciStagingRepositorySynopsis, ciStagingRepositoryHelp),
+      detail=ciStagingRepositorySynopsis + " -- " + ciStagingRepositoryHelp)
+  )(parser=ciStagingRepositoryParser)(effect=ciStagingRepositoryAction)
+}
+
+commands += ciStagingRepositoryCreateCommand
