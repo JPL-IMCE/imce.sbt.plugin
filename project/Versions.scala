@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "1.41"
+  val version = "1.42"
 
   // https://github.com/Banno/sbt-license-plugin
   val sbt_license_plugin = "0.1.5"
@@ -17,7 +17,7 @@ object Versions {
   val sbt_scoverage = "1.3.3"
 
   // https://github.com/jrudolph/sbt-dependency-graph
-  val sbt_dependency_graph = "0.8.0"
+  val sbt_dependency_graph = "0.8.2"
 
   // https://github.com/xerial/sbt-pack
   val sbt_pack = "0.7.7"
