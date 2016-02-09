@@ -78,10 +78,9 @@ object IMCEReleasePlugin extends AutoPlugin {
     val extracted = Project.extract(st)
     val sentinel = extracted.get(baseDirectory) / "target" / "imce.success"
     IO.touch(sentinel)
-    st.log.info(s"*** IMCE Success sentinel: $sentinel ***")
+    st.log.info(s"*** IMCE Success! ***")
     st
   }
-
 
   /**
     *

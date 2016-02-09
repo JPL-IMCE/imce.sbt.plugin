@@ -238,7 +238,22 @@ lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
   st
 }
 
+lazy val clearSentinel: ReleaseStep = { st: State =>
+  val extracted = Project.extract(st)
+  IO.delete(extracted.get(baseDirectory) / "target" / "imce.success")
+  st
+}
+
+lazy val successSentinel: ReleaseStep = { st: State =>
+  val extracted = Project.extract(st)
+  val sentinel = extracted.get(baseDirectory) / "target" / "imce.success"
+  IO.touch(sentinel)
+  st.log.info(s"*** IMCE Success! ***")
+  st
+}
+
 releaseProcess := Seq(
+  clearSentinel,
   checkUncommittedChanges,
   checkSnapshotDependencies,
   inquireVersions,
@@ -246,7 +261,8 @@ releaseProcess := Seq(
   runTest,
   tagRelease,
   publishArtifacts,
-  pushChanges
+  pushChanges,
+  successSentinel
 )
 
 publishMavenStyle := true
