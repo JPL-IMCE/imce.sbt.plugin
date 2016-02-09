@@ -68,6 +68,19 @@ object IMCEReleasePlugin extends AutoPlugin {
 
   lazy val setReleaseVersion: ReleaseStep = setVersionOnly(_._1)
 
+  lazy val clearSentinel: ReleaseStep = { st: State =>
+    val extracted = Project.extract(st)
+    IO.delete(extracted.get(baseDirectory) / "target" / "imce.success")
+    st
+  }
+
+  lazy val successSentinel: ReleaseStep = { st: State =>
+    val extracted = Project.extract(st)
+    IO.touch(extracted.get(baseDirectory) / "target" / "imce.success")
+    st
+  }
+
+
   /**
     *
     * @return settings for releasing a package as a zip artifact
@@ -75,6 +88,7 @@ object IMCEReleasePlugin extends AutoPlugin {
   def packageReleaseProcessSettings: Seq[Setting[_]] =
     Seq(
       releaseProcess := Seq(
+        clearSentinel,
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
@@ -82,7 +96,8 @@ object IMCEReleasePlugin extends AutoPlugin {
         runTest,
         tagRelease,
         publishArtifacts,
-        pushChanges
+        pushChanges,
+        successSentinel
     )) ++
     SettingsHelper.makeDeploymentSettings(Universal, packageBin in Universal, "zip")
 
@@ -93,6 +108,7 @@ object IMCEReleasePlugin extends AutoPlugin {
   def libraryReleaseProcessSettings: Seq[Setting[_]] =
     Seq(
       releaseProcess := Seq(
+        clearSentinel,
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
@@ -100,7 +116,8 @@ object IMCEReleasePlugin extends AutoPlugin {
         runTest,
         tagRelease,
         ReleaseStep(releaseStepTask(publishSigned in Universal)),
-        pushChanges
+        pushChanges,
+        successSentinel
     ))
 
 
