@@ -76,7 +76,9 @@ object IMCEReleasePlugin extends AutoPlugin {
 
   lazy val successSentinel: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
-    IO.touch(extracted.get(baseDirectory) / "target" / "imce.success")
+    val sentinel = extracted.get(baseDirectory) / "target" / "imce.success"
+    IO.touch(sentinel)
+    st.log.info(s"*** IMCE Success sentinel: $sentinel ***")
     st
   }
 
