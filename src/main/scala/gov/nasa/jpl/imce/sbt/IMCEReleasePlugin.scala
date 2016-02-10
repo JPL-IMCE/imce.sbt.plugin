@@ -15,6 +15,16 @@ import sbt._
 
 object IMCEReleasePlugin extends AutoPlugin {
 
+  object autoImport {
+
+    val extractArchives = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
+
+    val buildUTCDate = SettingKey[String]("build-utc-date", "The UDC Date of the build")
+
+  }
+
+  import autoImport._
+
   override def requires =
     sbtrelease.ReleasePlugin &&
       com.typesafe.sbt.SbtPgp
@@ -23,7 +33,14 @@ object IMCEReleasePlugin extends AutoPlugin {
     inScope(Global)(Seq(
       useGpg in ThisBuild := true,
 
-      useGpgAgent in ThisBuild := true
+      useGpgAgent in ThisBuild := true,
+
+      buildUTCDate in Global := {
+        import java.util.{ Date, TimeZone }
+        val formatter = new java.text.SimpleDateFormat("yyyy-MM-dd-HH:mm")
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
+        formatter.format(new Date)
+      }
     )) ++
       com.typesafe.sbt.SbtPgp.buildSettings
 
@@ -68,6 +85,12 @@ object IMCEReleasePlugin extends AutoPlugin {
 
   lazy val setReleaseVersion: ReleaseStep = setVersionOnly(_._1)
 
+  lazy val extractStep: ReleaseStep = { st: State =>
+    val extracted = Project.extract(st)
+    val ref = extracted.get(thisProjectRef)
+    extracted.runAggregated(extractArchives in Global in ref, st)
+  }
+
   lazy val clearSentinel: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
     IO.delete(extracted.get(baseDirectory) / "target" / "imce.success")
@@ -93,6 +116,7 @@ object IMCEReleasePlugin extends AutoPlugin {
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
+        extractStep,
         setReleaseVersion,
         runTest,
         tagRelease,
@@ -113,6 +137,7 @@ object IMCEReleasePlugin extends AutoPlugin {
         checkUncommittedChanges,
         checkSnapshotDependencies,
         inquireVersions,
+        extractStep,
         setReleaseVersion,
         runTest,
         tagRelease,
