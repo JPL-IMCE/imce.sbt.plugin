@@ -186,6 +186,9 @@ object IMCEReleasePlugin extends AutoPlugin {
 
         val data = config.root().render(ConfigRenderOptions.concise().setFormatted(true))
         val filepath = Paths.get(filename)
+        val filedir = filepath.getParent.toFile
+        if (!filedir.exists )
+          IO.createDirectory(filedir)
         Files.write(filepath, data.getBytes(StandardCharsets.UTF_8))
         st2.log.info(s"Saved staging repository info:\n$data\nto file: $filepath")
 
