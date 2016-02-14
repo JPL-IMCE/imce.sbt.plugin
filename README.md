@@ -78,6 +78,12 @@ There are 2 required properties:
     git config --global commit.gpgsign true
     ```
 
+  - create a file: `project/maven.sbt` with the following:
+
+     ```addMavenResolverPlugin```
+
+    See: [Maven Resolver Plugin](http://www.scala-sbt.org/0.13/docs/sbt-0.13-Tech-Previews.html#Maven+resolver+plugin)
+
 ## Support for the IMCE CI & Release process
 
 1. Create a staging repository with [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)

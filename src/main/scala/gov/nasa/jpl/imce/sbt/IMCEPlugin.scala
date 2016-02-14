@@ -119,10 +119,6 @@ trait IMCEPlugin
   def defaultProjectMavenSettings: Seq[Setting[_]] =
     aether.AetherPlugin.autoImport.overridePublishSettings ++
     Seq(
-      // http://www.scala-sbt.org/0.13/docs/sbt-0.13-Tech-Previews.html
-      // See "Maven resolver plugin"
-      addMavenResolverPlugin,
-
       // do not include all repositories in the POM
       // (this is important for staging since artifacts published to a staging repository
       //  can be promoted (i.e. published) to another repository)
