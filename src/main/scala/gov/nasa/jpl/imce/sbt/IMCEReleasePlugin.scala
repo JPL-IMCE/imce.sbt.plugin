@@ -27,7 +27,8 @@ object IMCEReleasePlugin extends AutoPlugin {
 
   override def requires =
     sbtrelease.ReleasePlugin &&
-      com.typesafe.sbt.SbtPgp
+      com.typesafe.sbt.SbtPgp &&
+      aether.SignedAetherPlugin
 
   override def buildSettings: Seq[Def.Setting[_]] =
     inScope(Global)(Seq(
@@ -45,6 +46,7 @@ object IMCEReleasePlugin extends AutoPlugin {
       com.typesafe.sbt.SbtPgp.buildSettings
 
   override def projectSettings: Seq[Def.Setting[_]] =
+    aether.SignedAetherPlugin.autoImport.overridePublishSignedBothSettings ++
     Seq(
 
       releasePublishArtifactsAction := publishSigned.value,
@@ -61,6 +63,7 @@ object IMCEReleasePlugin extends AutoPlugin {
 
   lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
+    st.log.info(s"*** ReleaseStep: checkUncommittedChanges")
     if (extracted.get(git.gitUncommittedChanges))
       sys.error("Aborting release due to uncommitted changes")
     st
@@ -72,8 +75,7 @@ object IMCEReleasePlugin extends AutoPlugin {
              .get(ReleaseKeys.versions)
              .getOrElse(sys.error("No versions are set! Was this release part executed before inquireVersions?"))
     val selected = selectVersion(vs)
-
-    st.log.info(s"Setting version to '$selected'.")
+    st.log.info(s"*** ReleaseStep: Setting version to '$selected'.")
     val useGlobal =Project.extract(st).get(releaseUseGlobalVersion)
     //val versionStr = (if (useGlobal) globalVersionString else versionString) format selected
 
@@ -83,11 +85,15 @@ object IMCEReleasePlugin extends AutoPlugin {
     ), st)
   }
 
-  lazy val setReleaseVersion: ReleaseStep = setVersionOnly(_._1)
+  lazy val setReleaseVersion: ReleaseStep = {
+    val r: ReleaseStep = setVersionOnly(_._1)
+    r
+  }
 
   lazy val extractStep: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
     val ref = extracted.get(thisProjectRef)
+    st.log.info(s"*** ReleaseStep: extractArchives")
     extracted.runAggregated(extractArchives in Global in ref, st)
   }
 
@@ -105,6 +111,16 @@ object IMCEReleasePlugin extends AutoPlugin {
     st
   }
 
+  lazy val runCompile: ReleaseStep = ReleaseStep(
+    action = { st: State =>
+      val extracted = Project.extract(st)
+      val ref = extracted.get(thisProjectRef)
+      st.log.info(s"*** ReleaseStep: runCompile")
+      extracted.runAggregated(compile in Compile in ref, st)
+    },
+    enableCrossBuild = true
+  )
+
   /**
     *
     * @return settings for releasing a package as a zip artifact
@@ -118,6 +134,7 @@ object IMCEReleasePlugin extends AutoPlugin {
         inquireVersions,
         extractStep,
         setReleaseVersion,
+        runCompile,
         runTest,
         tagRelease,
         publishArtifacts,
@@ -139,6 +156,7 @@ object IMCEReleasePlugin extends AutoPlugin {
         inquireVersions,
         extractStep,
         setReleaseVersion,
+        runCompile,
         runTest,
         tagRelease,
         ReleaseStep(releaseStepTask(publishSigned in Universal)),

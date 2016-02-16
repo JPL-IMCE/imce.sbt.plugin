@@ -48,4 +48,4 @@ resolvers += "repo.spray.io" at "http://repo.spray.io/"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
 
 // https://github.com/rtimush/sbt-updates
-addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.9")
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.10")

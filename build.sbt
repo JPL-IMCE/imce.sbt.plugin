@@ -75,11 +75,17 @@ resolvers += Classpaths.sbtPluginReleases
 // https://github.com/scoverage/sbt-scoverage
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % Versions.sbt_scoverage)
 
+// https://github.com/jrudolph/sbt-optimizer
+addSbtPlugin("net.virtual-void" % "sbt-optimizer" % Versions.sbt_optimizier)
+
 // https://github.com/jrudolph/sbt-dependency-graph
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % Versions.sbt_dependency_graph)
 
 // https://github.com/xerial/sbt-pack
 addSbtPlugin("org.xerial.sbt" % "sbt-pack" % Versions.sbt_pack)
+
+// https://github.com/arktekk/sbt-aether-deploy
+addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % Versions.aether_deploy)
 
 // https://github.com/rtimush/sbt-updates
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % Versions.sbt_updates)

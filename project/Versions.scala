@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "2.3.1"
+  val version = "2.4.0"
 
   // https://github.com/Banno/sbt-license-plugin
   val sbt_license_plugin = "0.1.5"
@@ -16,17 +16,20 @@ object Versions {
   // https://github.com/scoverage/sbt-scoverage
   val sbt_scoverage = "1.3.3"
 
+  // https://github.com/jrudolph/sbt-optimizer
+  val sbt_optimizier = "0.1.1"
+
   // https://github.com/jrudolph/sbt-dependency-graph
   val sbt_dependency_graph = "0.8.2"
 
   // https://github.com/xerial/sbt-pack
   val sbt_pack = "0.7.7"
 
-  // https://github.com/rtimush/sbt-updates
-  val sbt_updates = "0.1.9"
-
   // https://github.com/arktekk/sbt-aether-deploy
   val aether_deploy = "0.16"
+
+  // https://github.com/rtimush/sbt-updates
+  val sbt_updates = "0.1.10"
 
   // https://github.com/sbt/sbt-native-packager
   val sbt_native_packager = "1.0.6"
