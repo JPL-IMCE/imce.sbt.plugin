@@ -95,7 +95,7 @@ class ProjectHelper(val p: Project) extends AnyVal {
             p.dependsOn(pref % conf)
         }
         pdep.settings(
-          clean <<= clean dependsOn (clean in ProjectRef(projectDir, projectID))
+          clean <<= clean dependsOn (clean in pref)
         )
     }
   }
