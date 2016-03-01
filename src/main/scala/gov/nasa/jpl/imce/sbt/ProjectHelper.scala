@@ -84,7 +84,10 @@ class ProjectHelper(val p: Project) extends AnyVal {
       case None =>
         p.settings(libraryDependencies ++= libs)
       case Some(projectDir) =>
-        val pref = ProjectRef(projectDir, projectID)
+        // This must be a RootProject(uri), not ProjectRef(uri, id)
+        // With a ProjectRef, SBT sees only 1 level of source-to-source project dependency.
+        // With a RootProject, SBT sees the transitive closure of all source-to-source project dependencies.
+        val pref = RootProject(projectDir)
         val pdep = projectConf match {
           case None =>
             p.dependsOn(pref)
