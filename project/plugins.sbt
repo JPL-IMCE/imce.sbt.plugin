@@ -22,6 +22,14 @@ logLevel := Level.Warn
 // http://www.scala-sbt.org/0.13/docs/sbt-0.13-Tech-Previews.html#sbt+0.13.8
 addMavenResolverPlugin
 
+// https://bintray.com/banno/oss/sbt-license-plugin/view
+resolvers += Resolver.url(
+  "sbt-license-plugin-releases",
+  url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
+
+// https://github.com/Banno/sbt-license-plugin
+addSbtPlugin("com.banno" % "sbt-license-plugin" %"0.1.5")
+
 // https://github.com/sbt/sbt-git
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.4")
 
