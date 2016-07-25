@@ -143,7 +143,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % Versions.sbt_aspectj)
 addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % Versions.sbt_scapegoat)
 
 // https://github.com/puffnfresh/wartremover
-addSbtPlugin("org.brianmckenna" % "sbt-wartremover" % Versions.sbt_wartremover)
+addSbtPlugin("org.wartremover" %% "sbt-wartremover" % Versions.sbt_wartremover)
 
 // https://github.com/xerial/sbt-sonatype
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % Versions.sbt_sonatype)

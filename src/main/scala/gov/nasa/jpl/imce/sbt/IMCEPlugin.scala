@@ -138,7 +138,7 @@ trait IMCEPlugin
       // disable automatic dependency on the Scala library
       autoScalaLibrary := false,
 
-      scalaVersion := "2.11.7"
+      scalaVersion := "2.11.8"
     )
 
   /**
@@ -180,7 +180,7 @@ trait IMCEPlugin
         makePom in Compile,
         packagedArtifacts in Compile) map {
         (coords: aether.MavenCoordinates, mainArtifact: File, pom: File, artifacts: Map[Artifact, File]) =>
-          aether.AetherPlugin.createArtifact(artifacts, pom, coords, mainArtifact)
+          aether.AetherPlugin.createArtifact(artifacts, coords, mainArtifact)
       }
     ) ++
     (( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
