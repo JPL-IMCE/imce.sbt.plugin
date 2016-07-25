@@ -59,6 +59,8 @@ object IMCEReleasePlugin extends AutoPlugin {
 
     val buildUTCDate = SettingKey[String]("build-utc-date", "The UDC Date of the build")
 
+    val hasUncommittedChanges = taskKey[Boolean]("Checks for dirty git by calling out to git directly via runner")
+
   }
 
   import autoImport._
@@ -96,7 +98,23 @@ object IMCEReleasePlugin extends AutoPlugin {
                .getOrElse(versionFormatError)
       }),
 
-      commands += ciStagingRepositoryCreateCommand
+      commands += ciStagingRepositoryCreateCommand,
+
+      hasUncommittedChanges := {
+        val statusCommands = Seq(
+          Seq("diff-index", "--cached", "HEAD"),
+          Seq("diff-index", "HEAD"),
+          Seq("diff-files"),
+          Seq("ls-files", "--exclude-standard", "--others")
+        )
+        val runner = git.runner.value
+        val dir = baseDirectory.value
+        val uncommittedChanges = statusCommands.map { c =>
+          runner(c: _*)(dir, com.typesafe.sbt.git.NullLogger)
+        }
+
+        uncommittedChanges.exists(_.nonEmpty)
+      }
     )
 
   lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
