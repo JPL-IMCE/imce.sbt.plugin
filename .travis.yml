@@ -1,6 +1,31 @@
+# Use container-based infrastructure
+sudo: false
+
+# These directories are cached to S3 at the end of the build
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/
+
+before_cache:
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
+
 jdk:
 - oraclejdk8
+
 language: scala
-sudo: false
+
 scala:
 - 2.10.6
+
+# Deploy to github.com releases
+deploy:
+  provider: releases
+  api_key: ${api_key}
+  file: "target/scala-2.10/sbt-0.13/*.jar*"
+  skip_cleanup: true
+  on:
+    all_branches: true
+    tags: true
