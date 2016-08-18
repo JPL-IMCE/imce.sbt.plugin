@@ -21,9 +21,9 @@ With the above redirection, add the following to an SBT `project/plugins.sbt` fi
 addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "<version>")
 ```
 
-(for `<version>`, see https://github.jpl.nasa.gov/imce/imce.sbt.plugin/blob/master/project/Versions.scala#L5)
-
 ## Using the imce.sbt.plugin
+
+Note: This was for the internal version at JPL.
 
 There are 2 required properties:
 
