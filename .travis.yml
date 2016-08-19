@@ -22,7 +22,7 @@ scala:
 
 # See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
 script:
-- sbt -jvm-opts travis/jvmopts.compile ... signedArtifacts
+- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
 
 # Deploy to github.com releases
 deploy:
