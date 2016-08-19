@@ -4,9 +4,8 @@ sudo: false
 # These directories are cached to S3 at the end of the build
 cache:
   directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt/boot/
-
+  - "$HOME/.ivy2/cache"
+  - "$HOME/.sbt/boot/"
 before_cache:
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
@@ -20,12 +19,16 @@ language: scala
 scala:
 - 2.10.6
 
+# See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
+script:
+- sbt -jvm-opts travis/jvmopts.compile packagedArtifacts
+
 # Deploy to github.com releases
 deploy:
   provider: releases
-  api_key: ${api_key}
-  file: "target/scala-2.10/sbt-0.13/*.jar*"
+  api_key:
+    secure: wlc3X02LHK5pGrd0XsGKM/dmJrO0ec5dQqxoY0V9SXqZhgKnZVReyGl5NjEZicHn4kq/+Zq/ZWXA38ouprnit6j4yEhKajVawfejspbhFF+BUH9Xp+D+4jjxw0gPXZ3Sj14N16zeyV3KCAX+BJGS14HkRSvHLwoj2xa7yCwORTDaRfG5D6FIRqYJPPT2cBRlyEvcYqDM8TXkcL+iboKTFQNIEMi8RmPLhgUcTOF8vxOCyJ3zEUjtT438TCiajmIN7L1YNEIUzR8RvibuDrzSrcKPoLoHFmmywbUzSqJGswvZxy7GQ+dMHUwU0L5VYvt+gunG/ShPMbA4xrWEleqQGJQa5LF6Ak+UCSo8NnZUMS9H3Z8tt4GOB0bXYP64mGc004BzV0E0SH0nRDs2+Pu1qgnqtAwrkjnCKFG3tF9/g5NtftAOaa5TpgvxcNT1WvDmuGapTwBf8Beva/PYa9BYTJQ47ActyimuNgdPt+mjkcYuTA7XhT8tcuLDzkUmKeGph6WsZPTI3ekYvp0VF3lwA9qgjvpWQy9qCm/uGeUTfqtt5yQ6C/W498c4pqjJjcbsjYX7USO7f7ftFFQvtyFNHEcCEtDMPNCDm2a+BkA+z7kEFghiUMvepwNd/8vxPM1mhQrjeEXSiF7x6kEzJDqMHZNxD0QTmszMXekfoki51kI=
+  file: target/scala-2.10/sbt-0.13/*.*
   skip_cleanup: true
   on:
-    all_branches: true
-    tags: true
+    repo: JPL-IMCE/imce.sbt.plugin
