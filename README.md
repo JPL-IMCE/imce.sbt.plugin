@@ -6,7 +6,7 @@ artifacts (typically sources, including configuration-managed and generated)
 with support for resolving, fetching and publishing artifacts (packaged or unpackaged) 
 from/to artifact repositories (local or remote).
 
-[![Build Status](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg?branch=IMCEI-283)](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg)
+[![Build Status](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg?branch=IMCEI-283)](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin)
 
 ## Usage
 
