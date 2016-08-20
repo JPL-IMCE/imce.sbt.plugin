@@ -21,7 +21,7 @@ scala:
 
 # See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
 script:
-- sbt -jvm-opts travis/jvmopts.compile packagedArtifacts
+- sbt -jvm-opts travis/jvmopts.compile 'set version := version.value + "." + System.getenv("TRAVIS_BUILD_NUMBER")' packagedArtifacts
 
 # Deploy to github.com releases
 deploy:
