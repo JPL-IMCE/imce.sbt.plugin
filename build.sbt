@@ -5,6 +5,10 @@ import com.banno.license.Plugin.LicenseKeys._
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
 
+PgpKeys.useGpg := true
+
+PgpKeys.useGpgAgent := true
+
 licenseSettings
 
 removeExistingHeaderBlock := true
@@ -160,6 +164,10 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % Versions.sbt_release)
 // http://www.scala-sbt.org/sbt-pgp/
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % Versions.sbt_pgp)
 
+pgpSecretRing := file("local.secring.gpg")
+
+pgpPublicRing := file("local.pubring.gpg")
+
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % Versions.config
 
@@ -226,10 +234,6 @@ Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
         Seq.empty
     })
 }
-
-useGpg := true
-
-useGpgAgent := true
 
 git.baseVersion := Versions.version
 
