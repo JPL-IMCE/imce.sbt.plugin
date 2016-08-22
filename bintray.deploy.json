@@ -7,8 +7,8 @@
     "labels": "sbt"
   },
   "version": {
-    "name": "3.5",
-    "gpgSign": true
+    "name": "3.6",
+    "gpgSign": false
   },
   "files": [
     {"includePattern": "target/scala-2.10/sbt-0.13/(.*)\\.(.*)"}
