@@ -24,9 +24,7 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
-- echo <<EOF > $HOME/.github
-oauth=$OAUH
-EOF
+- echo "oauth = $OAUTH" > $HOME/.github
 
 # See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
 script:
