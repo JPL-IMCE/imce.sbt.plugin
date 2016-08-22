@@ -419,3 +419,8 @@ val ciStagingRepositoryCreateCommand: Command = {
 }
 
 commands += ciStagingRepositoryCreateCommand
+
+
+GithubRelease.repo := "JPL-IMCE/imce.sbt.plugin"
+
+GithubRelease.draft := isSnapshot.value

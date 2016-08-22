@@ -28,20 +28,11 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
-
-# Deploy to github.com releases
-deploy:
-  provider: releases
-  api_key:
-    secure: wlc3X02LHK5pGrd0XsGKM/dmJrO0ec5dQqxoY0V9SXqZhgKnZVReyGl5NjEZicHn4kq/+Zq/ZWXA38ouprnit6j4yEhKajVawfejspbhFF+BUH9Xp+D+4jjxw0gPXZ3Sj14N16zeyV3KCAX+BJGS14HkRSvHLwoj2xa7yCwORTDaRfG5D6FIRqYJPPT2cBRlyEvcYqDM8TXkcL+iboKTFQNIEMi8RmPLhgUcTOF8vxOCyJ3zEUjtT438TCiajmIN7L1YNEIUzR8RvibuDrzSrcKPoLoHFmmywbUzSqJGswvZxy7GQ+dMHUwU0L5VYvt+gunG/ShPMbA4xrWEleqQGJQa5LF6Ak+UCSo8NnZUMS9H3Z8tt4GOB0bXYP64mGc004BzV0E0SH0nRDs2+Pu1qgnqtAwrkjnCKFG3tF9/g5NtftAOaa5TpgvxcNT1WvDmuGapTwBf8Beva/PYa9BYTJQ47ActyimuNgdPt+mjkcYuTA7XhT8tcuLDzkUmKeGph6WsZPTI3ekYvp0VF3lwA9qgjvpWQy9qCm/uGeUTfqtt5yQ6C/W498c4pqjJjcbsjYX7USO7f7ftFFQvtyFNHEcCEtDMPNCDm2a+BkA+z7kEFghiUMvepwNd/8vxPM1mhQrjeEXSiF7x6kEzJDqMHZNxD0QTmszMXekfoki51kI=
-  file: target/scala-2.10/sbt-0.13/*.*
-  file_glob: true
-  skip_cleanup: true
-  on:
-    repo: JPL-IMCE/imce.sbt.plugin
-    all_branches: true
-    tags: true
+- echo <<EOF > $HOME/.github
+oauth=$OAUH
+EOF
 
 env:
   global:
     secure: kOSJNQGjtOuaah+hsPCti4gl8SEmvm+5VLSjLG7tOx9ox4Ohrft+P4j8bhvosnb9ihiYeoALUrY4BADH+kGd6gzOM7uvN8lDxyPbzkQXza4svcISqxjAr0hyiq1zxVmhBA0UfInQGsK0o8X4gZdW7z+Rhqr9sdc2DfLR0/cl3P+lZT3qYDEAaJD2QQZDRsLmAnjv/W/1sao4a8gNbja9rnDv2I3ctUvfG2P5Id68uJ3nuceXWjLJOsEi+fbf3vUXTrqR1/uJQW7jyvVqboywb3xZyRQwEu5xE36IGidD21D5/FP+Rgwv2RtFaEw/dg9J8uXbdK3tV0GGFtH1RhSzETcFBDggPZbFDcfOiCcs2wotWUvnelfSWbdKaly4stAet68SiK3FHwviDcWHsBAT4ADTiDZVT3U9/Wwk5hyzIH6Bmqdky3zDiT2fgqG9FlSO9ttIAM+j7S6AZIsbAKw7/T1YYxUUwL2/+fes/CJSbEeASxMSLQd+hIDmBQjVAk9lAjasDtECw5HOgAQOAY8KkKv4aat0Hpv2QEbBCu/nKpKORSSB/eELB45R6UdW7sGxGlsdEIAz8K4wc4RvkXRqQYNH0Ny6P6BoEwpXCYEnq7XB2EwNHt5M3RoAe2fPSuWfqV79CtjtFPJb3G5WYPjo8HNJDAB7gZEO35h6feEyl9k=
+    secure: "AizoSdbI65mKSUPY2BGjWqAy92odheU3dYUSJG4oZzhSUd1ra7Ig2u1H7ihcNN/eNs+97hwiX2q2dX8MfqTJ+FLfaNsHxR1Ec99TI2hjBvWi2z+kA6/xAubPa8InJdEctG8nZW102nxmykUwDq00juupdlwoO5ceGu/scvNLtMp2bOnsdYAwQno+PntXM+dKtCVDoZX04bVYYN5mwYCRFAqPoKxNMWHuyOJyCMRHiNI+YgnK6QHwyMqSK7jyBVLBxX7zCT8xqMZCzudcH8HZh2XKZPzdc4TvONTsUgoWRk8snLzq3vsNyJMJ4DYqpJjEIDChFXCMJrxD8fRd/+vMjhPhcJaxT2N4plCR04GBOSfxs/8899IrzathmX8SBiSaopGYeKoFgMK4JvMzq/SXB0lGi0KSJx3e02PdeY54hQXNRAm2SI6t5nkrm8btfu9S7lbAxVuLoDiRn0liGqspl71tvL2qgZ0KZu++793Buss/Y4+sNv5ZTR+kxLMI17fywp8KczyyTfyfmsGAw8noAb7jpi8apbZjzw2eDMbTa2UKROkWBeBmAkkB8Krxer2HkPRF6auhPgtDl54xAig2LQ5nnv2wwbPqoLxsmGftejabFbUrZxVPPkBUc26HKgpevD2P4/ba+pKxzwyjobpOILEtPBQ5PllJqZeOjsDFd54="
