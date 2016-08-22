@@ -9,6 +9,17 @@ PgpKeys.useGpg := true
 
 PgpKeys.useGpgAgent := true
 
+bintrayOrganization := Some("gov.nasa.jpl.imce")
+
+bintrayCredentialsFile in Global := new File("local.bintray.credentials.properties")
+
+// two-stage publish/release process:
+// 1) 'sbt publish' => stages all artifacts
+// 2) 'sbt bintrayRelease' => make artifacts public
+bintrayReleaseOnPublish in ThisBuild := false
+
+bintrayPackageLabels := Seq("sbt")
+
 licenseSettings
 
 removeExistingHeaderBlock := true
@@ -326,7 +337,7 @@ releaseProcess := Seq(
   successSentinel
 )
 
-publishMavenStyle := true
+publishMavenStyle := false
 
 // do not include all repositories in the POM
 pomAllRepositories := false
