@@ -114,7 +114,7 @@ enablePlugins(GitBranchPrompt)
 
 overridePublishBothSettings
 
-//organization := "gov.nasa.jpl.imce"
+organization := "JPL-IMCE"
 
 name := "imce.sbt.plugin"
 
