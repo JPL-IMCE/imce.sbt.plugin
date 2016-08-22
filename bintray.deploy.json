@@ -6,6 +6,9 @@
     "vcs_url": "https://github.com/JPL-IMCE/imce.sbt.plugin.git",
     "labels": "sbt"
   },
+  "version": {
+    "name": "3.3"
+  },
   "files": [
     {"includePattern": "target/scala-2.10/sbt-0.13/*.*"}
   ]
