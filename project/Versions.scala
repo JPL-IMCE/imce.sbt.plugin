@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "3.10."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "3.11."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
   // https://github.com/Banno/sbt-license-plugin
   val sbt_license_plugin = "0.1.5"
