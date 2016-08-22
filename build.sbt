@@ -423,4 +423,6 @@ commands += ciStagingRepositoryCreateCommand
 
 GithubRelease.repo := "JPL-IMCE/imce.sbt.plugin"
 
-GithubRelease.draft := isSnapshot.value
+GithubRelease.draft := "true".equalsIgnoreCase(Option.apply(System.getProperty("RELEASE_DRAFT")).getOrElse("false"))
+
+GithubRelease.prerelease := "true".equalsIgnoreCase(Option.apply(System.getProperty("PRERELEASE")).getOrElse("false"))

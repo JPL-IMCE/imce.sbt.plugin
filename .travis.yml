@@ -20,10 +20,6 @@ language: scala
 scala:
 - 2.10.6
 
-# See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
-script:
-- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
-
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
@@ -31,6 +27,16 @@ before_install:
 - echo <<EOF > $HOME/.github
 oauth=$OAUH
 EOF
+
+# See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
+script:
+- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
+
+deploy:
+  skip_cleanup: true
+
+after_deploy:
+- sbt -jvm-opts travis/jvmopts.compile releaseOnGithub
 
 env:
   global:
