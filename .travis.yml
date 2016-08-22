@@ -21,7 +21,7 @@ scala:
 
 # See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
 script:
-- sbt -jvm-opts travis/jvmopts.compile publishSigned
+- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
 
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
