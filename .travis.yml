@@ -16,7 +16,6 @@ jdk:
 - oraclejdk8
 
 language: scala
-
 scala:
 - 2.10.6
 
@@ -28,19 +27,21 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in bintray.credentials.properties.enc -out local.bintray.credentials.properties -d
 
-# Deploy to github.com releases
 deploy:
-  provider: releases
-  api_key:
-    secure: wlc3X02LHK5pGrd0XsGKM/dmJrO0ec5dQqxoY0V9SXqZhgKnZVReyGl5NjEZicHn4kq/+Zq/ZWXA38ouprnit6j4yEhKajVawfejspbhFF+BUH9Xp+D+4jjxw0gPXZ3Sj14N16zeyV3KCAX+BJGS14HkRSvHLwoj2xa7yCwORTDaRfG5D6FIRqYJPPT2cBRlyEvcYqDM8TXkcL+iboKTFQNIEMi8RmPLhgUcTOF8vxOCyJ3zEUjtT438TCiajmIN7L1YNEIUzR8RvibuDrzSrcKPoLoHFmmywbUzSqJGswvZxy7GQ+dMHUwU0L5VYvt+gunG/ShPMbA4xrWEleqQGJQa5LF6Ak+UCSo8NnZUMS9H3Z8tt4GOB0bXYP64mGc004BzV0E0SH0nRDs2+Pu1qgnqtAwrkjnCKFG3tF9/g5NtftAOaa5TpgvxcNT1WvDmuGapTwBf8Beva/PYa9BYTJQ47ActyimuNgdPt+mjkcYuTA7XhT8tcuLDzkUmKeGph6WsZPTI3ekYvp0VF3lwA9qgjvpWQy9qCm/uGeUTfqtt5yQ6C/W498c4pqjJjcbsjYX7USO7f7ftFFQvtyFNHEcCEtDMPNCDm2a+BkA+z7kEFghiUMvepwNd/8vxPM1mhQrjeEXSiF7x6kEzJDqMHZNxD0QTmszMXekfoki51kI=
-  file: target/scala-2.10/sbt-0.13/*.*
-  file_glob: true
-  skip_cleanup: true
-  on:
-    repo: JPL-IMCE/imce.sbt.plugin
-    all_branches: true
-    tags: true
+  matrix:
+  - provider: bintray
+    file: bintray.deploy.json
+    skip_cleanup: true
+    on:
+      repo: JPL-IMCE/imce.sbt.plugin
+      all_branches: true
+      tags: true
+  user:
+    secure: AVPwkv9yUfKC2jQd/ybrRPZZthST4QAq55sCrciBAxFBUMYCNBjTueBOaV03BkDLZO4x20Q8b80q6Ylt0p4/tRrPAFb6I0bWlgTrXb8VNF12p0ORf+Ly2L7IMiWlknlWVlAKg12LewtsD+OyXTxfAWqNH1FR5g/wCQbfOB99oRnxcqMKWIZXoBWiyM4s6B0zTL8usnu6j5jUAHLB2LRoWGtebf3tdNaH7XVxrI/UaXyzXsMbb24cMCilv3hZs1NK22HjoXOYChJzOX4Kpqe5v1iykcV8wv6J1uknOsic3gGfswCNLkwyToEOqpPgkyDjye5mHN6wjuLZ8q6xy3kIg7TNVkhLMHfIprYz50whLJsVMGU/3ZFnSV7CInBfSmuINTncceqPAF7yBo2Ax2xipTSerCRFZ6XSzvVLTrplQcr+nQYY4cKk3AQUyfAITLdmsYCGTlg2gekSoOJooMjA+cig5W0ZsFIexprLeOq+ha9nH1hGqPlL521swQX0YmPzKuy77QP6qd7GLylA6EjSvd+tlRkcO2PMIqTfgz5xynxwX/Lhk5lsYMb11ZDkQkysGDxDrt+38tpK7b2xUduwVaKKOmhbNv0gYx6AcyNCJrvLCR9p5hkXdsg80Zf9kFViSw0tPhEliW5dDYqq2RHb5q2OXNjuH9Mi21ryPXVwyxc=
+  key:
+    secure: NGLvbEPVMDABg/1zaahQuOFjiQPnAjyWxqffTXuIxVVvBjh4Nb7M8qe8J+vCMc/byNbZNK7CVYlC1Btlfm2jZkwamJzY/UVuQjGGFxCv385ky42T9lc+Ll++Ho/IdHP/ffsUX74+AcLePyaWlzipaJRMCpDvr6Do/TNzeAYN4FfIkO86mRP7C3x5mDU/zjUQRz4E75BkfkzOxzq/VCJ7rJUCAVYGDRzghE4eR4vkqKQ9PBb5ICDY9Pk5NGzK6sdW/gtRuO9UWmXadRYt73o91MdO0pN+y3SDs/2ZfeyQ+vFhuS7HKJgZCJCXqZydtVBLuPafjkk1eEFlmMT7T4hbh+7BSqWSg0QV6x9cPxnZFXpJfMaA3xGrwy+Rv4ocJIiXWHsGVw5tsgp894DQcplCBy64R1do09e5mwjILh4yOQpv2x/FI9GhdvYP+WyK9Ju7+7o7wJKdjwvhOlizLoTNtzVeEwEbiGdnohOgKm290SenaYAAwYCin1EPzCVODxAgmRnnFMhriuKmsygj6+Bj214O+gul247zvfyJ30cq5NhstKjJ9+SovViWDEyrABOpDqvW/As067rXVBQzLHum8lPVLXiF8n+KuZejbs45YxApkWm1wyYaQofq7PCQ+tKGPkaHmrrFqlWp8QbrB5YliefHcM7vlIxjT4AuBnseQO4=
 
 env:
   global:

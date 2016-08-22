@@ -9,6 +9,25 @@ PgpKeys.useGpg := true
 
 PgpKeys.useGpgAgent := true
 
+// bintray organization:
+// https://bintray.com/jpl-imce
+bintrayOrganization := Some("jpl-imce")
+
+// bintray maven repo:
+// https://bintray.com/jpl-imce/gov.nasa.jpl.imce
+bintrayRepository := "gov.nasa.jpl.imce"
+
+bintrayCredentialsFile in Global := new File("local.bintray.credentials.properties")
+
+resolvers += Resolver.url("jpl-imce gov.nasa.jpl.imce bintray", url("https://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
+
+// two-stage publish/release process:
+// 1) 'sbt publish' => stages all artifacts
+// 2) 'sbt bintrayRelease' => make artifacts public
+bintrayReleaseOnPublish in ThisBuild := false
+
+bintrayPackageLabels := Seq("sbt")
+
 licenseSettings
 
 removeExistingHeaderBlock := true
@@ -95,7 +114,7 @@ enablePlugins(GitBranchPrompt)
 
 overridePublishBothSettings
 
-organization := "gov.nasa.jpl.imce"
+organization := "JPL-IMCE"
 
 name := "imce.sbt.plugin"
 
@@ -326,7 +345,7 @@ releaseProcess := Seq(
   successSentinel
 )
 
-publishMavenStyle := true
+publishMavenStyle := false
 
 // do not include all repositories in the POM
 pomAllRepositories := false

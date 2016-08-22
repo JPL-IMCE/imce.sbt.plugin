@@ -1,0 +1,19 @@
+{
+  "package": {
+    "name": "imce.sbt.plugin",
+    "repo": "gov.nasa.jpl.imce",
+    "subject": "jpl-imce",
+    "vcs_url": "https://github.com/JPL-IMCE/imce.sbt.plugin.git",
+    "labels": "sbt"
+  },
+  "version": {
+    "name": "3.10",
+    "gpgSign": false
+  },
+  "files": [
+    {"includePattern": "target/scala-2.10/sbt-0.13/(.*\\.jar)", "uploadPattern": "$1"},
+    {"includePattern": "target/scala-2.10/sbt-0.13/(.*\\.pom)", "uploadPattern": "$1"},
+    {"includePattern": "target/scala-2.10/sbt-0.13/(.*\\.asc)", "uploadPattern": "$1"}
+  ],
+  "publish": false
+}
