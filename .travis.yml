@@ -27,6 +27,7 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in bintray.credentials.properties.enc -out local.bintray.credentials.properties -d
 
 deploy:
   - provider: releases
