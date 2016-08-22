@@ -21,7 +21,7 @@ scala:
 
 # See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
 script:
-- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
+- sbt -jvm-opts travis/jvmopts.compile publishSigned
 
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
@@ -35,20 +35,6 @@ deploy:
       secure: wlc3X02LHK5pGrd0XsGKM/dmJrO0ec5dQqxoY0V9SXqZhgKnZVReyGl5NjEZicHn4kq/+Zq/ZWXA38ouprnit6j4yEhKajVawfejspbhFF+BUH9Xp+D+4jjxw0gPXZ3Sj14N16zeyV3KCAX+BJGS14HkRSvHLwoj2xa7yCwORTDaRfG5D6FIRqYJPPT2cBRlyEvcYqDM8TXkcL+iboKTFQNIEMi8RmPLhgUcTOF8vxOCyJ3zEUjtT438TCiajmIN7L1YNEIUzR8RvibuDrzSrcKPoLoHFmmywbUzSqJGswvZxy7GQ+dMHUwU0L5VYvt+gunG/ShPMbA4xrWEleqQGJQa5LF6Ak+UCSo8NnZUMS9H3Z8tt4GOB0bXYP64mGc004BzV0E0SH0nRDs2+Pu1qgnqtAwrkjnCKFG3tF9/g5NtftAOaa5TpgvxcNT1WvDmuGapTwBf8Beva/PYa9BYTJQ47ActyimuNgdPt+mjkcYuTA7XhT8tcuLDzkUmKeGph6WsZPTI3ekYvp0VF3lwA9qgjvpWQy9qCm/uGeUTfqtt5yQ6C/W498c4pqjJjcbsjYX7USO7f7ftFFQvtyFNHEcCEtDMPNCDm2a+BkA+z7kEFghiUMvepwNd/8vxPM1mhQrjeEXSiF7x6kEzJDqMHZNxD0QTmszMXekfoki51kI=
     file: target/scala-2.10/sbt-0.13/*.*
     file_glob: true
-    skip_cleanup: true
-    on:
-      repo: JPL-IMCE/imce.sbt.plugin
-      all_branches: true
-      tags: true
-
-  - provider: bintray
-    file: bintray.deploy.json
-    user:
-      secure: q9aMh1dGfFwV+hkpex2+irdFs4MJ2Ecp+xtL2tRwspPHwwmSHgogbej4GQvyIsG/d5Qxxf2uZ2ltLM2ItLkv/c/uzNrLHarEHDnrfQ1vw9HOf0zxKWxui0nP4mmccjk/xQJ7dOsPLv4sYm4KHnNYAokz/nmmNIOQA2LIc8Inx10Nh2Cokc/zbOzDwFbr9HB8fmWoXLBo+3/xybyw8WBm+k3y8XXJDPE0k6Xmgvhbqtt0JhGy2YI35C6HhV9dCPlawzkNWa1LaQxv/0NLRmB8B6iSGyTJwDLzBXyAPwoWDB44Em1/1ES2ozTQF7YwxzStRWPBnELEDuSbocpa+NT/r3mvqCcvNPO6mt2jNyWGfH/kRs9NQ9M7aOfmC1zOb9V2dYy/w/XCFXSHwGt+3lcyl0MwMHQrquAiPPDe3M3oYmxl1JonipoD/MiCBKcbekzYsi9coOT+ptbOKEL4MqyuwCLkQ1sIwvUXLgeadSx8PQ4QEMPfgO5O5yGgee1K+BT/pi5E0jFnWn3F7DHgWp08Ts1A5g4BiSkYn3dEYlv4NmOxn7AwSnNd2QAZhWjfInSRF/E/XVJnoo7gZ2Jo+uTQFmOvp4njXNeuOYgr8m9V2ExuufQISOAnzgI8zKYGXwfND+YuADYTNvM0bOSA0ySkNC8hXnHmlH14+fRWo67ryc0=
-    key:
-      secure: WkUnGBDAxA9vBfRCj2F7MSFQTnfj1i/7rkuSWFYzv4CZqEk9oKoQCfJgRxjuY7S9POJSnbFbVNb0TnLSYHM0wm/8E4bx5di7DtALapBI5paTdEe+E7D50KsGBSeK9cgINrmPNkOtZ3FJ23dcBYZPHfQaZWXvnPwVb9QbFI5fvDDtDOg8er+lNSxAUQmmWmWFfEM/ZvfRdHX+v0gidLYiv5sOJqBGKCT35CgxWJpRigOSvHf2RFy3DA6znyEKriUq8rK9Ruv7K3rlX1I0x/IFl2bZf4MLlRGMAhVLmQqxGu8OZLZOTi+qvPV7eUQRDU5UxFq05VXhXhyu5WPsg91whIwgNNQsVJCrQeX/Ve3qEdpBcaX4QSSIhZhMLC6xwKzr36ZmjXPfVg55wbcrys8Cxa6gz36Ml3hslg3/E5K1PDxcZSv54Jx2bx0NejB1D5w6312jTNoqqCILmoU5U/c3oMAfrEjkYYrU7SV6yZ6Au1mgbPg+fkcZMwWKJgf6CKgRFNsdML1tN9bRQQ7g0UN/uReeTk7UMIkwy4FUQePiae4lsPseRHTPS6WN+YDldGIb7eGhNvCtBmgDueuu7Znc0Jl0vFUmb5t/+PgJGSbdqADw2fpkZMHq8kSZn4IZ12+rEfgKphlausbOMx7ot8sJ9rAu0+WbEnsp40rTUIhV6MM=
-    passphrase:
-      secure: aLYIpLjcQNywrNkLXRcXYWUMvzqj4emYwt2gCtMlQchqcE2fCyIVTqURZlf5OZouF8aH+aVBrlxMxOPPwMDxWscsbBJD9A6W4FJk3u2sZnYwiVegnhGOY0KX7oSe0zHGQymAzLwwt2h43+Vpfzf6mDGKN0O1nBm7SsioNQrA9Dbe4ksvzZVJNS3lsAfNK3MwF6+IOhKblm/k4MJzaeDciopQKLRWZ0ZTRD3i1kYmV6B9Bl2XNrD9MfmjZQn7qogAPZjsosmGKqoxDdLgxAIIvQX/UQd7+g9CioSWYeg5DUeOP4fhKCPxZTJ5ekNEYrDX+HktBJi0vdXHuEOd2+ht3lN1vblqnunctIrlJ0lCiCltwZMaJN5s+i4bEWhWwi6xuj/eH+zSto+98fxNdyWP4+WiCrGhkXbWCDuXyKnpvcV+fRNYZI/e3MbvJfJeUsWuHkaTznPxF8i7F6nqBV0n6qCN5wuUSLB4fFMkvAUIdDXYoS/Op0JpCmw82VpiU+8b6EJKvFii12nfgWkVAe39QdP9T81yApf/3ERd3JipDstdgm3yoX6tMGCrTsC/ISAtAC3gQg+NQcF4c93JyKXIWlRUUk9EHfVCcbXUihJn1hysuu5do+Tonlu+ichOXHrstik8JEK4YmEzZD01Gop2+iiya5pmNyL04jWdM4i+bgw=
     skip_cleanup: true
     on:
       repo: JPL-IMCE/imce.sbt.plugin
