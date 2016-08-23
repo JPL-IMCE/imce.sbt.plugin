@@ -9,6 +9,12 @@ PgpKeys.useGpg := true
 
 PgpKeys.useGpgAgent := true
 
+//GithubRelease.repo := "JPL-IMCE/imce.sbt.plugin"
+
+//GithubRelease.draft := "true".equalsIgnoreCase(Option.apply(System.getProperty("RELEASE_DRAFT")).getOrElse("false"))
+
+//GithubRelease.prerelease := "true".equalsIgnoreCase(Option.apply(System.getProperty("PRERELEASE")).getOrElse("false"))
+
 // bintray organization:
 // https://bintray.com/jpl-imce
 bintrayOrganization := Some("jpl-imce")
@@ -27,6 +33,8 @@ resolvers += Resolver.url("jpl-imce gov.nasa.jpl.imce bintray", url("https://dl.
 bintrayReleaseOnPublish in ThisBuild := false
 
 bintrayPackageLabels := Seq("sbt")
+
+BintrayPlugin.bintraySettings
 
 licenseSettings
 
