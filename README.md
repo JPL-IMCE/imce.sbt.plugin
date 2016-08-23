@@ -8,6 +8,37 @@ from/to artifact repositories (local or remote).
 
 [![Build Status](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg?branch=IMCEI-283)](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin)
 
+# Configuration
+
+Create a file: `local.credentials.sbt`:
+
+```
+pgpSigningKey := Some(0x<longID>L)
+
+pgpPassphrase := Some("<passphrase>".toArray[Char])
+```
+
+replacing `<longID>` with the 64-bit hexadecimal key on the 'pub' line of `gpg --list-keys --with-colon`
+and replacing `<passphrase>` with the GPG key passphrase.
+
+This file should be encrypted on github.com and decrypted when running locally or on public CI.
+
+## Building on public CI infrastructure (e.g. travis-ci)
+
+sbt-pgp supports signing artifacts via either the GPG command-line utility or the BountyCastle library (BCP).
+However, when running on public CI, it is necessary to specify the GPG key passphrase somehow.
+- With the GPG command-line configuration:
+  
+  Since the sbt-pgp plugin doesn't use gpg's "--batch --passphrase-fd 0" options, 
+  it would be necessary to setup a `gpg-agent` configured with the passphrase.
+  
+- With the BCP library configuration:
+
+  Make sure that `pgpSecretRing` and `pgpPublicRing` point to iles with a single key.
+  If there are multiple keys, BCP only loads the first one (see this [issue](https://github.com/sbt/sbt-pgp/issues/47))
+
+# Old Notes.
+
 ## Usage
 
 The `java.net.URI` API does not currently support the GIT URI protocol.
