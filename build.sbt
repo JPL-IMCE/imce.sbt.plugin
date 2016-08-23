@@ -5,9 +5,13 @@ import com.banno.license.Plugin.LicenseKeys._
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
 
-PgpKeys.useGpg := true
+pgpSecretRing := file("local.secring.gpg")
 
-PgpKeys.useGpgAgent := true
+pgpPublicRing := file("local.pubring.gpg")
+
+useGpg := true
+
+useGpgAgent := false
 
 //GithubRelease.repo := "JPL-IMCE/imce.sbt.plugin"
 
@@ -24,6 +28,10 @@ bintrayOrganization := Some("jpl-imce")
 bintrayRepository := "gov.nasa.jpl.imce"
 
 bintrayCredentialsFile in Global := new File("local.bintray.credentials.properties")
+
+resolvers += Resolver.jcenterRepo
+
+publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin")
 
 resolvers += Resolver.url("jpl-imce gov.nasa.jpl.imce bintray", url("https://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
 
@@ -114,13 +122,14 @@ developers := List(
     email="nicolas.f.rouquette@jpl.nasa.gov",
     url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
 
-enablePlugins(AetherPlugin)
+//enablePlugins(AetherPlugin)
 
 enablePlugins(GitVersioning)
 
 enablePlugins(GitBranchPrompt)
 
-overridePublishBothSettings
+// AetherPlugin
+//overridePublishBothSettings
 
 organization := "JPL-IMCE"
 
@@ -190,10 +199,6 @@ addSbtPlugin("com.github.gseitz" % "sbt-release" % Versions.sbt_release)
 
 // http://www.scala-sbt.org/sbt-pgp/
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % Versions.sbt_pgp)
-
-pgpSecretRing := file("local.secring.gpg")
-
-pgpPublicRing := file("local.pubring.gpg")
 
 // https://github.com/typesafehub/config
 libraryDependencies += "com.typesafe" % "config" % Versions.config
