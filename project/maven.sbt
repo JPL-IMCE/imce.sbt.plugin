@@ -1,1 +1,1 @@
-addMavenResolverPlugin
+//addMavenResolverPlugin

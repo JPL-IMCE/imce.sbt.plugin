@@ -5,6 +5,10 @@ import com.banno.license.Plugin.LicenseKeys._
 import sbtrelease._
 import sbtrelease.ReleaseStateTransformations.{setReleaseVersion=>_,_}
 
+organization := "jpl-imce"
+
+name := "imce.sbt.plugin"
+
 pgpSecretRing := file("local.secring.gpg")
 
 pgpPublicRing := file("local.pubring.gpg")
@@ -19,30 +23,31 @@ useGpgAgent := false
 
 //GithubRelease.prerelease := "true".equalsIgnoreCase(Option.apply(System.getProperty("PRERELEASE")).getOrElse("false"))
 
+publishMavenStyle := false
+
 // bintray organization:
 // https://bintray.com/jpl-imce
-bintrayOrganization := Some("jpl-imce")
+bintrayOrganization in ThisProject := Some("jpl-imce")
 
 // bintray maven repo:
 // https://bintray.com/jpl-imce/gov.nasa.jpl.imce
-bintrayRepository := "gov.nasa.jpl.imce"
+bintrayRepository in ThisProject := "gov.nasa.jpl.imce"
 
-bintrayCredentialsFile in Global := new File("local.bintray.credentials.properties")
-
-resolvers += Resolver.jcenterRepo
-
-publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin")
-
-resolvers += Resolver.url("jpl-imce gov.nasa.jpl.imce bintray", url("https://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
+bintrayCredentialsFile in ThisProject := new File("local.bintray.credentials.properties")
 
 // two-stage publish/release process:
 // 1) 'sbt publish' => stages all artifacts
 // 2) 'sbt bintrayRelease' => make artifacts public
-bintrayReleaseOnPublish in ThisBuild := false
+bintrayReleaseOnPublish in ThisProject := false
 
-bintrayPackageLabels := Seq("sbt")
+bintrayPackageLabels in ThisProject := Seq("sbt")
 
-BintrayPlugin.bintraySettings
+resolvers += Resolver.jcenterRepo
+
+//publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin")
+publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/")
+
+resolvers += Resolver.url("jpl-imce gov.nasa.jpl.imce bintray", url("https://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
 
 licenseSettings
 
@@ -130,10 +135,6 @@ enablePlugins(GitBranchPrompt)
 
 // AetherPlugin
 //overridePublishBothSettings
-
-organization := "JPL-IMCE"
-
-name := "imce.sbt.plugin"
 
 // https://bintray.com/banno/oss/sbt-license-plugin/view
 resolvers += Resolver.url(
@@ -357,8 +358,6 @@ releaseProcess := Seq(
   pushChanges,
   successSentinel
 )
-
-publishMavenStyle := false
 
 // do not include all repositories in the POM
 pomAllRepositories := false
