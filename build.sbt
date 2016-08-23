@@ -45,7 +45,7 @@ bintrayPackageLabels in ThisProject := Seq("sbt")
 resolvers += Resolver.jcenterRepo
 
 //publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin")
-publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/")
+//publishTo := Some("Bintray API Realm" at "https://api.bintray.com/content/")
 
 resolvers += Resolver.url("jpl-imce gov.nasa.jpl.imce bintray", url("https://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
 
