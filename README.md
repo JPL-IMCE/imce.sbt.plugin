@@ -73,8 +73,7 @@ addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "<version>")
    - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in .jfrog-cli.conf.enc -out ~/.jfrog/jfrog-cli.conf -d
    
    script:
-   - cmd=$(if [ "x$TRAVIS_TAG" = "x" ]; then echo "signedArtifacts"; else echo "uploadToBintrayPackage"; fi)
-   - sbt -jvm-opts travis/jvmopts.compile $cmd
+   - if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage; fi
    ```
    
 5. In your `build.sbt`, configure the relevant settings, e.g.:
