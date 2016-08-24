@@ -1,0 +1,1 @@
+- use JFrog CLI to upload artifacts to bintray
