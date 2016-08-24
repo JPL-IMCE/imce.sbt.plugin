@@ -326,7 +326,8 @@ releaseProcess := Seq(
   successSentinel
 )
 
-publishMavenStyle := false
+// include *.pom as an artifact
+publishMavenStyle := true
 
 // do not include all repositories in the POM
 pomAllRepositories := false
