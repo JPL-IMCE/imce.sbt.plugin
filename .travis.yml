@@ -6,6 +6,7 @@ cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
+  - "$HOME/bin"
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -29,5 +30,5 @@ before_install:
 - if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
 
 script:
-- '[ "x$TRAVIS_TAG" = "x" ] && sbt -jvm-opts travis/jvmopts.compile signedArtifacts'
-- '[ "x$TRAVIS_TAG" != "x" ] && sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage'
+- cmd=$(if [ "x$TRAVIS_TAG" = "x" ]; then echo "signedArtifacts"; else echo "uploadToBintrayPackage"; fi)
+- sbt -jvm-opts travis/jvmopts.compile $cmd
