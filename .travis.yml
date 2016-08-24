@@ -29,5 +29,5 @@ before_install:
 - if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
 
 script:
-- [ "x$TRAVIS_TAG" = "x" ] && sbt -jvm-opts travis/jvmopts.compile signedArtifacts
-- [ "x$TRAVIS_TAG" != "x" ] && sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage
+- '[ "x$TRAVIS_TAG" = "x" ] && sbt -jvm-opts travis/jvmopts.compile signedArtifacts'
+- '[ "x$TRAVIS_TAG" != "x" ] && sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage'
