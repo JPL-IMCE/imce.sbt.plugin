@@ -1,0 +1,1 @@
+- 'sbt publishSigned' uploads signed artifacts to bintray

@@ -25,7 +25,7 @@ logLevel := Level.Warn
 }
 
 // http://www.scala-sbt.org/0.13/docs/sbt-0.13-Tech-Previews.html#sbt+0.13.8
-addMavenResolverPlugin
+//addMavenResolverPlugin
 
 // https://bintray.com/banno/oss/sbt-license-plugin/view
 resolvers += Resolver.url(
@@ -39,7 +39,7 @@ addSbtPlugin("com.banno" % "sbt-license-plugin" %"0.1.5")
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.4")
 
 // https://github.com/arktekk/sbt-aether-deploy
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
+// addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
 
 // https://github.com/sbt/sbt-release
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.0")
