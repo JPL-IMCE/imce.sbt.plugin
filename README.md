@@ -1,27 +1,110 @@
-# SBT Plugin for Java, Scala, AspectJ projects
+# JPL's IMCE SBT Plugin for Java, Scala, AspectJ projects
 
-The [Simple Build Tool](http://www.scala-sbt.org "SBT") is an extensible system
-for building packaged artifacts (typically jars, zips, ...) from un-packaged 
-artifacts (typically sources, including configuration-managed and generated)
-with support for resolving, fetching and publishing artifacts (packaged or unpackaged) 
-from/to artifact repositories (local or remote).
+This [sbt plugin]http://www.scala-sbt.org/0.13/docs/Using-Plugins.html) aggregates a few
+ [community plugins](http://www.scala-sbt.org/0.13/docs/Community-Plugins.html) used across several projects in
+ [JPL's Integrated Model-Centric Engineering initiative](https://github.com/JPL-IMCE) and in 
+ [OMG's Tool Infrastructure Working Group](https://github.com/TIWG).
 
+There is an inherent tradeoff between maintaining slight variations 
+of similar build configurations across multiple projects (i.e. no common sbt plugin) and 
+defining a common sbt plugin reused across multiple projects to simplify their build configurations.
+  
+Conceptually, the scope and purpose of this sbt plugin is very similar to the elegant
+  [nice-sbt-settings](https://github.com/ohnosequences/nice-sbt-settings). 
+  Practically, [nice-sbt-settings](https://github.com/ohnosequences/nice-sbt-settings) is indeed nicer.
+  
 [![Build Status](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg?branch=IMCEI-283)](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin)
 
-## Usage
+# Usage
 
-The `java.net.URI` API does not currently support the GIT URI protocol.
-To work around this, add a URI remapping in the user's global GIT configuration.
+## sbt configuration
 
-At the terminal:
-
-```git config --global url."git@".insteadOf github://git@```
-
-With the above redirection, add the following to an SBT `project/plugins.sbt` file:
+in `project/plugins.sbt`, add:
 
 ```
+resolvers += Resolver.url(
+  "jpl-imce",
+  url("http://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
+
 addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "<version>")
 ```
+
+## Two-stage publication to [Bintray](https://bintray.com) with [Travis-CI](https://travis-ci.org/)
+
+1. Install the [JFrog CLI](https://www.jfrog.com/getcli/) locally and in your `.travys.yml`
+
+   ```
+   before_install:   
+   ...
+   - if [ ! -d ~/bin ]; then mkdir ~/bin; fi
+   - if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
+   ```
+
+2. Install the [Travis CLI](https://github.com/travis-ci/travis.rb#installation)
+
+3. Setup your Travis-CI for encrypting files and for GPG
+ 
+   This is needed for signing artifacts with [sbt-pgp](https://github.com/sbt/sbt-pgp)
+   
+   Follow this [guide](https://www.theguardian.com/info/developer-blog/2014/sep/16/shipping-from-github-to-maven-central-and-s3-using-travis-ci).
+   
+4. Create a configuration for your bintray account:
+  
+    ```
+    jfrog bt c --user <bintray user> --key <bintray API key> --li
+    ```
+    
+  - Encrypt your bintray configuration:
+  
+    Assuming that `$ENCRYPTION_PASSWORD` is set 
+     
+    ```
+    openssl aes-256-cbc -in ~/.jfrog/jfrog-cli.conf -out .jfrog-cli.conf.enc -pass pass:$ENCRYPTION_PASSWORD
+    ```
+    
+    Add .jfrog-cli.conf.enc to your github repo.
+    
+  - Add to your `.travis.yml`:
+  
+   ```
+   before_install:   
+   ...
+   - mkdir ~/.jfrog
+   - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in .jfrog-cli.conf.enc -out ~/.jfrog/jfrog-cli.conf -d
+   
+   script:
+   - if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage; fi
+   ```
+   
+5. In your `build.sbt`, configure the relevant settings, e.g.:
+
+   ```
+   jfrogCliPath := Path.userHome.toPath.resolve("bin/jfrog").toFile.absolutePath
+
+   bintrayPackageVersion := Option.apply(System.getenv("TRAVIS_TAG")).getOrElse(version.value)
+
+   bintrayPackagePath := "jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin"
+
+   bintrayPackageFiles := PgpKeys.signedArtifacts.value.values
+   ```
+
+6. Locally, to upload signed artifacts to a new version for your bintray package:
+
+   ```
+   sbt uploadToBintray
+   ```
+
+   Notes:
+   - The uploaded version will be accessible to you only until you publish it.
+   - Bintray rejects uploading snapshots.
+   
+7. Locally, to publish a bintray package version:
+
+   ```
+   sbt publishBintrayPackage
+   ```
+
+# Older notes for JPL's internal workflow
 
 ## Using the imce.sbt.plugin
 

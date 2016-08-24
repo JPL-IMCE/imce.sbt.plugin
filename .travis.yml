@@ -6,6 +6,7 @@ cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
+  - "$HOME/bin"
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -19,29 +20,14 @@ language: scala
 scala:
 - 2.10.6
 
-# See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
-script:
-- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
-
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
-- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in bintray.credentials.properties.enc -out local.bintray.credentials.properties -d
+- mkdir ~/.jfrog
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in .jfrog-cli.conf.enc -out ~/.jfrog/jfrog-cli.conf -d
+- if [ ! -d ~/bin ]; then mkdir ~/bin; fi
+- if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
 
-deploy:
-  provider: bintray
-  file: bintray.deploy.json
-  user:
-    secure: AVPwkv9yUfKC2jQd/ybrRPZZthST4QAq55sCrciBAxFBUMYCNBjTueBOaV03BkDLZO4x20Q8b80q6Ylt0p4/tRrPAFb6I0bWlgTrXb8VNF12p0ORf+Ly2L7IMiWlknlWVlAKg12LewtsD+OyXTxfAWqNH1FR5g/wCQbfOB99oRnxcqMKWIZXoBWiyM4s6B0zTL8usnu6j5jUAHLB2LRoWGtebf3tdNaH7XVxrI/UaXyzXsMbb24cMCilv3hZs1NK22HjoXOYChJzOX4Kpqe5v1iykcV8wv6J1uknOsic3gGfswCNLkwyToEOqpPgkyDjye5mHN6wjuLZ8q6xy3kIg7TNVkhLMHfIprYz50whLJsVMGU/3ZFnSV7CInBfSmuINTncceqPAF7yBo2Ax2xipTSerCRFZ6XSzvVLTrplQcr+nQYY4cKk3AQUyfAITLdmsYCGTlg2gekSoOJooMjA+cig5W0ZsFIexprLeOq+ha9nH1hGqPlL521swQX0YmPzKuy77QP6qd7GLylA6EjSvd+tlRkcO2PMIqTfgz5xynxwX/Lhk5lsYMb11ZDkQkysGDxDrt+38tpK7b2xUduwVaKKOmhbNv0gYx6AcyNCJrvLCR9p5hkXdsg80Zf9kFViSw0tPhEliW5dDYqq2RHb5q2OXNjuH9Mi21ryPXVwyxc=
-  key:
-    secure: NGLvbEPVMDABg/1zaahQuOFjiQPnAjyWxqffTXuIxVVvBjh4Nb7M8qe8J+vCMc/byNbZNK7CVYlC1Btlfm2jZkwamJzY/UVuQjGGFxCv385ky42T9lc+Ll++Ho/IdHP/ffsUX74+AcLePyaWlzipaJRMCpDvr6Do/TNzeAYN4FfIkO86mRP7C3x5mDU/zjUQRz4E75BkfkzOxzq/VCJ7rJUCAVYGDRzghE4eR4vkqKQ9PBb5ICDY9Pk5NGzK6sdW/gtRuO9UWmXadRYt73o91MdO0pN+y3SDs/2ZfeyQ+vFhuS7HKJgZCJCXqZydtVBLuPafjkk1eEFlmMT7T4hbh+7BSqWSg0QV6x9cPxnZFXpJfMaA3xGrwy+Rv4ocJIiXWHsGVw5tsgp894DQcplCBy64R1do09e5mwjILh4yOQpv2x/FI9GhdvYP+WyK9Ju7+7o7wJKdjwvhOlizLoTNtzVeEwEbiGdnohOgKm290SenaYAAwYCin1EPzCVODxAgmRnnFMhriuKmsygj6+Bj214O+gul247zvfyJ30cq5NhstKjJ9+SovViWDEyrABOpDqvW/As067rXVBQzLHum8lPVLXiF8n+KuZejbs45YxApkWm1wyYaQofq7PCQ+tKGPkaHmrrFqlWp8QbrB5YliefHcM7vlIxjT4AuBnseQO4=
-  skip_cleanup: true
-  on:
-    repo: JPL-IMCE/imce.sbt.plugin
-    all_branches: true
-    tags: true
-
-env:
-  global:
-    secure: kOSJNQGjtOuaah+hsPCti4gl8SEmvm+5VLSjLG7tOx9ox4Ohrft+P4j8bhvosnb9ihiYeoALUrY4BADH+kGd6gzOM7uvN8lDxyPbzkQXza4svcISqxjAr0hyiq1zxVmhBA0UfInQGsK0o8X4gZdW7z+Rhqr9sdc2DfLR0/cl3P+lZT3qYDEAaJD2QQZDRsLmAnjv/W/1sao4a8gNbja9rnDv2I3ctUvfG2P5Id68uJ3nuceXWjLJOsEi+fbf3vUXTrqR1/uJQW7jyvVqboywb3xZyRQwEu5xE36IGidD21D5/FP+Rgwv2RtFaEw/dg9J8uXbdK3tV0GGFtH1RhSzETcFBDggPZbFDcfOiCcs2wotWUvnelfSWbdKaly4stAet68SiK3FHwviDcWHsBAT4ADTiDZVT3U9/Wwk5hyzIH6Bmqdky3zDiT2fgqG9FlSO9ttIAM+j7S6AZIsbAKw7/T1YYxUUwL2/+fes/CJSbEeASxMSLQd+hIDmBQjVAk9lAjasDtECw5HOgAQOAY8KkKv4aat0Hpv2QEbBCu/nKpKORSSB/eELB45R6UdW7sGxGlsdEIAz8K4wc4RvkXRqQYNH0Ny6P6BoEwpXCYEnq7XB2EwNHt5M3RoAe2fPSuWfqV79CtjtFPJb3G5WYPjo8HNJDAB7gZEO35h6feEyl9k=
+script:
+- if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage; fi
