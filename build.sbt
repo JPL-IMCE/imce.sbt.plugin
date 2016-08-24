@@ -419,3 +419,49 @@ val ciStagingRepositoryCreateCommand: Command = {
 }
 
 commands += ciStagingRepositoryCreateCommand
+
+val jfrogCliPath = settingKey[String]("path of the jfrog cli executable")
+
+val bintrayPackageVersion = settingKey[String]("the version of the bintray package to upload files to")
+
+val bintrayPackagePath = settingKey[String]("3-level path: subject/repository/package")
+
+val bintrayPackageFiles = taskKey[Iterable[File]]("Files to upload to a bintray package")
+
+val uploadToBintrayPackage = taskKey[Unit]("Use jfrog cli to upload artifacts to bintray")
+
+val publishBintrayPackage = taskKey[Unit]("Use jfrog cli to publish all files in a bintray package version")
+
+uploadToBintrayPackage <<= (jfrogCliPath, bintrayPackagePath, bintrayPackageVersion, bintrayPackageFiles, streams) map {
+  case (cli, pkgPath, pkgV, pkgFiles, s) =>
+
+  s.log.info(s"Ppload to bintray: $pkgV => ${pkgFiles.size}")
+  pkgFiles.foreach { f =>
+    s.log.info(s"uploading to bintray: $f")
+    val args = Seq("bt", "u", f.absolutePath, pkgPath+"/"+pkgV)
+    Process(cli, args) ! s.log match {
+      case 0 => ()
+      case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
+    }
+  }
+
+}
+
+publishBintrayPackage <<= (jfrogCliPath, bintrayPackagePath, bintrayPackageVersion, streams) map {
+  case (cli, pkgPath, pkgV, s) =>
+
+    s.log.info(s"Publish all files from version $pkgV of bintray package $pkgPath")
+    val args = Seq("bt", "vp", pkgPath+"/"+pkgV)
+    Process(cli, args) ! s.log match {
+      case 0 => ()
+      case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
+    }
+}
+
+jfrogCliPath := Path.userHome.toPath.resolve("bin/jfrog").toFile.absolutePath
+
+bintrayPackageVersion := Option.apply(System.getenv("TRAVIS_TAG")).getOrElse(version.value)
+
+bintrayPackagePath := "jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin"
+
+bintrayPackageFiles := PgpKeys.signedArtifacts.value.values

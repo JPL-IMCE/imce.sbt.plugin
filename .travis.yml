@@ -25,14 +25,9 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
 - mkdir ~/.jfrog
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in .jfrog-cli.conf.enc -out ~/.jfrog/jfrog-cli.conf -d
-- mkdir ~/bin
-- (cd ~/bin; curl -fL https://getcli.jfrog.io | sh)
+- if [ ! -d ~/bin ]; then mkdir ~/bin; fi
+- if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
 
-# See https://docs.travis-ci.com/user/languages/scala#Custom-sbt-Arguments
 script:
-- sbt -jvm-opts travis/jvmopts.compile signedArtifacts
-- ~/bin/jfrog bt ps jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin
-
-env:
-  global:
-    secure: kOSJNQGjtOuaah+hsPCti4gl8SEmvm+5VLSjLG7tOx9ox4Ohrft+P4j8bhvosnb9ihiYeoALUrY4BADH+kGd6gzOM7uvN8lDxyPbzkQXza4svcISqxjAr0hyiq1zxVmhBA0UfInQGsK0o8X4gZdW7z+Rhqr9sdc2DfLR0/cl3P+lZT3qYDEAaJD2QQZDRsLmAnjv/W/1sao4a8gNbja9rnDv2I3ctUvfG2P5Id68uJ3nuceXWjLJOsEi+fbf3vUXTrqR1/uJQW7jyvVqboywb3xZyRQwEu5xE36IGidD21D5/FP+Rgwv2RtFaEw/dg9J8uXbdK3tV0GGFtH1RhSzETcFBDggPZbFDcfOiCcs2wotWUvnelfSWbdKaly4stAet68SiK3FHwviDcWHsBAT4ADTiDZVT3U9/Wwk5hyzIH6Bmqdky3zDiT2fgqG9FlSO9ttIAM+j7S6AZIsbAKw7/T1YYxUUwL2/+fes/CJSbEeASxMSLQd+hIDmBQjVAk9lAjasDtECw5HOgAQOAY8KkKv4aat0Hpv2QEbBCu/nKpKORSSB/eELB45R6UdW7sGxGlsdEIAz8K4wc4RvkXRqQYNH0Ny6P6BoEwpXCYEnq7XB2EwNHt5M3RoAe2fPSuWfqV79CtjtFPJb3G5WYPjo8HNJDAB7gZEO35h6feEyl9k=
+- [ "x$TRAVIS_TAG" = "x" ] && sbt -jvm-opts travis/jvmopts.compile signedArtifacts
+- [ "x$TRAVIS_TAG" != "x" ] && sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage

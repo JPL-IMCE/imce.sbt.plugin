@@ -51,7 +51,7 @@ import scala.language.postfixOps
 
 object IMCEPlugin extends IMCEPlugin {
 
-  object autoImport extends IMCEKeys
+  object autoImport extends IMCEKeys with JFrogCLIKeys
 
   override def trigger = allRequirements
 
