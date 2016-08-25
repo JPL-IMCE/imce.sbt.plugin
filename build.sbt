@@ -252,7 +252,6 @@ git.gitDescribedVersion :=
 gitReader.value.withGit(_.describedVersion)
 .flatMap(v =>
   Option(v)
-  .map(_.drop(1))
   .orElse(formattedShaVersion.value)
   .orElse(Some(git.baseVersion.value))
 )
