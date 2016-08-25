@@ -14,6 +14,7 @@ Conceptually, the scope and purpose of this sbt plugin is very similar to the el
   Practically, [nice-sbt-settings](https://github.com/ohnosequences/nice-sbt-settings) is indeed nicer.
   
 [![Build Status](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg?branch=IMCEI-283)](https://travis-ci.org/JPL-IMCE/imce.sbt.plugin)
+[ ![Download](https://api.bintray.com/packages/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/images/download.svg) ](https://bintray.com/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/_latestVersion)
 
 # Usage
 
