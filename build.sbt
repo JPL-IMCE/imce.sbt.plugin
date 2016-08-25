@@ -440,7 +440,7 @@ val publishBintrayPackage = taskKey[Unit]("Use jfrog cli to publish all files in
 uploadToBintrayPackage <<=
   ( jfrogCliPath,
     bintrayUser, bintrayRepo, bintrayPackageName, bintrayPackageVersion, bintrayPackageFiles,
-    sbtPlugin, scalaBinaryVersion, sbtVersion,
+    sbtPlugin, scalaBinaryVersion, sbtBinaryVersion,
     streams) map {
   case (cli, btUser, btRepo, btPkg, btV, files, isSBT, scalaV, sbtV, s) =>
 
@@ -448,10 +448,10 @@ uploadToBintrayPackage <<=
   files.foreach { f =>
     s.log.info(s"uploading to bintray: $f")
     val path =
-      s"$btUser/$btRepo/$btV"
+      s"$btUser/$btRepo/$btPkg/$btV"
     val loc =
         btRepo.replace('.','/')+
-        (if (isSBT) "sbt/" else "")+
+        (if (isSBT) "/sbt/" else "/")+
         btPkg+"_"+scalaV+(if (isSBT) "_"+sbtV else "")+
         "/"+btV
     val args = Seq("bt", "u", f.absolutePath, path, loc)
