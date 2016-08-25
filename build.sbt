@@ -452,7 +452,7 @@ uploadToBintrayPackage <<=
         btRepo.replace('.','/')+
         (if (isSBT) "/sbt/" else "/")+
         btPkg+"_"+scalaV+(if (isSBT) "_"+sbtV else "")+
-        "/"+btV
+        "/"+btV+"/"
     val args = Seq("bt", "u", f.absolutePath, path, loc)
     Process(cli, args) ! s.log match {
       case 0 => ()
