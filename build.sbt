@@ -470,7 +470,7 @@ publishBintrayPackage <<=
   case (cli, btUser, btRepo, btPkg, btV, s) =>
 
     s.log.info(s"Publish all files from version $btV of bintray package $btPkg")
-    val args = Seq("bt", "vp", s"$btUser/$btRepo/$btV")
+    val args = Seq("bt", "vp", s"$btUser/$btRepo/$btPkg/$btV")
     Process(cli, args) ! s.log match {
       case 0 => ()
       case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
