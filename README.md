@@ -23,87 +23,90 @@ Conceptually, the scope and purpose of this sbt plugin is very similar to the el
 in `project/plugins.sbt`, add:
 
 ```
-resolvers += Resolver.url(
-  "jpl-imce",
-  url("http://dl.bintray.com/jpl-imce/gov.nasa.jpl.imce"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce")
 
 addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "<version>")
 ```
 
-## Two-stage publication to [Bintray](https://bintray.com) with [Travis-CI](https://travis-ci.org/)
+## Two-stage publication to [Bintray](https://bintray.com)
 
-1. Install the [JFrog CLI](https://www.jfrog.com/getcli/) locally and in your `.travys.yml`
+### Bintray package version upload (aka `sbt publish` or `sbt publishSigned`)
 
-   ```
-   before_install:   
-   ...
-   - if [ ! -d ~/bin ]; then mkdir ~/bin; fi
-   - if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
-   ```
+1) in `build.sbt`, add:
 
-2. Install the [Travis CLI](https://github.com/travis-ci/travis.rb#installation)
+- configuration for publishing to bintray:
 
-3. Setup your Travis-CI for encrypting files and for GPG
+```
+// publish SBT and non-SBT artifacts as Maven artifacts (i.e. with *.pom)
+publishMavenStyle := true
+
+// publish to bintray.com via: `sbt publish`
+publishTo := Some(
+  "JPL-IMCE" at
+    s"https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/${version.value}")
+```
+
+This requires specifying the Bintray credentials:
+
+```
+credentials += Credentials("Bintray API Realm", "api.bintray.com", "<user>", "<bintray API key>")
+```
+
+- configuration for resolving from bintray:
+
+```
+resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce")
+```
+
+For resolving unpublished artifacts, resolution requires credentials:
+
+```
+credentials += Credentials("Bintray", "dl.bintray.com", "<user>", "<bintray API key")
+```
+
+2) Phase 1: Upload to bintray
+
+In Bintray, when a user uploads artifact files to a package version,
+the uploaded artifacts are available (i.e. resolvable in Maven/SBT terminology)
+only for that authenticated user.
  
-   This is needed for signing artifacts with [sbt-pgp](https://github.com/sbt/sbt-pgp)
-   
-   Follow this [guide](https://www.theguardian.com/info/developer-blog/2014/sep/16/shipping-from-github-to-maven-central-and-s3-using-travis-ci).
-   
-4. Create a configuration for your bintray account:
+- Note: this will upload the sbt artifact files to bintray.
+ 
+```
+sbt publish
+```
+
+or:
+
+```
+sbt publishSigned
+```
+
+3) Phase 2: Discard or Publish the uploaded artifact files for a package version
+
+In Bintray, the uploaded artifact files for a project version can be:
+ - discarded => delete the uploaded artifact files: nobody can resolve them. 
+ - published => make the uploaded artifact files publicly available: everyone can resolve them.
   
-    ```
-    jfrog bt c --user <bintray user> --key <bintray API key> --li
-    ```
-    
-  - Encrypt your bintray configuration:
+Note that bintray keeps unpublished uploaded artifact files for 
+a short period (it seems to be ~ 6 days), after which they are discarded.
+
+During this period, unpublished artifact files for a package version
+can be tested (only with properly authenticated access).
+
+- Via the JFrog CLI:
+
+  - Install the [JFrog CLI](https://www.jfrog.com/getcli/)
+
+  - publish: `jfrog bt vp <subject>/<organization>/<package>/<version>`
+  - disacard: `jfrog bt vd <subject>/<organization>/<package>/<version>`
+
+- Via the bintray.com web UI:
+
+  - Go to: `https://bintray.com/<subject>/<organization>/<package>/<version>`
   
-    Assuming that `$ENCRYPTION_PASSWORD` is set 
-     
-    ```
-    openssl aes-256-cbc -in ~/.jfrog/jfrog-cli.conf -out .jfrog-cli.conf.enc -pass pass:$ENCRYPTION_PASSWORD
-    ```
-    
-    Add .jfrog-cli.conf.enc to your github repo.
-    
-  - Add to your `.travis.yml`:
+  - There are separate buttons for publishing & discarding.
   
-   ```
-   before_install:   
-   ...
-   - mkdir ~/.jfrog
-   - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in .jfrog-cli.conf.enc -out ~/.jfrog/jfrog-cli.conf -d
-   
-   script:
-   - if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile uploadToBintrayPackage; fi
-   ```
-   
-5. In your `build.sbt`, configure the relevant settings, e.g.:
-
-   ```
-   jfrogCliPath := Path.userHome.toPath.resolve("bin/jfrog").toFile.absolutePath
-
-   bintrayPackageVersion := Option.apply(System.getenv("TRAVIS_TAG")).getOrElse(version.value)
-
-   bintrayPackagePath := "jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin"
-
-   bintrayPackageFiles := PgpKeys.signedArtifacts.value.values
-   ```
-
-6. Locally, to upload signed artifacts to a new version for your bintray package:
-
-   ```
-   sbt uploadToBintray
-   ```
-
-   Notes:
-   - The uploaded version will be accessible to you only until you publish it.
-   - Bintray rejects uploading snapshots.
-   
-7. Locally, to publish a bintray package version:
-
-   ```
-   sbt publishBintrayPackage
-   ```
 
 # Older notes for JPL's internal workflow
 

@@ -6,7 +6,6 @@ cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
-  - "$HOME/bin"
 
 before_cache:
   # Tricks to avoid unnecessary cache updates
@@ -24,10 +23,6 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
-- mkdir ~/.jfrog
-- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in .jfrog-cli.conf.enc -out ~/.jfrog/jfrog-cli.conf -d
-- if [ ! -d ~/bin ]; then mkdir ~/bin; fi
-- if [ ! -x ~/bin/jfrog ]; then (cd ~/bin; curl -fL https://getcli.jfrog.io | sh); fi
 
 script:
-- if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG uploadToBintrayPackage; fi
+- if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned; fi

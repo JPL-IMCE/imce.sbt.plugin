@@ -54,38 +54,16 @@ license :=
 
 sbtPlugin := true
 
-( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
-  case (Some(dir), _) =>
-    if ((new File(dir) / "settings.xml").exists) {
-      val cache = new MavenCache("JPL Resolve", new File(dir))
-      Seq(resolvers += cache)
-    }
-    else
-      sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-  case (None, Some(url)) => {
-    val repo = new MavenRepository("JPL Resolve", url)
-    Seq(resolvers += repo)
-  }
-  case _ =>
-    // TODO: cleanup
-    //    sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or"+
-    //                      "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where"+
-    //                      "<dir> is a local Maven repository directory or"+
-    //                      "<url> is a remote Maven repository URL")
-    Seq.empty
-}
-
 scmInfo := Some(ScmInfo(
-  url("https://github.jpl.nasa.gov/imce/imce.sbt.plugin"),
-  "git@github.jpl.nasa.gov:imce/imce.sbt.plugin.git"))
+  url("https://github.com/JPL-IMCE/imce.sbt.plugin"),
+  "git@github.com:JPL-IMCE/imce.sbt.plugin.git"))
 
 developers := List(
   Developer(
     id="rouquett",
     name="Nicolas F. Rouquette",
     email="nicolas.f.rouquette@jpl.nasa.gov",
-    url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
+    url=url("https://github.com/NicolasRouquette")))
 
 enablePlugins(AetherPlugin)
 
@@ -177,9 +155,9 @@ libraryDependencies += "io.spray" %%  "spray-json" % Versions.spray_json
 libraryDependencies += "com.github.pathikrit" %% "better-files" % Versions.better_files
 
 // publish to bintray.com via: `sbt publish`
-publishTo := Some("JPL-IMCE" at s"https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/${version.value}")
-
-credentials += Credentials(Path.userHome / ".bintray" / ".credentials")
+publishTo := Some(
+  "JPL-IMCE" at
+    s"https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/${version.value}")
 
 git.baseVersion := Versions.version
 
@@ -365,76 +343,3 @@ val ciStagingRepositoryCreateCommand: Command = {
 }
 
 commands += ciStagingRepositoryCreateCommand
-
-// publish to bintray via the JFrog CLI.
-
-val jfrogCliPath = settingKey[String]("path of the jfrog cli executable")
-
-val bintrayUser = settingKey[String]("Bintray username")
-
-val bintrayRepo = settingKey[String]("Bintray repo")
-
-val bintrayPackageName = settingKey[String]("Bintray package")
-
-val bintrayPackageVersion = settingKey[String]("the version of the bintray package to upload files to")
-
-val bintrayPackageFiles = taskKey[Iterable[File]]("Files to upload to a bintray package")
-
-val uploadToBintrayPackage = taskKey[Unit]("Use jfrog cli to upload artifacts to bintray")
-
-val publishBintrayPackage = taskKey[Unit]("Use jfrog cli to publish all files in a bintray package version")
-
-uploadToBintrayPackage <<=
-  ( jfrogCliPath,
-    bintrayUser, bintrayRepo, bintrayPackageName, bintrayPackageVersion, bintrayPackageFiles,
-    sbtPlugin, scalaBinaryVersion, sbtBinaryVersion,
-    streams) map {
-  case (cli, btUser, btRepo, btPkg, btV, files, isSBT, scalaV, sbtV, s) =>
-
-  s.log.info(s"Upload to bintray: $btV => ${files.size}")
-  val path = s"$btUser/$btRepo/$btPkg/$btV"
-  files.foreach { f =>
-    s.log.info(s"uploading to bintray: $f")
-    val loc =
-        btRepo.replace('.','/')+"/"+
-        btPkg.replace('.','-')+"_"+scalaV+(if (isSBT) "_"+sbtV else "")+
-        "/"+btV+"/"
-    val args = Seq("bt", "u", f.absolutePath, path, loc)
-    Process(cli, args) ! s.log match {
-      case 0 => ()
-      case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
-    }
-  }
-  val args = Seq("bt", "vp", path)
-  Process(cli, args) ! s.log match {
-    case 0 => ()
-    case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
-  }
-
-}
-
-publishBintrayPackage <<=
-  ( jfrogCliPath,
-    bintrayUser, bintrayRepo, bintrayPackageName, bintrayPackageVersion,
-    streams) map {
-  case (cli, btUser, btRepo, btPkg, btV, s) =>
-
-    s.log.info(s"Publish all files from version $btV of bintray package $btPkg")
-    val args = Seq("bt", "vp", s"$btUser/$btRepo/$btPkg/$btV")
-    Process(cli, args) ! s.log match {
-      case 0 => ()
-      case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
-    }
-}
-
-jfrogCliPath := Path.userHome.toPath.resolve("bin/jfrog").toFile.absolutePath
-
-bintrayUser := "jpl-imce"
-
-bintrayRepo := "gov.nasa.jpl.imce"
-
-bintrayPackageName := "imce.sbt.plugin"
-
-bintrayPackageVersion := Option.apply(System.getenv("TRAVIS_TAG")).getOrElse(version.value)
-
-bintrayPackageFiles := PgpKeys.signedArtifacts.value.values
