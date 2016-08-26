@@ -54,38 +54,16 @@ license :=
 
 sbtPlugin := true
 
-( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
-  Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
-  case (Some(dir), _) =>
-    if ((new File(dir) / "settings.xml").exists) {
-      val cache = new MavenCache("JPL Resolve", new File(dir))
-      Seq(resolvers += cache)
-    }
-    else
-      sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-  case (None, Some(url)) => {
-    val repo = new MavenRepository("JPL Resolve", url)
-    Seq(resolvers += repo)
-  }
-  case _ =>
-    // TODO: cleanup
-    //    sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or"+
-    //                      "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where"+
-    //                      "<dir> is a local Maven repository directory or"+
-    //                      "<url> is a remote Maven repository URL")
-    Seq.empty
-}
-
 scmInfo := Some(ScmInfo(
-  url("https://github.jpl.nasa.gov/imce/imce.sbt.plugin"),
-  "git@github.jpl.nasa.gov:imce/imce.sbt.plugin.git"))
+  url("https://github.com/JPL-IMCE/imce.sbt.plugin"),
+  "git@github.com:JPL-IMCE/imce.sbt.plugin.git"))
 
 developers := List(
   Developer(
     id="rouquett",
     name="Nicolas F. Rouquette",
     email="nicolas.f.rouquette@jpl.nasa.gov",
-    url=url("https://gateway.jpl.nasa.gov/personal/rouquett/default.aspx")))
+    url=url("https://github.com/NicolasRouquette")))
 
 enablePlugins(AetherPlugin)
 
@@ -95,7 +73,7 @@ enablePlugins(GitBranchPrompt)
 
 overridePublishBothSettings
 
-organization := "JPL-IMCE"
+organization := "gov.nasa.jpl.imce"
 
 name := "imce.sbt.plugin"
 
@@ -137,9 +115,6 @@ addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % Versions.aether_deploy)
 // https://github.com/rtimush/sbt-updates
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % Versions.sbt_updates)
 
-// https://github.com/arktekk/sbt-aether-deploy
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % Versions.aether_deploy)
-
 // https://github.com/sbt/sbt-native-packager
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.sbt_native_packager)
 
@@ -179,67 +154,16 @@ libraryDependencies += "io.spray" %%  "spray-json" % Versions.spray_json
 // https://github.com/pathikrit/better-files
 libraryDependencies += "com.github.pathikrit" %% "better-files" % Versions.better_files
 
-import com.typesafe.config._
-
-Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
-  case Some(file) =>
-    val config = ConfigFactory.parseFile(new File(file)).resolve()
-    val profileName = config.getString("staging.profileName")
-    Seq(
-      sonatypeCredentialHost := config.getString("staging.credentialHost"),
-      sonatypeRepository := config.getString("staging.repositoryService"),
-      sonatypeProfileName := profileName,
-      sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
-        profileId=config.getString("staging.profileId"),
-        profileName=profileName,
-        stagingType="open",
-        repositoryId=config.getString("staging.repositoryId"),
-        description=config.getString("staging.description")),
-      publishTo := Some(new MavenRepository(profileName, config.getString("staging.publishTo")))
-    )
-  case None =>
-    (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
-      case Some(address) =>
-        Seq(
-          sonatypeCredentialHost := address,
-          sonatypeRepository := s"https://$address/nexus/service/local"
-        )
-      case None =>
-        // TODO: cleanup
-        //sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
-        Seq.empty
-    }) ++
-    (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
-      Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
-      case (Some(dir), _) =>
-        if ((new File(dir) / "settings.xml").exists) {
-          val cache = new MavenCache("JPL Publish", new File(dir))
-          Seq(publishTo := Some(cache))
-        }
-        else {
-          // TODO: cleanup
-          //sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-          Seq.empty
-        }
-      case (None, Some(url)) => {
-        val repo = new MavenRepository("JPL Publish", url)
-        Seq(publishTo := Some(repo))
-      }
-      case _ =>
-        // TODO: cleanup
-//        sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or"+
-//        "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where"+
-//        "<dir> is a local Maven repository directory or"+
-//        "<url> is a remote Maven repository URL")
-        Seq.empty
-    })
-}
+// publish to bintray.com via: `sbt publish`
+publishTo := Some(
+  "JPL-IMCE" at
+    s"https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/${version.value}")
 
 git.baseVersion := Versions.version
 
 git.useGitDescribe := true
 
-val VersionRegex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r
+val VersionRegex = "([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r
 
 git.gitTagToVersionNumber := {
   case VersionRegex(v,"SNAPSHOT") => Some(s"$v-SNAPSHOT")
@@ -252,7 +176,6 @@ git.gitDescribedVersion :=
 gitReader.value.withGit(_.describedVersion)
 .flatMap(v =>
   Option(v)
-  .map(_.drop(1))
   .orElse(formattedShaVersion.value)
   .orElse(Some(git.baseVersion.value))
 )
@@ -420,49 +343,3 @@ val ciStagingRepositoryCreateCommand: Command = {
 }
 
 commands += ciStagingRepositoryCreateCommand
-
-val jfrogCliPath = settingKey[String]("path of the jfrog cli executable")
-
-val bintrayPackageVersion = settingKey[String]("the version of the bintray package to upload files to")
-
-val bintrayPackagePath = settingKey[String]("3-level path: subject/repository/package")
-
-val bintrayPackageFiles = taskKey[Iterable[File]]("Files to upload to a bintray package")
-
-val uploadToBintrayPackage = taskKey[Unit]("Use jfrog cli to upload artifacts to bintray")
-
-val publishBintrayPackage = taskKey[Unit]("Use jfrog cli to publish all files in a bintray package version")
-
-uploadToBintrayPackage <<= (jfrogCliPath, bintrayPackagePath, bintrayPackageVersion, bintrayPackageFiles, streams) map {
-  case (cli, pkgPath, pkgV, pkgFiles, s) =>
-
-  s.log.info(s"Ppload to bintray: $pkgV => ${pkgFiles.size}")
-  pkgFiles.foreach { f =>
-    s.log.info(s"uploading to bintray: $f")
-    val args = Seq("bt", "u", f.absolutePath, pkgPath+"/"+pkgV)
-    Process(cli, args) ! s.log match {
-      case 0 => ()
-      case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
-    }
-  }
-
-}
-
-publishBintrayPackage <<= (jfrogCliPath, bintrayPackagePath, bintrayPackageVersion, streams) map {
-  case (cli, pkgPath, pkgV, s) =>
-
-    s.log.info(s"Publish all files from version $pkgV of bintray package $pkgPath")
-    val args = Seq("bt", "vp", pkgPath+"/"+pkgV)
-    Process(cli, args) ! s.log match {
-      case 0 => ()
-      case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
-    }
-}
-
-jfrogCliPath := Path.userHome.toPath.resolve("bin/jfrog").toFile.absolutePath
-
-bintrayPackageVersion := Option.apply(System.getenv("TRAVIS_TAG")).getOrElse(version.value)
-
-bintrayPackagePath := "jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin"
-
-bintrayPackageFiles := PgpKeys.signedArtifacts.value.values
