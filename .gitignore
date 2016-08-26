@@ -1,4 +1,5 @@
 .idea
+local.*
 project/project
 project/target
 target

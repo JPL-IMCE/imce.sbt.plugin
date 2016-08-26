@@ -1,0 +1,28 @@
+# Use container-based infrastructure
+sudo: false
+
+# These directories are cached to S3 at the end of the build
+cache:
+  directories:
+  - "$HOME/.ivy2/cache"
+  - "$HOME/.sbt/boot/"
+
+before_cache:
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
+
+jdk:
+- oraclejdk8
+
+language: scala
+scala:
+- 2.10.6
+
+before_install:
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out local.secring.gpg -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out local.pubring.gpg -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in credentials.sbt.enc -out local.credentials.sbt -d
+
+script:
+- if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned; fi

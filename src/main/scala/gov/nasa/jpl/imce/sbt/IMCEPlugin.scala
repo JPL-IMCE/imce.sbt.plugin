@@ -190,16 +190,21 @@ trait IMCEPlugin
           val cache = new MavenCache("JPL Resolve", new File(dir))
           Seq(resolvers += cache)
         }
-        else
-          sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+        else {
+          // TODO: cleanup
+          //sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+          Seq.empty
+        }
       case (None, Some(url)) =>
         val repo = new MavenRepository("JPL Resolve", url)
         Seq(resolvers += repo)
       case _ =>
-        sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or" +
-                  "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where" +
-                  "<dir> is a local Maven repository directory or" +
-                  "<url> is a remote Maven repository URL")
+        // TODO: cleanup
+        //sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or" +
+        //          "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where" +
+        //          "<dir> is a local Maven repository directory or" +
+        //          "<url> is a remote Maven repository URL")
+        Seq.empty
     }) ++
     (Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
       case Some(file) =>
@@ -225,16 +230,21 @@ trait IMCEPlugin
               val cache = new MavenCache("JPL Publish", new File(dir))
               Seq(publishTo := Some(cache))
             }
-            else
-              sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+            else {
+              // TODO: cleanup
+              // sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+              Seq.empty
+            }
           case (None, Some(url)) =>
             val repo = new MavenRepository("JPL Publish", url)
             Seq(publishTo := Some(repo))
           case _ =>
-            sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or" +
-              "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where" +
-              "<dir> is a local Maven repository directory or" +
-              "<url> is a remote Maven repository URL")
+            // TODO: cleanup
+            //sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or" +
+            //  "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where" +
+            //  "<dir> is a local Maven repository directory or" +
+            //  "<url> is a remote Maven repository URL")
+            Seq.empty
         }) ++
         (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
           case Some(address) =>
