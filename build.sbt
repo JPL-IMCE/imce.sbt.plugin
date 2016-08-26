@@ -137,9 +137,6 @@ addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % Versions.aether_deploy)
 // https://github.com/rtimush/sbt-updates
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % Versions.sbt_updates)
 
-// https://github.com/arktekk/sbt-aether-deploy
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % Versions.aether_deploy)
-
 // https://github.com/sbt/sbt-native-packager
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.sbt_native_packager)
 
@@ -179,61 +176,10 @@ libraryDependencies += "io.spray" %%  "spray-json" % Versions.spray_json
 // https://github.com/pathikrit/better-files
 libraryDependencies += "com.github.pathikrit" %% "better-files" % Versions.better_files
 
-import com.typesafe.config._
+// publish to bintray.com via: `sbt publish`
+publishTo := Some("JPL-IMCE" at s"https://api.bintray.com/content/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/${version.value}")
 
-Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
-  case Some(file) =>
-    val config = ConfigFactory.parseFile(new File(file)).resolve()
-    val profileName = config.getString("staging.profileName")
-    Seq(
-      sonatypeCredentialHost := config.getString("staging.credentialHost"),
-      sonatypeRepository := config.getString("staging.repositoryService"),
-      sonatypeProfileName := profileName,
-      sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
-        profileId=config.getString("staging.profileId"),
-        profileName=profileName,
-        stagingType="open",
-        repositoryId=config.getString("staging.repositoryId"),
-        description=config.getString("staging.description")),
-      publishTo := Some(new MavenRepository(profileName, config.getString("staging.publishTo")))
-    )
-  case None =>
-    (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
-      case Some(address) =>
-        Seq(
-          sonatypeCredentialHost := address,
-          sonatypeRepository := s"https://$address/nexus/service/local"
-        )
-      case None =>
-        // TODO: cleanup
-        //sys.error(s"Set -DJPL_NEXUS_REPOSITORY_HOST=<address> to the host <address> of a nexus pro repository")
-        Seq.empty
-    }) ++
-    (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
-      Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
-      case (Some(dir), _) =>
-        if ((new File(dir) / "settings.xml").exists) {
-          val cache = new MavenCache("JPL Publish", new File(dir))
-          Seq(publishTo := Some(cache))
-        }
-        else {
-          // TODO: cleanup
-          //sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-          Seq.empty
-        }
-      case (None, Some(url)) => {
-        val repo = new MavenRepository("JPL Publish", url)
-        Seq(publishTo := Some(repo))
-      }
-      case _ =>
-        // TODO: cleanup
-//        sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or"+
-//        "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where"+
-//        "<dir> is a local Maven repository directory or"+
-//        "<url> is a remote Maven repository URL")
-        Seq.empty
-    })
-}
+credentials += Credentials(Path.userHome / ".bintray" / ".credentials")
 
 git.baseVersion := Versions.version
 
@@ -420,6 +366,8 @@ val ciStagingRepositoryCreateCommand: Command = {
 
 commands += ciStagingRepositoryCreateCommand
 
+// publish to bintray via the JFrog CLI.
+
 val jfrogCliPath = settingKey[String]("path of the jfrog cli executable")
 
 val bintrayUser = settingKey[String]("Bintray username")
@@ -448,8 +396,7 @@ uploadToBintrayPackage <<=
   files.foreach { f =>
     s.log.info(s"uploading to bintray: $f")
     val loc =
-        btRepo.replace('.','/')+
-        (if (isSBT) "/sbt/" else "/")+
+        btRepo.replace('.','/')+"/"+
         btPkg.replace('.','-')+"_"+scalaV+(if (isSBT) "_"+sbtV else "")+
         "/"+btV+"/"
     val args = Seq("bt", "u", f.absolutePath, path, loc)
