@@ -95,7 +95,7 @@ enablePlugins(GitBranchPrompt)
 
 overridePublishBothSettings
 
-organization := "JPL-IMCE"
+organization := "gov.nasa.jpl.imce"
 
 name := "imce.sbt.plugin"
 
@@ -444,20 +444,24 @@ uploadToBintrayPackage <<=
   case (cli, btUser, btRepo, btPkg, btV, files, isSBT, scalaV, sbtV, s) =>
 
   s.log.info(s"Upload to bintray: $btV => ${files.size}")
+  val path = s"$btUser/$btRepo/$btPkg/$btV"
   files.foreach { f =>
     s.log.info(s"uploading to bintray: $f")
-    val path =
-      s"$btUser/$btRepo/$btPkg/$btV"
     val loc =
         btRepo.replace('.','/')+
         (if (isSBT) "/sbt/" else "/")+
-        btPkg+"_"+scalaV+(if (isSBT) "_"+sbtV else "")+
+        btPkg.replace('.','-')+"_"+scalaV+(if (isSBT) "_"+sbtV else "")+
         "/"+btV+"/"
     val args = Seq("bt", "u", f.absolutePath, path, loc)
     Process(cli, args) ! s.log match {
       case 0 => ()
       case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
     }
+  }
+  val args = Seq("bt", "vp", path)
+  Process(cli, args) ! s.log match {
+    case 0 => ()
+    case n => sys.error(s"Abnormal exit=$n from:\n$cli ${args.mkString(" ")}")
   }
 
 }
