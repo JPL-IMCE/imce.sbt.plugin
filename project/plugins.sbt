@@ -35,3 +35,18 @@ libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
 
 // https://github.com/rtimush/sbt-updates
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.10")
+
+// https://github.com/jrudolph/sbt-dependency-graph
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
+
+// https://github.com/sbt/sbt-license-report
+addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.2.0")
+
+// https://github.com/sbt/sbt-site
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.0.0")
+
+// https://github.com/sbt/sbt-ghpages
+resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+
+// https://github.com/sbt/sbt-ghpages
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")

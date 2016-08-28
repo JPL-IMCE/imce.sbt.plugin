@@ -43,7 +43,11 @@ import sbt._
 
 trait CompilationSettings {
 
-
+  /**
+    * Aspectj settings for load-time weaving of aspects (i.e. compile aspects only; no compile-time weaving)
+    *
+    * @return SBT settings
+    */
   def aspectJSettings: Seq[Setting[_]] = {
 
     import com.typesafe.sbt.SbtAspectj.AspectjKeys._
@@ -58,26 +62,42 @@ trait CompilationSettings {
       compileOnly in Aspectj := true,
 
       // add the compiled aspects as products
-      products in Compile <++= products in Aspectj,
-
-      // only compile the aspects (no weaving)
-      compileOnly in Aspectj := true,
-
-      // add the compiled aspects as products
       products in Compile <++= products in Aspectj
     )
 
   }
 
+  /**
+    * Javac & Scalac compiler options to include debug symbols.
+    *
+    * @return SBT settings
+    */
   def debugSymbolsSettings: Seq[Setting[_]] =
     Seq(
       scalacOptions in (Compile, compile) += "-g:vars",
 
-      javacOptions in (Compile, compile) += "-g:vars"
+      scalacOptions in (Compile, test) += "-g:vars",
+
+      javacOptions in (Compile, compile) += "-g:vars",
+
+      javacOptions in (Compile, test) += "-g:vars"
     )
 
   /**
+    * Strict Scala compiler flags:
+    *
+    * - all warnings are errors
+    * - no dead code
+    * - no implicit numeric widening
+    * - no discarded value
+    * - no unused imports
+    * - no adapted arguments (e.g. auto-tupling)
+    * - no unchecked types
+    * - no deprecated APIs
+    *
     * @see https://tpolecat.github.io/2014/04/11/scalac-flags.html
+    *      http://blog.threatstack.com/useful-scalac-options-for-better-scala-development-part-1
+    *
     * @return SBT settings
     */
   def strictScalacFatalWarningsSettings: Seq[Setting[_]] =
