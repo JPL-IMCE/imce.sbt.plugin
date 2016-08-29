@@ -39,6 +39,8 @@ ghpages.settings
 
 makeSite <<= makeSite.dependsOn(dumpLicenseReport)
 
+siteMappings <<= siteMappings.dependsOn(dumpLicenseReport)
+
 siteMappings += (licenseReportDir.value / "LicenseReportOfAggregatedSBTPluginsAndLibraries.html") -> "LicenseReportOfAggregatedSBTPluginsAndLibraries.html"
 
 previewFixedPort := Some(4004)
