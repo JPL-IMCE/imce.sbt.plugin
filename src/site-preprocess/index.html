@@ -5,33 +5,51 @@
     <title>jpl-imce/imce.sbt.plugin @ GitHub</title>
 
     <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #a8caf3;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #57350c; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #57350c; }
-    h3 { text-align: center; color: #57350c; }
-    a { color: #57350c; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
+        html {
+            font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        h1, h2 {
+            font-weight: 400;
+        }
+        pre {
+            background-color: #222;
+            color: white;
+            padding: 10px;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+        }
+        pre:before {
+            content: "$ ";
+            color: #999;
+        }
+        .content {
+            width: 560px;
+            margin: 0 auto;
+            padding-top: 80px;
+            color: #444;
+        }
+        a, a:visited {
+            color: #c00;
+        }
+        .content p {
+            font-weight: 200;
+        }
+        .github-fork-ribbon.right-top:before {
+            background-color: #f80;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css" />
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.ie.min.css" />
+    <![endif]-->
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 </head>
 <body>
-  <a href="https://github.com/JPL-IMCE/imce.sbt.plugin"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  <a class="github-fork-ribbon right-top" href="https://github.com/JPL-IMCE/imce.sbt.plugin" title="Fork me on GitHub">Fork me on GitHub</a>
+
+  <a href="https://github.com/JPL-IMCE/imce.sbt.plugin"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
 
   <div id="container">
       <h1><a href="https://github.com/JPL-IMCE/imce.sbt.plugin">imce.sbt.plugin</a>
@@ -59,7 +77,12 @@
 
       <h2><a href="LicenseReportOfAggregatedSBTPluginsAndLibraries.html">License report of aggregated SBT plugins & libraries</a></h2>
 
+      <h2>Continuous Integration</h2>
+      <p><img src="https://travis-ci.org/JPL-IMCE/imce.sbt.plugin.svg?branch=master"/></p>
+
       <h2>Download</h2>
+
+      <p><a href='https://bintray.com/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/_latestVersion'><img src='https://api.bintray.com/packages/jpl-imce/gov.nasa.jpl.imce/imce.sbt.plugin/images/download.svg'></a></p>
 
       <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
           by running:
