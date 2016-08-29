@@ -71,7 +71,7 @@ trait IMCEKeys {
   lazy val nexusJavadocRepositoryRestAPIURL2RepositoryName = settingKey[Map[String,String]](
     """A map of Nexus repository URLs to corresponding repository names for javadoc lookup and cross-referencing.
       |Artifacts will be queried using the REST API /artifact/maven/resolve.
-      |Published javadoc URLs are expected to be of the form /repositories/<repo name>/archive/<path>/!/index.html
+      |Published javadoc URLs are expected to be of the form /repositories/<repo name>/archive/<path>/!/index.md
       |where <path> will be the repository path matched from the POM result of the /artifact/maven/resolve query
       |for the given artifact coordinates.
     """.stripMargin)
