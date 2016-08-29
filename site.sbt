@@ -8,7 +8,8 @@ import com.typesafe.sbt.SbtGhPages._
 
 preprocessVars in Preprocess := Map(
   "CONTRIBUTORS" -> {
-    val p1 = Process("git shortlog -sne --no-merges")
+    val commit = Process("git rev-parse HEAD").lines.head
+    val p1 = Process(s"git shortlog -sne --no-merges $commit")
     val p2 = Process(
       Seq("sed",
         "-e",
@@ -37,6 +38,8 @@ target in preprocess := (target in makeSite).value
 ghpages.settings
 
 makeSite <<= makeSite.dependsOn(dumpLicenseReport)
+
+siteMappings += (licenseReportDir.value / "LicenseReportOfAggregatedSBTPluginsAndLibraries.html") -> "LicenseReportOfAggregatedSBTPluginsAndLibraries.html"
 
 previewFixedPort := Some(4004)
 

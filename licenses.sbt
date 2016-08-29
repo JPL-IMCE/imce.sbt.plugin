@@ -18,6 +18,4 @@ licenseOverrides := {
     LicenseInfo(LicenseCategory.BSD, "BSD-3-Clause", "http://opensource.org/licenses/BSD-3-Clause")
 }
 
-licenseReportDir := target.value / "site"
-
 licenseReportTypes := Seq(Html)
