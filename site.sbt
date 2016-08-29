@@ -8,7 +8,7 @@ import com.typesafe.sbt.SbtGhPages._
 
 preprocessVars in Preprocess := Map(
   "CONTRIBUTORS" -> {
-    val p1 = Process("git shortlog -sne --no-merges master")
+    val p1 = Process("git shortlog -sne --no-merges")
     val p2 = Process(
       Seq("sed",
         "-e",
