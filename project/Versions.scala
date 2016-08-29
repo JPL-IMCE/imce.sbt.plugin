@@ -8,7 +8,7 @@ object Versions {
   val sbt_license_plugin = "0.1.5"
 
   // https://github.com/sbt/sbt-license-report
-  val sbt_license_report = "1.2.1"
+  val sbt_license_report = "1.2.0"
 
   // https://github.com/sbt/sbt-git
   val sbt_git = "0.8.5"
