@@ -27,8 +27,8 @@ before_install:
 - chmod 600 local.*
 - eval `ssh-agent -s`
 - ssh-add local.deploy_key
-- git config user.email "nobody@nobody.org"
-- git config user.name "Travis CI"
+- git config --global user.email "nobody@nobody.org"
+- git config --global user.name "Travis CI"
 
 script:
 - if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned ghpagesPushSite; fi
