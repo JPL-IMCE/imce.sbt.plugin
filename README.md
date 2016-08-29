@@ -25,7 +25,7 @@ in `project/plugins.sbt`, add:
 ```
 resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce")
 
-addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce-sbt-plugin", "<version>")
+addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce.sbt.plugin", "<version>")
 ```
 
 ## Two-stage publication to [Bintray](https://bintray.com)
