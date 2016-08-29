@@ -1,3 +1,13 @@
+
+licenses in GlobalScope += "Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")
+
+import de.heikoseeberger.sbtheader.HeaderPlugin
+import de.heikoseeberger.sbtheader.license.Apache2_0
+
+headers := Map(
+  "scala" -> Apache2_0("2015", "California Institute of Technology (\"Caltech\").\nU.S. Government sponsorship acknowledged.")
+)
+
 import com.typesafe.sbt.license.{LicenseInfo, DepModuleInfo}
 
 // Used to name the report file, and in the HTML/Markdown as the
