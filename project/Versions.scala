@@ -2,10 +2,10 @@
 object Versions {
 
   // this project's version
-  val version = "4.4."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "4.6."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
-  // https://github.com/Banno/sbt-license-plugin
-  val sbt_license_plugin = "0.1.5"
+  // https://github.com/sbt/sbt-header
+  val sbt_license_header = "1.6.0"
 
   // https://github.com/sbt/sbt-license-report
   val sbt_license_report = "1.2.0"
@@ -66,4 +66,7 @@ object Versions {
 
   // https://github.com/sbt/sbt-site
   val sbt_site = "1.0.0"
+
+  // https://github.com/sbt/sbt-ghpages
+  val sbt_ghpages = "0.5.4"
 }
