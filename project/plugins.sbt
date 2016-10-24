@@ -1,5 +1,10 @@
 logLevel := Level.Warn
 
+// https://bintray.com/banno/oss/sbt-license-plugin/view
+resolvers += Resolver.url(
+  "sbt-license-plugin-releases",
+  url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
+
 // https://github.com/sbt/sbt-header
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.6.0")
 
