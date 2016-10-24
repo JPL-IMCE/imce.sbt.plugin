@@ -65,7 +65,7 @@ object Versions {
   val better_files = "2.14.0"
 
   // https://github.com/sbt/sbt-site
-  val sbt_site = "1.0.0"
+  val sbt_site = "1.1.0"
 
   // https://github.com/sbt/sbt-ghpages
   val sbt_ghpages = "0.5.4"
