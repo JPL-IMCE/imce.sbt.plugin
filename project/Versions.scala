@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "4.8."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "4.9."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
   // https://github.com/sbt/sbt-header
   val sbt_license_header = "1.6.0"
@@ -69,4 +69,10 @@ object Versions {
 
   // https://github.com/sbt/sbt-ghpages
   val sbt_ghpages = "0.5.4"
+
+  // https://www.scala-js.org/doc/project/
+  val scalajs="0.6.13"
+
+  // https://github.com/typesafehub/sbteclipse
+  val sbteclipse="5.0.1"
 }

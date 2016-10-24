@@ -81,3 +81,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-site" % Versions.sbt_site)
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % Versions.sbt_ghpages)
+
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % Versions.scalajs)
+
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % Versions.sbteclipse)
