@@ -69,9 +69,6 @@ trait IMCEGitPlugin extends AutoPlugin {
     */
   def gitVersioningProjectSettings: Seq[Setting[_]] =
     Seq(
-
-      pomExtra := getGitSCMInfo,
-
       IMCEKeys.additionalProperties := {
         <git.branch>
           {git.gitCurrentBranch.value}
@@ -99,23 +96,6 @@ trait IMCEGitPlugin extends AutoPlugin {
       }
 
     )
-
-  def getGitSCMInfo: NodeSeq =
-    try {
-      <scm>
-        <connection>scm:git:
-          {Process("git config --get remote.origin.url").lines.head}
-        </connection>
-        <tag>
-          {Process("git symbolic-ref --short HEAD").lines.head}
-        </tag>
-        <tag>
-          {Process("git log -n 1 HEAD --pretty=format:%H").lines.head}
-        </tag>
-      </scm>
-    } catch {
-      case _: Throwable => Seq()
-    }
 }
 
 object IMCEGitPlugin extends IMCEGitPlugin {
