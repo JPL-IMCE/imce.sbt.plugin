@@ -12,7 +12,7 @@ addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.6.0")
 addSbtPlugin("com.banno" % "sbt-license-plugin" %"0.1.5")
 
 // https://github.com/sbt/sbt-git
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
 
 // https://github.com/arktekk/sbt-aether-deploy
 addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.14")
@@ -46,7 +46,7 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
 addSbtPlugin("com.typesafe.sbt" % "sbt-license-report" % "1.2.0")
 
 // https://github.com/sbt/sbt-site
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.0.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.1.0")
 
 // https://github.com/sbt/sbt-ghpages
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
