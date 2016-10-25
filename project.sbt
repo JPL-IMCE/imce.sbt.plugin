@@ -2,6 +2,8 @@ sbtPlugin := true
 
 name := "imce.sbt.plugin"
 
+description := "A convenience aggregate of several SBT plugins"
+
 moduleName := name.value
 
 organization := "gov.nasa.jpl.imce"

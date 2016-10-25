@@ -21,25 +21,18 @@ pomAllRepositories := false
 // make sure no repositories show up in the POM file
 pomIncludeRepository := { _ => false }
 
-lazy val additionalProperties = settingKey[Seq[xml.Node]]("Additional entries for the POM's <properties> section")
-
-additionalProperties := {
-  <git.branch>
-    {git.gitCurrentBranch.value}
-  </git.branch>
-    <git.commit>
-      {git.gitHeadCommit.value.getOrElse("N/A") + (if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}
-    </git.commit>
-    <git.tags>
-      {git.gitCurrentTags.map(tag => <git.tag>$tag</git.tag> )}
-    </git.tags>
-}
-
-pomPostProcess <<= additionalProperties { (additions) =>
+pomPostProcess := {
   new xml.transform.RuleTransformer(new xml.transform.RewriteRule {
+    val additions: Seq[xml.Node] = {
+      <git.branch>{git.gitCurrentBranch.value}</git.branch>
+      <git.commit>{git.gitHeadCommit.value.getOrElse("N/A") + (if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}</git.commit>
+    } ++ {
+      git.gitCurrentTags.value.map(tag => <git.tag>{tag}</git.tag>)
+    }
+
     override def transform(n: xml.Node): Seq[xml.Node] =
       n match {
-        case <properties>{props @ _*}</properties> =>
+        case <properties>{props@_*}</properties> =>
           <properties>{props}{additions}</properties>
         case _ =>
           n
