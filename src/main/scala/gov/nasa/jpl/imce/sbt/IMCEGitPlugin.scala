@@ -76,9 +76,7 @@ trait IMCEGitPlugin extends AutoPlugin {
         <git.commit>
           {git.gitHeadCommit.value.getOrElse("N/A") + (if (git.gitUncommittedChanges.value) "-SNAPSHOT" else "")}
         </git.commit>
-        <git.tags>
-          {git.gitCurrentTags.value.map(tag => <git.tag>{tag}</git.tag> )}
-        </git.tags>
+        {git.gitCurrentTags.value.map(tag => <git.tag>{tag}</git.tag> )}
       },
 
       pomPostProcess <<= IMCEKeys.additionalProperties { (additions) =>
