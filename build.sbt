@@ -25,7 +25,7 @@ resolvers += Classpaths.sbtPluginReleases
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % Versions.sbt_scoverage)
 
 // https://github.com/jrudolph/sbt-optimizer
-addSbtPlugin("net.virtual-void" % "sbt-optimizer" % Versions.sbt_optimizier)
+addSbtPlugin("net.virtual-void" % "sbt-optimizer" % Versions.sbt_optimizer)
 
 // https://github.com/jrudolph/sbt-dependency-graph
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % Versions.sbt_dependency_graph)

@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "4.10."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "4.11."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
   // https://github.com/sbt/sbt-header
   val sbt_license_header = "1.6.0"
@@ -17,7 +17,7 @@ object Versions {
   val sbt_scoverage = "1.3.5"
 
   // https://github.com/jrudolph/sbt-optimizer
-  val sbt_optimizier = "0.1.2"
+  val sbt_optimizer = "0.1.2"
 
   // https://github.com/jrudolph/sbt-dependency-graph
   val sbt_dependency_graph = "0.8.2"
