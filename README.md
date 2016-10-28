@@ -1,6 +1,6 @@
 # JPL's IMCE SBT Plugin for Java, Scala, AspectJ projects
 
-This [sbt plugin]http://www.scala-sbt.org/0.13/docs/Using-Plugins.html) aggregates a few
+This [sbt plugin](http://www.scala-sbt.org/0.13/docs/Using-Plugins.html) aggregates a few
  [community plugins](http://www.scala-sbt.org/0.13/docs/Community-Plugins.html) used across several projects in
  [JPL's Integrated Model-Centric Engineering initiative](https://github.com/JPL-IMCE) and in 
  [OMG's Tool Infrastructure Working Group](https://github.com/TIWG).
@@ -22,7 +22,7 @@ Conceptually, the scope and purpose of this sbt plugin is very similar to the el
 
 in `project/plugins.sbt`, add:
 
-```
+```scala
 resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce")
 
 addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce.sbt.plugin", "<version>")
@@ -36,7 +36,7 @@ addSbtPlugin("gov.nasa.jpl.imce.sbt", "imce.sbt.plugin", "<version>")
 
 - configuration for publishing to bintray:
 
-```
+```scala
 // publish SBT and non-SBT artifacts as Maven artifacts (i.e. with *.pom)
 publishMavenStyle := true
 
@@ -48,19 +48,19 @@ publishTo := Some(
 
 This requires specifying the Bintray credentials:
 
-```
+```scala
 credentials += Credentials("Bintray API Realm", "api.bintray.com", "<user>", "<bintray API key>")
 ```
 
 - configuration for resolving from bintray:
 
-```
+```scala
 resolvers += Resolver.bintrayRepo("jpl-imce", "gov.nasa.jpl.imce")
 ```
 
 For resolving unpublished artifacts, resolution requires credentials:
 
-```
+```scala
 credentials += Credentials("Bintray", "dl.bintray.com", "<user>", "<bintray API key")
 ```
 
@@ -149,29 +149,31 @@ There are 2 required properties:
 
   - Edit `~/.gnupg/gpg.conf`:
 
-    ```
-    use-agent
-    no-tty
-    ```
+```
+use-agent
+no-tty
+```
 
   - Edit `~/.gitconfig` to add:
 
-    ```
-    [commit]
-	  gpgsign = true
-    ```
+```
+[commit]
+	gpgsign = true
+```
 
-    or:
+or:
 
-    ```
-    git config --global commit.gpgsign true
-    ```
+```
+git config --global commit.gpgsign true
+```
 
   - create a file: `project/maven.sbt` with the following:
 
-     ```addMavenResolverPlugin```
+```
+addMavenResolverPlugin
+```
 
-    See: [Maven Resolver Plugin](http://www.scala-sbt.org/0.13/docs/sbt-0.13-Tech-Previews.html#Maven+resolver+plugin)
+See: [Maven Resolver Plugin](http://www.scala-sbt.org/0.13/docs/sbt-0.13-Tech-Previews.html#Maven+resolver+plugin)
 
 ## [Support for IMCE Build & Release Workflows](doc/Workflows.md)
 
@@ -179,20 +181,20 @@ There are 2 required properties:
 
 1. Create a staging repository with [imce-ci ciStagingRepositoryCreate](https://github.jpl.nasa.gov/imce/imce-ci#sbt-cistagingrepositorycreate-descriptionstring-filepath)
 
-  ```
-  sbtJPLBeta ciStagingRepositoryCreate profile=<name> description=<string_without_space> file=<path>
-  ```
+```
+sbtJPLBeta ciStagingRepositoryCreate profile=<name> description=<string_without_space> file=<path>
+```
 
 2. Build/Release projects
 
-  ```
-  sbt \
-    ... \
-    -DJPL_REMOTE_PUBLISH_REPOSITORY=https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deploy/maven2 \
-    -DJPL_STAGING_CONF_FILE=<*.conf>
-  > release with-defaults
-  > git push origin --tags
-  ```
+```
+sbt \
+  ... \
+  -DJPL_REMOTE_PUBLISH_REPOSITORY=https://cae-nexuspro.jpl.nasa.gov/nexus/service/local/staging/deploy/maven2 \
+  -DJPL_STAGING_CONF_FILE=<*.conf>
+> release with-defaults
+> git push origin --tags
+```
 
 ## Additional Information
 
@@ -217,4 +219,3 @@ There are 2 required properties:
 - [Painless release with SBT](http://blog.byjean.eu/2015/07/10/painless-release-with-sbt.html)
 
   Explanation about several SBT plugins used to automate the release process.
-
