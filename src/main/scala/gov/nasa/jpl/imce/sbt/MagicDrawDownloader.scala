@@ -24,7 +24,7 @@ import sbt._
 import Keys._
 
 import scala.xml._
-import scala.collection.immutable._
+import scala.collection._
 import scala.{Boolean,Console,Double,Unit}
 import scala.language.postfixOps
 import scala.math._
