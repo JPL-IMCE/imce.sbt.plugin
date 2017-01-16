@@ -307,19 +307,6 @@ so that when doing just <code>publish</code>, we'd automatically get the <code>d
       </span>
       </h4>
       <p class="shortcomment cmt">SBT settings to exclude directories that do not exist.</p>
-    </li><li name="gov.nasa.jpl.imce.sbt.IMCEPlugin#defaultProjectMavenSettings" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="defaultProjectMavenSettings:Seq[sbt.Setting[_]]"></a>
-      <a id="defaultProjectMavenSettings:Seq[Setting[_]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">defaultProjectMavenSettings</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../../../../../sbt/package.html#Setting[T]=sbt.Def.Setting[T]" class="extmbr" name="sbt.Setting">Setting</a>[_]]</span>
-      </span>
-      </h4>
-      
     </li><li name="gov.nasa.jpl.imce.sbt.IMCEPlugin#defaultProjectSettings" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="defaultProjectSettings:Seq[sbt.Setting[_]]"></a>
       <a id="defaultProjectSettings:Seq[Setting[_]]"></a>
@@ -333,6 +320,19 @@ so that when doing just <code>publish</code>, we'd automatically get the <code>d
       </span>
       </h4>
       <p class="shortcomment cmt">SBT settings that can projects are likely to override.</p>
+    </li><li name="sbt.AutoPlugin#derivedProjects" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="derivedProjects(proj:sbt.ProjectDefinition[_]):Seq[sbt.Project]"></a>
+      <a id="derivedProjects(ProjectDefinition[_]):Seq[Project]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">derivedProjects</span><span class="params">(<span name="proj">proj: <span class="extype" name="sbt.ProjectDefinition">ProjectDefinition</span>[_]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="sbt.Project">Project</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AutoPlugin</dd></dl></div>
     </li><li name="gov.nasa.jpl.imce.sbt.DynamicScriptsProjectSettings#dynamicScriptsProjectResourceSettings" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="dynamicScriptsProjectResourceSettings(dynamicScriptsProjectName:Option[String]):Seq[sbt.Setting[_]]"></a>
       <a id="dynamicScriptsProjectResourceSettings(Option[String]):Seq[Setting[_]]"></a>
@@ -415,6 +415,19 @@ settings(dynamicScriptsProjectResourceSettings(<span class="std">Some</span>(<sp
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PackagingSettings.html" class="extype" name="gov.nasa.jpl.imce.sbt.PackagingSettings">PackagingSettings</a></dd></dl></div>
+    </li><li name="sbt.AutoPlugin#extraProjects" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="extraProjects:Seq[sbt.Project]"></a>
+      <a id="extraProjects:Seq[Project]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">extraProjects</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="sbt.Project">Project</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AutoPlugin</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
