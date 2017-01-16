@@ -2,28 +2,13 @@
 object Versions {
 
   // this project's version
-  val version = "4.17."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "4.18."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
   // https://github.com/sbt/sbt-header
   val sbt_license_header = "1.6.0"
 
-  // https://github.com/sbt/sbt-license-report
-  val sbt_license_report = "1.2.0"
-
   // https://github.com/sbt/sbt-git
   val sbt_git = "0.8.5"
-
-  // https://github.com/scoverage/sbt-scoverage
-  val sbt_scoverage = "1.3.5"
-
-  // https://github.com/jrudolph/sbt-optimizer
-  val sbt_optimizer = "0.1.2"
-
-  // https://github.com/jrudolph/sbt-dependency-graph
-  val sbt_dependency_graph = "0.8.2"
-
-  // https://github.com/xerial/sbt-pack
-  val sbt_pack = "0.8.0"
 
   // https://github.com/arktekk/sbt-aether-deploy
   val aether_deploy = "0.17"
@@ -31,8 +16,46 @@ object Versions {
   // https://github.com/rtimush/sbt-updates
   val sbt_updates = "0.1.10"
 
+  // http://www.scala-sbt.org/sbt-pgp/
+  val sbt_pgp = "1.0.0"
+
+  // https://github.com/sbt/sbt-site
+  val sbt_site = "1.1.0"
+
   // https://github.com/sbt/sbt-native-packager
   val sbt_native_packager = "1.1.1"
+
+  // https://github.com/sbt/sbt-license-report
+  val sbt_license_report = "1.2.0"
+
+  // https://github.com/jrudolph/sbt-dependency-graph
+  val sbt_dependency_graph = "0.8.2"
+
+  // https://github.com/sbt/sbt-ghpages
+  val sbt_ghpages = "0.5.4"
+
+  // https://github.com/sbt/sbt-release
+  val sbt_release = "1.0.3"
+
+
+  // https://github.com/spray/spray-json
+  val spray_json = "1.3.2"
+
+  // https://github.com/typesafehub/config
+  val config = "1.3.0"
+
+
+
+  // https://github.com/scoverage/sbt-scoverage
+  val sbt_scoverage = "1.3.5"
+
+  // https://github.com/jrudolph/sbt-optimizer
+  val sbt_optimizer = "0.1.2"
+
+  // https://github.com/xerial/sbt-pack
+  val sbt_pack = "0.8.0"
+
+
 
   // https://github.com/sbt/sbt-aspectj
   val sbt_aspectj = "0.10.6"
@@ -43,32 +66,11 @@ object Versions {
   // https://github.com/puffnfresh/wartremover
   val sbt_wartremover = "1.1.0"
 
-  // https://github.com/xerial/sbt-sonatype
-  val sbt_sonatype = "1.1"
-
-  // https://github.com/typesafehub/config
-  val config = "1.3.0"
-
   // https://github.com/sbt/sbt-buildinfo
   val sbt_buildinfo = "0.6.1"
 
-  // https://github.com/sbt/sbt-release
-  val sbt_release = "1.0.3"
-
-  // http://www.scala-sbt.org/sbt-pgp/
-  val sbt_pgp = "1.0.0"
-
-  // https://github.com/spray/spray-json
-  val spray_json = "1.3.2"
-
   // https://github.com/pathikrit/better-files
   val better_files = "2.14.0"
-
-  // https://github.com/sbt/sbt-site
-  val sbt_site = "1.1.0"
-
-  // https://github.com/sbt/sbt-ghpages
-  val sbt_ghpages = "0.5.4"
 
   // https://www.scala-js.org/doc/project/
   val scalajs="0.6.13"
