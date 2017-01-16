@@ -22,9 +22,6 @@ import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.packager._
 import com.typesafe.sbt.pgp.PgpKeys._
 
-import xerial.sbt.Sonatype
-import xerial.sbt.Sonatype.SonatypeKeys
-
 import com.typesafe.config._
 
 import sbtrelease._
@@ -115,8 +112,6 @@ object IMCEReleasePlugin extends AutoPlugin {
             .getOrElse(versionFormatError)
       },
 
-      commands += ciStagingRepositoryCreateCommand,
-
       hasUncommittedChanges := {
         val statusCommands = Seq(
           Seq("diff-index", "--cached", "HEAD"),
@@ -132,81 +127,7 @@ object IMCEReleasePlugin extends AutoPlugin {
 
         uncommittedChanges.exists(_.nonEmpty)
       }
-    ) ++
-      (( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
-        Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
-        case (Some(dir), _) =>
-          if ((new File(dir) / "settings.xml").exists) {
-            val cache = new MavenCache("JPL Resolve", new File(dir))
-            Seq(resolvers += cache)
-          }
-          else {
-            // TODO: cleanup
-            //sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-            Seq.empty
-          }
-        case (None, Some(url)) =>
-          val repo = new MavenRepository("JPL Resolve", url)
-          Seq(resolvers += repo)
-        case _ =>
-          // TODO: cleanup
-          //sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or" +
-          //          "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where" +
-          //          "<dir> is a local Maven repository directory or" +
-          //          "<url> is a remote Maven repository URL")
-          Seq.empty
-      }) ++
-      (Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
-        case Some(file) =>
-          val config = ConfigFactory.parseFile(new File(file))
-          val profileName = config.getString("staging.profileName")
-          Seq(
-            SonatypeKeys.sonatypeCredentialHost := config.getString("staging.credentialHost"),
-            SonatypeKeys.sonatypeRepository := config.getString("staging.repositoryService"),
-            SonatypeKeys.sonatypeProfileName := profileName,
-            SonatypeKeys.sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
-              profileId=config.getString("staging.profileId"),
-              profileName=profileName,
-              stagingType="open",
-              repositoryId=config.getString("staging.repositoryId"),
-              description=config.getString("staging.description")),
-            publishTo := Some(new MavenRepository(profileName, config.getString("staging.publishTo")))
-          )
-        case None =>
-          (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
-            Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
-            case (Some(dir), _) =>
-              if ((new File(dir) / "settings.xml").exists) {
-                val cache = new MavenCache("JPL Publish", new File(dir))
-                Seq(publishTo := Some(cache))
-              }
-              else {
-                // TODO: cleanup
-                // sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-                Seq.empty
-              }
-            case (None, Some(url)) =>
-              val repo = new MavenRepository("JPL Publish", url)
-              Seq(publishTo := Some(repo))
-            case _ =>
-              // TODO: cleanup
-              //sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or" +
-              //  "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where" +
-              //  "<dir> is a local Maven repository directory or" +
-              //  "<url> is a remote Maven repository URL")
-              Seq.empty
-          }) ++
-            (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
-              case Some(address) =>
-                Seq(
-                  SonatypeKeys.sonatypeCredentialHost := address,
-                  SonatypeKeys.sonatypeRepository := s"https://$address/nexus/service/local"
-                )
-              case None =>
-                Seq()
-            })
-      })
-
+    )
 
   lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)
@@ -311,66 +232,4 @@ object IMCEReleasePlugin extends AutoPlugin {
         successSentinel
     ))
 
-
-  lazy val ciStagingRepositoryCreateCommand: Command = {
-
-    import com.typesafe.config._
-    import xerial.sbt.Sonatype._
-    import complete.DefaultParsers._
-    import java.nio.file.{Paths, Files}
-    import java.nio.charset.StandardCharsets
-
-    val ciStagingRepositoryParser: (State) => complete.Parser[((String, String), String)] = (_: State) => {
-      Space ~>
-        token("profile=" ~> StringBasic <~ Space, "profile") ~
-        token("description=" ~> StringBasic <~ Space, "description") ~
-        token("file=" ~> StringBasic, "file")
-    }
-
-    val ciStagingRepositoryAction: (State, ((String, String), String)) => State = {
-      case (st0: State, ((profile: String, description: String), filename: String)) =>
-        val st1 = Project.extract(st0).append(
-          Seq(SonatypeKeys.sonatypeProfileName := profile),
-          st0)
-        val st2 = Command.process("sonatypeOpen \""+description+"\"", st1)
-
-        val e = Project.extract(st2)
-        val credentialHost=e.get(SonatypeKeys.sonatypeCredentialHost)
-        val srp = e.get(SonatypeKeys.sonatypeStagingRepositoryProfile)
-        val repo = e.get(SonatypeKeys.sonatypeRepository)
-        val publishRepo=repo+"/staging/deployByRepositoryId/"+srp.repositoryId
-        val config =
-          ConfigFactory.empty()
-            .withValue("staging.description", ConfigValueFactory.fromAnyRef(description))
-            .withValue("staging.credentialHost", ConfigValueFactory.fromAnyRef(credentialHost))
-            .withValue("staging.repositoryId", ConfigValueFactory.fromAnyRef(srp.repositoryId))
-            .withValue("staging.repositoryService", ConfigValueFactory.fromAnyRef(repo))
-            .withValue("staging.profileName", ConfigValueFactory.fromAnyRef(srp.profileName))
-            .withValue("staging.profileId", ConfigValueFactory.fromAnyRef(srp.profileId))
-            .withValue("staging.publishTo", ConfigValueFactory.fromAnyRef(publishRepo))
-
-        val data = config.root().render(ConfigRenderOptions.concise().setFormatted(true))
-        val filepath = Paths.get(filename)
-        val filedir = filepath.getParent.toFile
-        if (!filedir.exists )
-          IO.createDirectory(filedir)
-        Files.write(filepath, data.getBytes(StandardCharsets.UTF_8))
-        st2.log.info(s"Saved staging repository info:\n$data\nto file: $filepath")
-
-        st2
-    }
-
-    val ciStagingRepositoryName = "ciStagingRepositoryCreate"
-    val ciStagingRepositorySynopsis = "ciStagingRepositoryCreate profile=<name> description=<string> file=<path>"
-    val ciStagingRepositoryHelp = "Create a new staging repository for the staging profile <name>" +
-      " and with <string> as its description "+
-      "and write the result information to the file <path>"
-    Command(
-      name=ciStagingRepositoryName,
-      help=Help(
-        name=ciStagingRepositoryName,
-        briefHelp=(ciStagingRepositorySynopsis, ciStagingRepositoryHelp),
-        detail=ciStagingRepositorySynopsis + " -- " + ciStagingRepositoryHelp)
-    )(parser=ciStagingRepositoryParser)(effect=ciStagingRepositoryAction)
-  }
 }
