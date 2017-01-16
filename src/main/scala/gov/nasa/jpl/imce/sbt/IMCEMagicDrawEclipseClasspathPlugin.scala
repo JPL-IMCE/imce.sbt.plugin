@@ -24,6 +24,7 @@ import sbt.Keys._
 import sbt._
 
 import scala.collection.JavaConversions._
+import scala.util.matching.Regex
 
 
 object IMCEMagicDrawEclipseClasspathPlugin extends IMCEMagicDrawEclipseClasspathPlugin {
@@ -32,24 +33,24 @@ object IMCEMagicDrawEclipseClasspathPlugin extends IMCEMagicDrawEclipseClasspath
 
   import autoImport._
 
-  override def trigger = noTrigger
+  override def trigger: PluginTrigger = noTrigger
 
-  override def requires = IMCEPlugin
+  override def requires: Plugins = IMCEPlugin
 
-  override def buildSettings: Seq[Setting[_]] =
-    Seq()
+  override def buildSettings: Seq[Setting[_]] = Seq()
 
-  override def projectSettings: Seq[Setting[_]] =
-    Seq(
+  override def projectSettings
+  : Seq[Setting[_]]
+  = Seq(
 
-      mdInstallDir <<= mdInstallDir or {
+      mdInstallDir := mdInstallDir.?.value.getOrElse {
         val dir =
           Option.apply(System.getenv("MD_INSTALL_DIR"))
           .orElse(Option.apply(System.getProperty("MD_INSTALL_DIR")))
           .getOrElse(
             sys.error("Set environment variable MD_INSTALL_DIR=<path> or add -DMD_INSTALL_DIR=<path>"))
 
-        initialize { Unit => Paths.get(dir) }
+        Paths.get(dir)
       },
 
       mdBinFolders := mdClasspathBinFolders(baseDirectory.value, mdInstallDir.value),
@@ -58,14 +59,14 @@ object IMCEMagicDrawEclipseClasspathPlugin extends IMCEMagicDrawEclipseClasspath
 
       mdJars := mdClasspathJars(mdBinFolders.value, mdLibFolders.value),
 
-      unmanagedJars in Compile <++= mdJars map identity
+      unmanagedJars in Compile ++= (mdJars map identity).value
     )
 }
 
 trait IMCEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
 
 
-  val MD_CLASSPATH = "^gov.nasa.jpl.magicdraw.CLASSPATH_LIB_CONTAINER/(.*)$".r
+  val MD_CLASSPATH: Regex = "^gov.nasa.jpl.magicdraw.CLASSPATH_LIB_CONTAINER/(.*)$".r
 
   def mdClasspathBinFolders(eclipseProjectDir: File, mdInstallRoot: Path): List[Path] = {
     val top = scala.xml.XML.loadFile(IO.resolve(eclipseProjectDir, file(".classpath")))
@@ -107,7 +108,7 @@ trait IMCEMagicDrawEclipseClasspathPlugin extends AutoPlugin {
     folders.flatten.toList ++ projects.toList
   }
 
-  val MD_PATH = ",([^,]*)".r
+  val MD_PATH: Regex = ",([^,]*)".r
 
   def mdClasspathJars(mdBinFolders: List[Path], mdLibFolders: List[Path]): List[Attributed[File]] = {
     val jars = for {

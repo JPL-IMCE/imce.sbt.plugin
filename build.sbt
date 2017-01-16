@@ -1,4 +1,6 @@
-enablePlugins(AetherPlugin)
+enablePlugins(SignedAetherPlugin)
+
+disablePlugins(AetherPlugin)
 
 enablePlugins(GitVersioning)
 
@@ -85,3 +87,14 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % Versions.sbt_ghpages)
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % Versions.scalajs)
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % Versions.sbteclipse)
+
+resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
+
+scalacOptions in (Compile, compile) += s"-P:artima-supersafe:config-file:${baseDirectory.value}/project/supersafe.cfg"
+
+scalacOptions in (Test, compile) += s"-P:artima-supersafe:config-file:${baseDirectory.value}/project/supersafe.cfg"
+
+scalacOptions in (Compile, doc) += "-Xplugin-disable:artima-supersafe"
+
+scalacOptions in (Test, doc) += "-Xplugin-disable:artima-supersafe"
+

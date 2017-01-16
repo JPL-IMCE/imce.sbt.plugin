@@ -22,6 +22,10 @@ import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import com.typesafe.sbt.packager._
 import com.typesafe.sbt.pgp.PgpKeys._
 
+import xerial.sbt.Sonatype
+import xerial.sbt.Sonatype.SonatypeKeys
+
+import com.typesafe.config._
 
 import sbtrelease._
 import sbtrelease.ReleasePlugin.autoImport._
@@ -34,23 +38,31 @@ object IMCEReleasePlugin extends AutoPlugin {
 
   object autoImport {
 
-    val extractArchives = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
+    val extractArchives
+    : TaskKey[Unit]
+    = TaskKey[Unit]("extract-archives", "Extracts ZIP files")
 
-    val buildUTCDate = SettingKey[String]("build-utc-date", "The UDC Date of the build")
+    val buildUTCDate
+    : SettingKey[String]
+    = SettingKey[String]("build-utc-date", "The UDC Date of the build")
 
-    val hasUncommittedChanges = taskKey[Boolean]("Checks for dirty git by calling out to git directly via runner")
+    val hasUncommittedChanges
+    : TaskKey[Boolean]
+    = taskKey[Boolean]("Checks for dirty git by calling out to git directly via runner")
 
   }
 
   import autoImport._
 
-  override def requires =
-    sbtrelease.ReleasePlugin &&
+  override def requires
+  : Plugins
+  = sbtrelease.ReleasePlugin &&
       com.typesafe.sbt.SbtPgp &&
       aether.SignedAetherPlugin
 
-  override def buildSettings: Seq[Def.Setting[_]] =
-    inScope(Global)(Seq(
+  override def buildSettings
+  : Seq[Def.Setting[_]]
+  = inScope(Global)(Seq(
       useGpg in ThisBuild := true,
 
       useGpgAgent in ThisBuild := true,
@@ -64,18 +76,44 @@ object IMCEReleasePlugin extends AutoPlugin {
     )) ++
       com.typesafe.sbt.SbtPgp.buildSettings
 
-  override def projectSettings: Seq[Def.Setting[_]] =
-    aether.SignedAetherPlugin.autoImport.overridePublishSignedBothSettings ++
+  override def projectSettings
+  : Seq[Def.Setting[_]]
+  = aether.SignedAetherPlugin.autoImport.overridePublishSignedBothSettings ++
     Seq(
+      // do not include all repositories in the POM
+      // (this is important for staging since artifacts published to a staging repository
+      //  can be promoted (i.e. published) to another repository)
+      pomAllRepositories := false,
+
+      // make sure no repositories show up in the POM file
+      pomIncludeRepository := { _ => false },
+
+      // include *.zip artifacts in the POM dependency section
+      makePomConfiguration :=
+        makePomConfiguration.value.copy(includeTypes = Set(Artifact.DefaultType, Artifact.PomType, "zip")),
+
+      // publish Maven POM metadata (instead of Ivy);
+      // this is important for the UpdatesPlugin's ability to find available updates.
+      publishMavenStyle := true,
+
+      // make aether publish all packaged artifacts
+      aether.AetherKeys.aetherArtifact := {
+        val coords = aether.AetherKeys.aetherCoordinates.value
+        val mainArtifact = aether.AetherKeys.aetherPackageMain.value
+        val pom = (makePom in Compile).value
+        val artifacts = (packagedArtifacts in Compile).value
+        aether.AetherPlugin.createArtifact(artifacts, coords, mainArtifact)
+      },
 
       releasePublishArtifactsAction := publishSigned.value,
 
-      releaseVersion <<= releaseVersionBump ( bumper => {
-        ver => Version(ver)
-               .map(_.withoutQualifier)
-               .map(_.string)
-               .getOrElse(versionFormatError)
-      }),
+      releaseVersion := {
+        val _ = releaseVersionBump.value
+          ver => Version(ver)
+            .map(_.withoutQualifier)
+            .map(_.string)
+            .getOrElse(versionFormatError)
+      },
 
       commands += ciStagingRepositoryCreateCommand,
 
@@ -94,7 +132,81 @@ object IMCEReleasePlugin extends AutoPlugin {
 
         uncommittedChanges.exists(_.nonEmpty)
       }
-    )
+    ) ++
+      (( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
+        Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
+        case (Some(dir), _) =>
+          if ((new File(dir) / "settings.xml").exists) {
+            val cache = new MavenCache("JPL Resolve", new File(dir))
+            Seq(resolvers += cache)
+          }
+          else {
+            // TODO: cleanup
+            //sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+            Seq.empty
+          }
+        case (None, Some(url)) =>
+          val repo = new MavenRepository("JPL Resolve", url)
+          Seq(resolvers += repo)
+        case _ =>
+          // TODO: cleanup
+          //sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or" +
+          //          "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where" +
+          //          "<dir> is a local Maven repository directory or" +
+          //          "<url> is a remote Maven repository URL")
+          Seq.empty
+      }) ++
+      (Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
+        case Some(file) =>
+          val config = ConfigFactory.parseFile(new File(file))
+          val profileName = config.getString("staging.profileName")
+          Seq(
+            SonatypeKeys.sonatypeCredentialHost := config.getString("staging.credentialHost"),
+            SonatypeKeys.sonatypeRepository := config.getString("staging.repositoryService"),
+            SonatypeKeys.sonatypeProfileName := profileName,
+            SonatypeKeys.sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
+              profileId=config.getString("staging.profileId"),
+              profileName=profileName,
+              stagingType="open",
+              repositoryId=config.getString("staging.repositoryId"),
+              description=config.getString("staging.description")),
+            publishTo := Some(new MavenRepository(profileName, config.getString("staging.publishTo")))
+          )
+        case None =>
+          (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
+            Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
+            case (Some(dir), _) =>
+              if ((new File(dir) / "settings.xml").exists) {
+                val cache = new MavenCache("JPL Publish", new File(dir))
+                Seq(publishTo := Some(cache))
+              }
+              else {
+                // TODO: cleanup
+                // sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
+                Seq.empty
+              }
+            case (None, Some(url)) =>
+              val repo = new MavenRepository("JPL Publish", url)
+              Seq(publishTo := Some(repo))
+            case _ =>
+              // TODO: cleanup
+              //sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or" +
+              //  "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where" +
+              //  "<dir> is a local Maven repository directory or" +
+              //  "<url> is a remote Maven repository URL")
+              Seq.empty
+          }) ++
+            (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
+              case Some(address) =>
+                Seq(
+                  SonatypeKeys.sonatypeCredentialHost := address,
+                  SonatypeKeys.sonatypeRepository := s"https://$address/nexus/service/local"
+                )
+              case None =>
+                Seq()
+            })
+      })
+
 
   lazy val checkUncommittedChanges: ReleaseStep = { st: State =>
     val extracted = Project.extract(st)

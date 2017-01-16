@@ -22,12 +22,13 @@ import com.typesafe.sbt.{GitBranchPrompt, GitVersioning}
 import sbt.Keys._
 import sbt._
 
+import scala.util.matching.Regex
 import scala.xml.NodeSeq
 
 
 trait IMCEGitPlugin extends AutoPlugin {
 
-  val VersionRegex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r
+  val VersionRegex: Regex = "v([0-9]+.[0-9]+.[0-9]+)-?(.*)?".r
 
   def gitVersioningBuildSettings: Seq[Setting[_]] =
     Seq(
@@ -78,7 +79,8 @@ trait IMCEGitPlugin extends AutoPlugin {
           </git.commit>
       } ++ {git.gitCurrentTags.value.map(tag => <git.tag>{tag}</git.tag> )},
 
-      pomPostProcess <<= IMCEKeys.additionalProperties { (additions) =>
+      pomPostProcess := {
+        val additions = IMCEKeys.additionalProperties.value
         new xml.transform.RuleTransformer(new xml.transform.RewriteRule {
           override def transform(n: xml.Node): Seq[xml.Node] =
             n match {
@@ -95,15 +97,17 @@ trait IMCEGitPlugin extends AutoPlugin {
 
 object IMCEGitPlugin extends IMCEGitPlugin {
 
-  override def trigger = noTrigger
+  override def trigger: PluginTrigger = noTrigger
 
-  override def requires = IMCEPlugin && GitVersioning && GitBranchPrompt
+  override def requires: Plugins = IMCEPlugin && GitVersioning && GitBranchPrompt
 
-  override def buildSettings: Seq[Setting[_]] =
-    gitVersioningBuildSettings ++
+  override def buildSettings
+  : Seq[Setting[_]]
+  = gitVersioningBuildSettings ++
       GitVersioning.buildSettings
 
-  override def projectSettings: Seq[Setting[_]] =
-    gitVersioningProjectSettings
+  override def projectSettings
+  : Seq[Setting[_]]
+  = gitVersioningProjectSettings
 
 }

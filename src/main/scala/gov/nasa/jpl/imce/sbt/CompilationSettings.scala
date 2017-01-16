@@ -41,7 +41,7 @@ trait CompilationSettings {
       compileOnly in Aspectj := true,
 
       // add the compiled aspects as products
-      products in Compile <++= products in Aspectj
+      products in Compile ++= { (products in Aspectj).value }
     )
 
   }

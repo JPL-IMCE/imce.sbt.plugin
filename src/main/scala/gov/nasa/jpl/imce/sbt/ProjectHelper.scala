@@ -17,11 +17,13 @@
 
 package gov.nasa.jpl.imce.sbt
 
+import java.nio.file.Files
+
 import sbt._, Keys._
 import spray.json._, DefaultJsonProtocol._
 
+import scala.languageFeature.implicitConversions
 import scala.util.control.Exception._
-import java.nio.file.Files
 
 class ProjectHelper(val p: Project) extends AnyVal {
 
@@ -74,7 +76,7 @@ class ProjectHelper(val p: Project) extends AnyVal {
             p.dependsOn(pref % conf)
         }
         pdep.settings(
-          clean <<= clean dependsOn (clean in pref)
+          clean := clean.dependsOn(clean in pref).value
         )
     }
   }

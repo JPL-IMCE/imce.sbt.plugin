@@ -51,20 +51,18 @@ trait DocSettings {
     */
   def scalaDocSettings(diagrams:Boolean): Seq[Setting[_]] =
     Seq(
-      sources in (Compile,doc) <<= (git.gitUncommittedChanges, sources in (Compile,compile)) map {
-        (uncommitted, compileSources) =>
-          if (uncommitted)
-            Seq.empty
-          else
-            compileSources
+      sources in (Compile,doc) := {
+        if (git.gitUncommittedChanges.value)
+          Seq.empty
+        else
+          (sources in(Compile, compile)).value
       },
 
-      sources in (Test,doc) <<= (git.gitUncommittedChanges, sources in (Test,compile)) map {
-        (uncommitted, testSources) =>
-          if (uncommitted)
-            Seq.empty
-          else
-            testSources
+      sources in (Test,doc) := {
+        if (git.gitUncommittedChanges.value)
+          Seq.empty
+        else
+          (sources in (Test,compile)).value
       },
 
       scalacOptions in (Compile,doc) ++=
@@ -78,15 +76,15 @@ trait DocSettings {
             "-doc-root-content", baseDirectory.value + "/rootdoc.txt"
           ),
       autoAPIMappings := ! git.gitUncommittedChanges.value,
-      apiMappings <++=
-        ( git.gitUncommittedChanges,
-          dependencyClasspath in Compile in doc,
-          IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName,
-          IMCEKeys.pomRepositoryPathRegex,
-          streams ) map { (uncommitted, deps, repoURL2Name, repoPathRegex, s) =>
-          if (uncommitted)
+      apiMappings ++= {
+          if (git.gitUncommittedChanges.value)
             Map[File, URL]()
-          else
+          else {
+            val deps = (dependencyClasspath in Compile in doc).value
+            val repoURL2Name = IMCEKeys.nexusJavadocRepositoryRestAPIURL2RepositoryName.value
+            val repoPathRegex = IMCEKeys.pomRepositoryPathRegex.value
+            val s = streams.value
+
             (for {
               jar <- deps
               url <- jar.metadata.get(AttributeKey[ModuleID]("moduleId")).flatMap { moduleID =>
@@ -113,6 +111,7 @@ trait DocSettings {
                 urls.headOption
               }
             } yield jar.data -> url).toMap
+          }
         }
     )
 

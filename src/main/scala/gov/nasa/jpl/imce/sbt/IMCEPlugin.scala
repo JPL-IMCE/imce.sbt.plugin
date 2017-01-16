@@ -20,9 +20,8 @@ package gov.nasa.jpl.imce.sbt
 import java.io.File
 import java.util.{Calendar, Locale}
 
-import xerial.sbt.Sonatype
-import xerial.sbt.Sonatype.SonatypeKeys
 import com.typesafe.config._
+
 import sbt.Keys._
 import sbt._
 
@@ -35,7 +34,7 @@ object IMCEPlugin extends IMCEPlugin {
   override def trigger = allRequirements
 
   override def requires =
-    aether.AetherPlugin &&
+    aether.SignedAetherPlugin &&
     com.timushev.sbt.updates.UpdatesPlugin &&
     com.typesafe.sbt.packager.universal.UniversalPlugin &&
     sbtbuildinfo.BuildInfoPlugin
@@ -47,7 +46,6 @@ object IMCEPlugin extends IMCEPlugin {
     defaultProjectSettings ++
     defaultJdkSettings ++
     defaultProjectDirectoriesSettings ++
-    defaultProjectMavenSettings ++
     defaultDependencyGraphSettings
 
 }
@@ -131,109 +129,6 @@ trait IMCEPlugin
       unmanagedResourceDirectories in Compile ~= { _.filter(_.exists)},
       unmanagedResourceDirectories in Test ~= { _.filter(_.exists) }
     )
-
-  def defaultProjectMavenSettings: Seq[Setting[_]] =
-    aether.AetherPlugin.autoImport.overridePublishSettings ++
-    Seq(
-      // do not include all repositories in the POM
-      // (this is important for staging since artifacts published to a staging repository
-      //  can be promoted (i.e. published) to another repository)
-      pomAllRepositories := false,
-
-      // make sure no repositories show up in the POM file
-      pomIncludeRepository := { _ => false },
-
-      // include *.zip artifacts in the POM dependency section
-      makePomConfiguration :=
-        makePomConfiguration.value.copy(includeTypes = Set(Artifact.DefaultType, Artifact.PomType, "zip")),
-
-      // publish Maven POM metadata (instead of Ivy);
-      // this is important for the UpdatesPlugin's ability to find available updates.
-      publishMavenStyle := true,
-
-      // make aether publish all packaged artifacts
-      aether.AetherKeys.aetherArtifact <<=
-      (aether.AetherKeys.aetherCoordinates,
-        aether.AetherKeys.aetherPackageMain,
-        makePom in Compile,
-        packagedArtifacts in Compile) map {
-        (coords: aether.MavenCoordinates, mainArtifact: File, pom: File, artifacts: Map[Artifact, File]) =>
-          aether.AetherPlugin.createArtifact(artifacts, coords, mainArtifact)
-      }
-    ) ++
-    (( Option.apply(System.getProperty("JPL_LOCAL_RESOLVE_REPOSITORY")),
-      Option.apply(System.getProperty("JPL_REMOTE_RESOLVE_REPOSITORY")) ) match {
-      case (Some(dir), _) =>
-        if ((new File(dir) / "settings.xml").exists) {
-          val cache = new MavenCache("JPL Resolve", new File(dir))
-          Seq(resolvers += cache)
-        }
-        else {
-          // TODO: cleanup
-          //sys.error(s"The JPL_LOCAL_RESOLVE_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-          Seq.empty
-        }
-      case (None, Some(url)) =>
-        val repo = new MavenRepository("JPL Resolve", url)
-        Seq(resolvers += repo)
-      case _ =>
-        // TODO: cleanup
-        //sys.error("Set either -DJPL_LOCAL_RESOLVE_REPOSITORY=<dir> or" +
-        //          "-DJPL_REMOTE_RESOLVE_REPOSITORY=<url> where" +
-        //          "<dir> is a local Maven repository directory or" +
-        //          "<url> is a remote Maven repository URL")
-        Seq.empty
-    }) ++
-    (Option.apply(System.getProperty("JPL_STAGING_CONF_FILE")) match {
-      case Some(file) =>
-        val config = ConfigFactory.parseFile(new File(file))
-        val profileName = config.getString("staging.profileName")
-        Seq(
-          SonatypeKeys.sonatypeCredentialHost := config.getString("staging.credentialHost"),
-          SonatypeKeys.sonatypeRepository := config.getString("staging.repositoryService"),
-          SonatypeKeys.sonatypeProfileName := profileName,
-          SonatypeKeys.sonatypeStagingRepositoryProfile := Sonatype.StagingRepositoryProfile(
-            profileId=config.getString("staging.profileId"),
-            profileName=profileName,
-            stagingType="open",
-            repositoryId=config.getString("staging.repositoryId"),
-            description=config.getString("staging.description")),
-          publishTo := Some(new MavenRepository(profileName, config.getString("staging.publishTo")))
-        )
-      case None =>
-        (( Option.apply(System.getProperty("JPL_LOCAL_PUBLISH_REPOSITORY")),
-          Option.apply(System.getProperty("JPL_REMOTE_PUBLISH_REPOSITORY")) ) match {
-          case (Some(dir), _) =>
-            if ((new File(dir) / "settings.xml").exists) {
-              val cache = new MavenCache("JPL Publish", new File(dir))
-              Seq(publishTo := Some(cache))
-            }
-            else {
-              // TODO: cleanup
-              // sys.error(s"The JPL_LOCAL_PUBLISH_REPOSITORY folder, '$dir', does not have a 'settings.xml' file.")
-              Seq.empty
-            }
-          case (None, Some(url)) =>
-            val repo = new MavenRepository("JPL Publish", url)
-            Seq(publishTo := Some(repo))
-          case _ =>
-            // TODO: cleanup
-            //sys.error("Set either -DJPL_LOCAL_PUBLISH_REPOSITORY=<dir> or" +
-            //  "-DJPL_REMOTE_PUBLISH_REPOSITORY=<url> where" +
-            //  "<dir> is a local Maven repository directory or" +
-            //  "<url> is a remote Maven repository URL")
-            Seq.empty
-        }) ++
-        (Option.apply(System.getProperty("JPL_NEXUS_REPOSITORY_HOST")) match {
-          case Some(address) =>
-            Seq(
-              SonatypeKeys.sonatypeCredentialHost := address,
-              SonatypeKeys.sonatypeRepository := s"https://$address/nexus/service/local"
-            )
-          case None =>
-            Seq()
-        })
-    })
 
 
 }

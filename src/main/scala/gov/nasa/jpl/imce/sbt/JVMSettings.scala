@@ -31,8 +31,8 @@ trait JVMSettings {
       IMCEKeys.jdk17 := getJRERuntimeLib(IMCEKeys.sbtConfig.value, "jdk_locations.1.7"),
       IMCEKeys.jdk16 := getJRERuntimeLib(IMCEKeys.sbtConfig.value, "jdk_locations.1.6"),
 
-      scalacOptions in (Compile, compile) <++= getScalacOptionsForJDKIfAvailable(IMCEKeys.targetJDK),
-      javacOptions in (Compile, compile) <++= getJavacOptionsForJDKIfAvailable(IMCEKeys.targetJDK)
+      scalacOptions in (Compile, compile) ++= getScalacOptionsForJDKIfAvailable(IMCEKeys.targetJDK).value,
+      javacOptions in (Compile, compile) ++= getJavacOptionsForJDKIfAvailable(IMCEKeys.targetJDK).value
     )
 
   /**
