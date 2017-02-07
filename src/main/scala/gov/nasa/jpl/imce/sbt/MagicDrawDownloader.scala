@@ -124,4 +124,95 @@ object MagicDrawDownloader {
 
   }
 
+  def fetchSysMLPlugin
+  (log: Logger,
+   showDownloadProgress: Boolean,
+   up: UpdateReport,
+   credentials: Seq[Credentials],
+   mdInstallDir: File,
+   mdZip: File): Unit = {
+
+    val tfilter: DependencyFilter = new DependencyFilter {
+      def apply(c: String, m: ModuleID, a: Artifact): Boolean =
+        a.extension == "pom" &&
+          m.organization.startsWith("org.omg.tiwg.vendor.nomagic") &&
+          m.name.startsWith("com.nomagic.magicdraw.sysml.plugin")
+    }
+
+    up
+      .matching(tfilter)
+      .headOption
+      .fold[Unit](log.warn("No MagicDraw SysML Plugin POM artifact found!")) {
+      pom =>
+        // Use unzipURL to download & extract
+        //val files = IO.unzip(zip, mdInstallDir)
+        val mdSysMLPluginZipDownloadURL = new URL(((XML.load(pom.absolutePath) \\ "properties") \ "md.core").text)
+
+        log.info(
+          s"=> found: ${pom.getName} at $mdSysMLPluginZipDownloadURL")
+
+        // Get the credentials based on host
+        credentials
+          .flatMap {
+            case dc: DirectCredentials if dc.host == mdSysMLPluginZipDownloadURL.getHost =>
+              Some(dc)
+            case _ =>
+              None
+          }
+          .headOption
+          .fold[Unit](log.error(s"=> failed to get credentials for downloading MagicDraw SysML plugin zip")) {
+          mdCredentials =>
+
+            // 1. If no credentials are found, attempt a connection without basic authorization
+            // 2. If username and password cannot be extracted (e.g., unsupported FileCredentials),
+            //    then throw error
+            // 3. If authorization wrong, ensure that SBT aborts
+
+            val connection = mdSysMLPluginZipDownloadURL.openConnection()
+
+            connection
+              .setRequestProperty(
+                "Authorization",
+                "Basic " + java.util.Base64.getEncoder.encodeToString(
+                  (mdCredentials.userName + ":" + mdCredentials.passwd)
+                    .getBytes(StandardCharsets.UTF_8))
+              )
+
+            // Download the file into /target
+            val size = connection.getContentLengthLong
+            val input = connection.getInputStream
+            val output = new FileOutputStream(mdZip)
+
+            log.info(s"=> Downloading $size bytes (= ${size / 1024 / 1024} MB)...")
+
+            val bytes = new Array[Byte](1024 * 1024)
+            var totalBytes: Double = 0
+            Iterator
+              .continually(input.read(bytes))
+              .takeWhile(-1 != _)
+              .foreach { read =>
+                totalBytes += read
+                output.write(bytes, 0, read)
+
+                if (showDownloadProgress) {
+                  Console.printf(
+                    "    %.2f MB / %.2f MB (%.1f%%)\r",
+                    totalBytes / 1024 / 1024,
+                    size * 1.0 / 1024.0 / 1024.0,
+                    (totalBytes / size) * 100)
+                }
+              }
+
+            output.close()
+
+            // Use unzipURL to download & extract
+            val files = IO.unzip(mdZip, mdInstallDir)
+            log.info(
+              s"=> copied SysML plugin into md.install.dir=$mdInstallDir with ${files.size} " +
+                s"files extracted from zip located at: $mdSysMLPluginZipDownloadURL")
+        }
+    }
+
+  }
+
 }

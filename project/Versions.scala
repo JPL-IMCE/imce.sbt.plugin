@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "4.18."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "4.19."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
   // https://github.com/sbt/sbt-header
   val sbt_license_header = "1.6.0"
