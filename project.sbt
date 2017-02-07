@@ -25,4 +25,9 @@ developers := List(
     id="NicolasRouquette",
     name="Nicolas F. Rouquette",
     email="nicolas.f.rouquette@jpl.nasa.gov",
-    url=url("https://github.com/NicolasRouquette")))
+    url=url("https://github.com/NicolasRouquette")),
+  Developer(
+    id="SebastianHerzig",
+    name="Sebastian J. Herzig",
+    email="sebastian.j.herzig@jpl.nasa.gov",
+    url=url("https://github.com/sjiherzig")))
