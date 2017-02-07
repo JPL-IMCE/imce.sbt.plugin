@@ -207,9 +207,15 @@ object MagicDrawDownloader {
 
             // Use unzipURL to download & extract
             val files = IO.unzip(mdZip, mdInstallDir)
+            val pluginFiles = files
+              .filter(
+                f => f.isFile && f.getName.endsWith("zip"))
+              .flatMap(
+                f => IO.unzip(f, mdInstallDir))
+
             log.info(
               s"=> copied SysML plugin into md.install.dir=$mdInstallDir with ${files.size} " +
-                s"files extracted from zip located at: $mdSysMLPluginZipDownloadURL")
+                s"files extracted from zip (containing ${pluginFiles.size}) located at: $mdSysMLPluginZipDownloadURL")
         }
     }
 
