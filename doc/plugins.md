@@ -21,6 +21,3 @@
 [sbt-aspectj](ttps://github.com/sbt/sbt-aspectj)
 
 [sbt-scapegoat](https://github.com/sksamuel/sbt-scapegoat)
-
-[sbt-wartremover](https://github.com/puffnfresh/wartremover)
-

@@ -70,12 +70,8 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % Versions.sbt_aspectj)
 // https://github.com/sksamuel/sbt-scapegoat
 addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % Versions.sbt_scapegoat)
 
-// https://github.com/puffnfresh/wartremover
-addSbtPlugin("org.wartremover" %% "sbt-wartremover" % Versions.sbt_wartremover)
-
 // https://github.com/sbt/sbt-buildinfo
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % Versions.sbt_buildinfo)
-
 
 // https://github.com/spray/spray-json
 libraryDependencies += "io.spray" %%  "spray-json" % Versions.spray_json
@@ -85,7 +81,6 @@ libraryDependencies += "com.typesafe" % "config" % Versions.config
 
 // https://github.com/pathikrit/better-files
 libraryDependencies += "com.github.pathikrit" %% "better-files" % Versions.better_files
-
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % Versions.scalajs)
 
