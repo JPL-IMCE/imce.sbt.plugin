@@ -50,11 +50,6 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % Versions.sbt_dependen
 // https://github.com/sbt/sbt-ghpages
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % Versions.sbt_ghpages)
 
-// https://github.com/sbt/sbt-release
-addSbtPlugin("com.github.gseitz" % "sbt-release" % Versions.sbt_release)
-
-
-
 // https://github.com/scoverage/sbt-scoverage
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % Versions.sbt_scoverage)
 

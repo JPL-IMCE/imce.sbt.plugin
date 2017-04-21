@@ -93,6 +93,13 @@ trait IMCEPlugin
    */
   def defaultProjectSettings: Seq[Setting[_]] =
     Seq(
+      buildUTCDate in Global := {
+        import java.util.{ Date, TimeZone }
+        val formatter = new java.text.SimpleDateFormat("yyyy-MM-dd-HH:mm")
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"))
+        formatter.format(new Date)
+      },
+
       IMCEKeys.sbtConfig := {
 
         // Default Classpath configuration, i.e., application.{conf,json,properties}

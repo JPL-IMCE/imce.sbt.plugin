@@ -24,6 +24,8 @@ import scala.util.matching.Regex
 
 trait IMCEKeys {
 
+  lazy val buildUTCDate = settingKey[String]("build-utc-date", "The UDC Date of the build")
+
   lazy val sbtConfig = settingKey[Config]("SBT Config properties"+
     "(defaults to application.{conf,json,properties}, override with -Dconfig.file=<path>)")
 

@@ -9,19 +9,20 @@ resolvers += Resolver.url(
 addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.6.0")
 
 // https://github.com/sbt/sbt-git
-addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
+addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.9.0")
 
 // https://github.com/arktekk/sbt-aether-deploy
-addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.17")
+resolvers += Resolver.sonatypeRepo("releases")
+addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.18.2")
 
 // https://github.com/rtimush/sbt-updates
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.10")
 
-// http://www.scala-sbt.org/sbt-pgp/
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
+// https://github.com/sbt/sbt-pgp/releases
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.1")
 
 // https://github.com/sbt/sbt-site
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.1.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.2.0")
 
 // https://github.com/sbt/sbt-native-packager
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.1.1")
@@ -37,9 +38,6 @@ resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
 // https://github.com/sbt/sbt-ghpages
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")
-
-// https://github.com/sbt/sbt-release
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.3")
 
 // https://github.com/spray/spray-json
 resolvers += "repo.spray.io" at "http://repo.spray.io/"

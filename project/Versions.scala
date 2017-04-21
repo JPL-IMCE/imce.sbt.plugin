@@ -2,7 +2,7 @@
 object Versions {
 
   // this project's version
-  val version = "4.21."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
+  val version = "4.22."+Option.apply(System.getenv("TRAVIS_BUILD_NUMBER")).getOrElse("0")
 
   // https://github.com/sbt/sbt-header
   val sbt_license_header = "1.8.0"
@@ -11,13 +11,13 @@ object Versions {
   val sbt_git = "0.9.0"
 
   // https://github.com/arktekk/sbt-aether-deploy
-  val aether_deploy = "0.18.1"
+  val aether_deploy = "0.18.2"
 
   // https://github.com/rtimush/sbt-updates
   val sbt_updates = "0.3.0"
 
-  // http://www.scala-sbt.org/sbt-pgp/
-  val sbt_pgp = "1.0.0"
+  // https://github.com/sbt/sbt-pgp/releases
+  val sbt_pgp = "1.0.1"
 
   // https://github.com/sbt/sbt-site
   val sbt_site = "1.2.0"
@@ -33,9 +33,6 @@ object Versions {
 
   // https://github.com/sbt/sbt-ghpages
   val sbt_ghpages = "0.6.0"
-
-  // https://github.com/sbt/sbt-release
-  val sbt_release = "1.0.4"
 
   // https://github.com/spray/spray-json
   val spray_json = "1.3.3"
