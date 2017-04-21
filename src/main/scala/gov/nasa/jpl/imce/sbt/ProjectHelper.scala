@@ -22,7 +22,7 @@ import java.nio.file.Files
 import sbt._, Keys._
 import spray.json._, DefaultJsonProtocol._
 
-import scala.languageFeature.implicitConversions
+import scala.language.implicitConversions
 import scala.util.control.Exception._
 
 class ProjectHelper(val p: Project) extends AnyVal {

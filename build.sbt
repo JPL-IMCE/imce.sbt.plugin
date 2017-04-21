@@ -90,3 +90,5 @@ enablePlugins(GitVersioning)
 enablePlugins(GitBranchPrompt)
 
 overridePublishSignedBothSettings
+
+scalacOptions := Seq("-feature")
