@@ -29,19 +29,22 @@ trait CompilationSettings {
     */
   def aspectJSettings: Seq[Setting[_]] = {
 
-    import com.typesafe.sbt.SbtAspectj.AspectjKeys._
-    import com.typesafe.sbt.SbtAspectj._
+    import com.lightbend.sbt.AspectjKeys._
+    import com.lightbend.sbt.SbtAspectj._
+
+    // It is odd that SbtAspectj hides this configuration!
+    val Aspectj = config("aspectj").hide
 
     aspectjSettings ++
     debugSymbolsSettings ++
     Seq(
-      extraAspectjOptions in Aspectj := Seq("-g"),
+      scalacOptions in Aspectj := Seq("-g"),
 
       // only compile the aspects (no weaving)
-      compileOnly in Aspectj := true,
+      aspectjCompileOnly in Aspectj := true,
 
       // add the compiled aspects as products
-      products in Compile ++= { (products in Aspectj).value }
+      products in Compile ++= (products in Aspectj).value
     )
 
   }

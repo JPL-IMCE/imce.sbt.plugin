@@ -4,7 +4,7 @@ enablePlugins(PreprocessPlugin)
 
 enablePlugins(SiteScaladocPlugin)
 
-import com.typesafe.sbt.SbtGhPages._
+enablePlugins(GhpagesPlugin)
 
 preprocessVars in Preprocess := Map(
   "CONTRIBUTORS" -> {
@@ -34,8 +34,6 @@ preprocessVars in Preprocess := Map(
 )
 
 target in preprocess := (target in makeSite).value
-
-ghpages.settings
 
 makeSite := makeSite.dependsOn(dumpLicenseReport).value
 

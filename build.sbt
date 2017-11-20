@@ -53,14 +53,11 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % Versions.sbt_ghpages)
 // https://github.com/scoverage/sbt-scoverage
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % Versions.sbt_scoverage)
 
-// https://github.com/jrudolph/sbt-optimizer
-addSbtPlugin("net.virtual-void" % "sbt-optimizer" % Versions.sbt_optimizer)
-
 // https://github.com/xerial/sbt-pack
 addSbtPlugin("org.xerial.sbt" % "sbt-pack" % Versions.sbt_pack)
 
 // https://github.com/sbt/sbt-aspectj
-addSbtPlugin("com.typesafe.sbt" % "sbt-aspectj" % Versions.sbt_aspectj)
+addSbtPlugin("com.lightbend.sbt" % "sbt-aspectj" % Versions.sbt_aspectj)
 
 // https://github.com/sksamuel/sbt-scapegoat
 addSbtPlugin("com.sksamuel.scapegoat" %% "sbt-scapegoat" % Versions.sbt_scapegoat)

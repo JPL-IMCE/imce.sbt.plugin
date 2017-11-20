@@ -6,7 +6,7 @@ resolvers += Resolver.url(
   url("http://dl.bintray.com/banno/oss"))(Resolver.ivyStylePatterns)
 
 // https://github.com/sbt/sbt-header
-addSbtPlugin("de.heikoseeberger" % "sbt-header" % "1.6.0")
+addSbtPlugin("de.heikoseeberger" % "sbt-header" % "3.0.1")
 
 // https://github.com/sbt/sbt-git
 addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.9.0")
@@ -37,15 +37,14 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
 
 // https://github.com/sbt/sbt-ghpages
-addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.2")
 
 // https://github.com/spray/spray-json
 resolvers += "repo.spray.io" at "http://repo.spray.io/"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
 
 // https://github.com/typesafehub/config
-libraryDependencies += "com.typesafe" % "config" % "1.3.0"
-
+libraryDependencies += "com.typesafe" % "config" % "1.3.2"
 
 // https://github.com/Banno/sbt-license-plugin
 addSbtPlugin("com.banno" % "sbt-license-plugin" %"0.1.5")
