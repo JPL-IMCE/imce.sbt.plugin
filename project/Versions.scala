@@ -23,7 +23,7 @@ object Versions {
   val sbt_site = "1.2.0"
 
   // https://github.com/sbt/sbt-native-packager
-  val sbt_native_packager = "1.1.5"
+  val sbt_native_packager = "1.3.2"
 
   // https://github.com/sbt/sbt-license-report
   val sbt_license_report = "1.2.0"
