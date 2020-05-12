@@ -13,7 +13,7 @@ before_cache:
   - find $HOME/.sbt -name "*.lock" -delete
 
 jdk:
-- oraclejdk8
+- openjdk8
 
 language: scala
 scala:
