@@ -13,7 +13,7 @@ before_cache:
   - find $HOME/.sbt -name "*.lock" -delete
 
 jdk:
-- oraclejdk8
+- openjdk8
 
 language: scala
 scala:
@@ -31,4 +31,4 @@ before_install:
 - git config --global user.name "Travis CI"
 
 script:
-- if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned ghpagesPushSite; fi
+- if [ "x$TRAVIS_TAG" = "x" ]; then sbt -jvm-opts travis/jvmopts.compile signedArtifacts; else sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned; fi
